@@ -10,6 +10,9 @@
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
+# Manifest files
+MANIFEST.mf
+
 # Package Files #
 *.jar
 *.war
