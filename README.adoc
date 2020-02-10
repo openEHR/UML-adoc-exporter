@@ -1,0 +1,22 @@
+= UML-adoc-exporter
+
+UML AsciiDoctor `.adoc` format class and diagram exporter for MagicDraw UML tool.
+
+== Setup
+
+The repo is currently set up as an IntelliJ project. Steps to performing a build:
+
+* Clone the repo, e.g. into `openEHR/UML-adoc-exporter`
+* open `/UmlAdocExporter.ipr` in IntelliJ
+* Performing a build will generate the file `/out/artifacts/UmlAdocExporter_jar/UmlAdocExporter.jar`.
+
+This jar is designed as a plugin for Magicdraw, as https://docs.nomagic.com/display/MD190/Plugins[described here].
+
+== Installation of the plugin
+
+The plugin (`UmlAdocExporter.jar`) and also the file `/UmlAdocExporter/plugin.xml` need to be copied to the location `<MagicDraw-install>/plugins/org.openehr.adoc.magicdraw`.
+
+== Running the plugin
+
+The plugin is used by the openEHR publishing toolchain in batch mode. Specifically, https://github.com/openEHR/specifications-AA_GLOBAL/blob/master/bin/uml_generate.sh[the script uml_generate.sh] is invoked by the script https://github.com/openEHR/specifications-AA_GLOBAL/blob/master/bin/do_spec_publish.sh[do_spec_publish.sh], run from the top `openEHR-specifications` directory, as https://github.com/openEHR/specifications-AA_GLOBAL[described here].
+
