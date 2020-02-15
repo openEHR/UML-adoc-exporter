@@ -13,8 +13,11 @@
 # Manifest files
 MANIFEST.mf
 
+# Package Output Directory #
+out/
+
 # Package Files #
-*.jar
+#*.jar
 *.war
 *.nar
 *.ear

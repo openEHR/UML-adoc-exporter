@@ -1,0 +1,3 @@
+= MagicDraw Plugin files
+
+Copy the files `plugin.xml` and `UmlAdocExporter.jar` from this directory to `<MagicDraw-install-home>/plugins/org.openehr.adoc.magicdraw`.

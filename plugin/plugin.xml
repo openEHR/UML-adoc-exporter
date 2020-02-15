@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+	id="org.openehr.adoc.magicdraw"
+	signature="UML AsciiDoctor Exporter"
+	version="1.0"
+	provider-signature="openEHR"
+	class="org.openehr.adoc.magicdraw.UmlAdocExporterPlugin">
+
+	<requires>
+	   <api version="1.0"/>
+	</requires>
+
+	<runtime>
+	   <library signature="UmlAdocExporter.jar"/>
+	</runtime>
+</plugin>

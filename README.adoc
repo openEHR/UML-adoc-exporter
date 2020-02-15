@@ -2,21 +2,27 @@
 
 UML AsciiDoctor `.adoc` format class and diagram exporter for MagicDraw UML tool.
 
-== Setup
+== Installation of the plugin
 
-The repo is currently set up as an IntelliJ project. Steps to performing a build:
+If you just want to install the plugin to MagicDraw, the two files `UmlAdocExporter.jar` and `plugin.xml` need to be copied from `/plugin` to the location `<MagicDraw-install>/plugins/org.openehr.adoc.magicdraw`.
+
+== Running the plugin
+
+The plugin is used by the openEHR publishing toolchain in batch mode. Specifically, https://github.com/openEHR/specifications-AA_GLOBAL/blob/master/bin/uml_generate.sh[the script uml_generate.sh] is invoked by the script https://github.com/openEHR/specifications-AA_GLOBAL/blob/master/bin/do_spec_publish.sh[do_spec_publish.sh], run from the top `openEHR-specifications` directory, as https://github.com/openEHR/specifications-AA_GLOBAL[described here].
+
+== Building
+
+The repo is currently set up as an IntelliJ project thatbuilds a .jar that works as a plugin for Magicdraw, as https://docs.nomagic.com/display/MD190/Plugins[described here].
+
+Steps to performing a build:
 
 * Clone the repo, e.g. into `openEHR/UML-adoc-exporter`
 * open `/UmlAdocExporter.ipr` in IntelliJ
 * Performing a build will generate the file `/out/artifacts/UmlAdocExporter_jar/UmlAdocExporter.jar`.
 
-This jar is designed as a plugin for Magicdraw, as https://docs.nomagic.com/display/MD190/Plugins[described here].
+If you make changes, the latest build should be copied to `/plugin` in this repo, for easy access by users without doing a build. Additionally, if you make changes to the file `UmlAdocExporter/plugin.xml`, also copy this file to `/plugin`.
 
-== Installation of the plugin
+== Acknowledgements
 
-The plugin (`UmlAdocExporter.jar`) and also the file `/UmlAdocExporter/plugin.xml` need to be copied to the location `<MagicDraw-install>/plugins/org.openehr.adoc.magicdraw`.
-
-== Running the plugin
-
-The plugin is used by the openEHR publishing toolchain in batch mode. Specifically, https://github.com/openEHR/specifications-AA_GLOBAL/blob/master/bin/uml_generate.sh[the script uml_generate.sh] is invoked by the script https://github.com/openEHR/specifications-AA_GLOBAL/blob/master/bin/do_spec_publish.sh[do_spec_publish.sh], run from the top `openEHR-specifications` directory, as https://github.com/openEHR/specifications-AA_GLOBAL[described here].
+The original version of the extractor was created by Boštjan Lah at Better.care; subsequent updates done by Thomas Beale at Ars Semantica.
 
