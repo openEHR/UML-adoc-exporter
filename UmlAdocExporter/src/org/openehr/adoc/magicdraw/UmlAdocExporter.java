@@ -2,6 +2,7 @@ package org.openehr.adoc.magicdraw;
 
 import com.nomagic.magicdraw.core.Project;
 import com.nomagic.magicdraw.export.image.ImageExporter;
+import com.nomagic.magicdraw.uml.Finder;
 import com.nomagic.magicdraw.uml.symbols.DiagramPresentationElement;
 import com.nomagic.uml2.ext.jmi.helpers.ModelHelper;
 import com.nomagic.uml2.ext.magicdraw.classes.mdinterfaces.Interface;
@@ -35,10 +36,11 @@ public class UmlAdocExporter {
     private final Formatter formatter = new AsciidocFormatter();
     private final String headingPrefix;
     private final Set<String> rootPackageNames;
+    private final Map<String, Integer> imageFormats;
 
     private final String indexRelease;
 
-    public UmlAdocExporter(int headingLevel, Set<String> rootPackageNames, String indexRelease) {
+    public UmlAdocExporter(int headingLevel, Set<String> rootPackageNames, String indexRelease, Map<String, Integer> imageFormats) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < headingLevel; i++) {
             builder.append('=');
@@ -46,6 +48,7 @@ public class UmlAdocExporter {
         headingPrefix = builder.toString();
         this.rootPackageNames = rootPackageNames;
         this.indexRelease = indexRelease;
+        this.imageFormats = imageFormats;
     }
 
     /**
@@ -62,13 +65,19 @@ public class UmlAdocExporter {
             }
         }
 
+        // Get a Finder object
+        Finder.ByTypeRecursivelyFinder umlElementsFinder = Finder.byTypeRecursively();
+
         // Gather UML classes, enumerations and interfaces, run through a pipeline that does:
         // * cast to an MD class object
         // * retain only classes within the root package(s) specified on the command line
         // * convert to ClassInfo objects (local representation used here)
         // Then export each ClassInfo object as an output file
         ClassInfoBuilder classInfoBuilder = new ClassInfoBuilder(formatter);
-        Collection<? extends Element> umlClasses = ModelHelper.getElementsOfType(project.getPrimaryModel(),
+
+        // -------- get the UML model classes -------
+        Collection<? extends Element> umlClasses = umlElementsFinder.find(
+                project.getPrimaryModel(),
                 new Class[]{com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Class.class},
                 true);
         List<ClassInfo> classes = umlClasses.stream()
@@ -79,7 +88,9 @@ public class UmlAdocExporter {
                 .collect(Collectors.toList());
         classes.forEach(cl -> exportClass(cl, classesFolder));
 
-        Collection<? extends Element> umlInterfaces = ModelHelper.getElementsOfType(project.getPrimaryModel(),
+        // -------- get the UML model interfaces -------
+        Collection<? extends Element> umlInterfaces = umlElementsFinder.find(
+                project.getPrimaryModel(),
                 new Class[]{Interface.class},
                 true);
         InterfaceInfoBuilder interfaceInfoBuilder = new InterfaceInfoBuilder(formatter);
@@ -91,7 +102,9 @@ public class UmlAdocExporter {
                 .collect(Collectors.toList());
         interfaces.forEach(cl -> exportClass(cl, classesFolder));
 
-        Collection<? extends Element> umlEnumerations = ModelHelper.getElementsOfType(project.getPrimaryModel(),
+        // -------- get the UML model enumerations -------
+        Collection<? extends Element> umlEnumerations = umlElementsFinder.find(
+                project.getPrimaryModel(),
                 new Class[]{Enumeration.class},
                 true);
 
@@ -103,9 +116,12 @@ public class UmlAdocExporter {
                 .collect(Collectors.toList());
         enumerations.forEach(en -> exportClass(en, classesFolder));
 
-     //   Collection<? extends Element> umlStateMachines = ModelHelper.getElementsOfType(project.getPrimaryModel(),
-     //           new Class[]{StateMachine.class},
-     //           true);
+        // -------- get the UML model state machines -------
+//        Collection<? extends Element> umlStateMachines = umlElementsFinder.find(
+//                project.getPrimaryModel(),
+//                new Class[]{com.nomagic.uml2.ext.magicdraw.classes.mdkernel.???},
+//                true);
+
 
         // Generate the index file
         if (indexRelease != null) {
@@ -138,17 +154,24 @@ public class UmlAdocExporter {
     /**
      * Export a UML diagram in PNG and SVG format to the export folder.
      * @param outputFolder target folder on file system.
-     * @param diagramPresentationElement UML diagram representation.
+     * @param diag UML diagram representation.
      */
-    private void exportDiagram(File outputFolder, DiagramPresentationElement diagramPresentationElement) {
-        String name = diagramPresentationElement.getName();
+    private void exportDiagram(File outputFolder, DiagramPresentationElement diag) {
+        // iterate over image formats
+        imageFormats.forEach((k,v)->doExportDiagram(k, v, outputFolder, diag));
+    }
+
+    private void doExportDiagram(String formatName, Integer formatCode, File outputFolder, DiagramPresentationElement diag) {
+        String name = diag.getName();
         try {
-            ImageExporter.export(diagramPresentationElement, 1, new File(outputFolder, formatDiagramName(name) + ".png"));
-            ImageExporter.export(diagramPresentationElement, 5, new File(outputFolder, formatDiagramName(name) + ".svg"));
-        } catch (IOException e) {
+            // iterate over image formats
+            ImageExporter.export(diag, formatCode, new File(outputFolder, formatDiagramName(name) + "." + formatName));
+        }
+        catch (IOException e) {
             throw new UmlAdocExporterException("Unable to export diagrams for " + name + '!', e);
         }
     }
+
 
     /**
      * Export a class as an Asciidoctor (.adoc) file to the output folder on the file system.

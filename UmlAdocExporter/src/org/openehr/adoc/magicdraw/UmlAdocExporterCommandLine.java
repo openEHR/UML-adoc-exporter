@@ -6,18 +6,19 @@ import com.nomagic.magicdraw.core.Project;
 import com.nomagic.magicdraw.core.project.ProjectDescriptor;
 import com.nomagic.magicdraw.core.project.ProjectDescriptorsFactory;
 import com.nomagic.magicdraw.core.project.ProjectsManager;
+import com.nomagic.magicdraw.export.image.ImageExporter;
 import org.openehr.adoc.magicdraw.exception.UmlAdocExporterException;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.lang.String.join;
 
 /**
  * @author Bostjan Lah
@@ -27,6 +28,17 @@ public class UmlAdocExporterCommandLine extends CommandLine {
     private int headingLevel;
     private final Set<String> rootPackageName = new HashSet<>();
     private String indexRelease;
+
+    // If not set, output PNG and SVG; else must be set to either "svg" or "png"
+    private String imageFormat;
+
+    private Map<String, Integer> defaultImageFormats = Stream.of(new Object[][] {
+            { "svg", ImageExporter.SVG },
+            { "png", ImageExporter.PNG }
+    }).collect(Collectors.toMap(data -> (String) data[0], data -> (Integer) data[1]));
+
+    private Map<String, Integer> imageFormats;
+
     private File projectFile;
     private File outFolder;
     private boolean helpOnly;
@@ -41,7 +53,7 @@ public class UmlAdocExporterCommandLine extends CommandLine {
         projectsManager.loadProject(projectDescriptor, true);
         Project project = projectsManager.getActiveProject();
 
-        UmlAdocExporter exporter = new UmlAdocExporter(headingLevel, rootPackageName, indexRelease);
+        UmlAdocExporter exporter = new UmlAdocExporter(headingLevel, rootPackageName, indexRelease, imageFormats != null? imageFormats : defaultImageFormats);
         try {
             exporter.exportProject(outFolder, project);
             return (byte)0;
@@ -56,6 +68,18 @@ public class UmlAdocExporterCommandLine extends CommandLine {
         for (Iterator<String> iterator = Arrays.asList(cmdLineArgs).iterator(); iterator.hasNext(); ) {
             String arg = iterator.next();
             switch (arg) {
+                case "-d":
+                    String imageFormat = getParameterValue(iterator, "-d").toLowerCase();
+                    if (!defaultImageFormats.containsKey(imageFormat)) {
+                        throw new UmlAdocExporterException("Invalid argument for -d: " + imageFormat + " (expected one of " +
+                                join("|", defaultImageFormats.keySet()) + "!");
+                    }
+                    else {
+                        imageFormats = new HashMap<>();
+                        imageFormats.put(imageFormat, defaultImageFormats.get(imageFormat));
+                    }
+
+                    break;
                 case "-l":
                     String level = getParameterValue(iterator, "-l");
                     try {
@@ -81,6 +105,7 @@ public class UmlAdocExporterCommandLine extends CommandLine {
                 case "-?":
                 case "-h":
                     System.out.println("Usage: uml_generate [-o output_folder] [-l heading_level] [-r root_package_name] [-i index_release] <project file>");
+                    System.out.println("       -d: image format: " + join("|", defaultImageFormats.keySet()) + " (default = all)");
                     System.out.println("       -o: output folder (default = current folder)");
                     System.out.println("       -l: class headings level (default = 3)");
                     System.out.println("       -r: root package name to export (default = openehr)");

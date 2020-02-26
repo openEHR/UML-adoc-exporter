@@ -35,13 +35,14 @@ class UmlAdocExporterPluginAction extends MDAction {
             try {
                 Set<String> rootPackageNames = new HashSet<>();
                 rootPackageNames.add("openehr");
-                UmlAdocExporter exporter = new UmlAdocExporter(3, rootPackageNames, null);
+                UmlAdocExporter exporter = new UmlAdocExporter(3, rootPackageNames, null, null);
                 exporter.exportProject(outputFolder, Application.getInstance().getProject());
 
-                JOptionPane.showMessageDialog(MDDialogParentProvider.getProvider().getDialogParent(), "Export complete.", "Export",
+                JOptionPane.showMessageDialog(MDDialogParentProvider.getProvider().getDialogOwner(), "Export complete.", "Export",
                                               JOptionPane.INFORMATION_MESSAGE);
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(MDDialogParentProvider.getProvider().getDialogParent(), "Unable to export data: " + ex.getMessage());
+            }
+            catch (Exception ex) {
+                JOptionPane.showMessageDialog(MDDialogParentProvider.getProvider().getDialogOwner(), "Unable to export data: " + ex.getMessage());
             }
         }
     }
@@ -54,14 +55,14 @@ class UmlAdocExporterPluginAction extends MDAction {
         chooser.setAcceptAllFileFilterUsed(false);
 
         File chosen;
-        if (chooser.showDialog(MDDialogParentProvider.getProvider().getDialogParent(), "OK") == JFileChooser.APPROVE_OPTION) {
+        if (chooser.showDialog(MDDialogParentProvider.getProvider().getDialogOwner(), "OK") == JFileChooser.APPROVE_OPTION) {
             File selectedFile = chooser.getSelectedFile();
             chosen = !Files.exists(selectedFile.toPath()) && Files.exists(selectedFile.toPath().getParent())
                     ? selectedFile.toPath().getParent().toFile()
                     : selectedFile.toPath().toFile();
-        } else {
-            chosen = null;
         }
+        else
+            chosen = null;
 
         return chosen;
     }

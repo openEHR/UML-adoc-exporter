@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="48dfd104-3932-40fd-aae1-1c12a81f0f48" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/UmlAdocExporter.ipr" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter.ipr" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UmlAdocExporter.iws" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter.iws" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/UmlAdocExporter.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/UmlAdocExporter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/UmlAdocExporterCommandLine.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/UmlAdocExporterCommandLine.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/UmlAdocExporterPluginAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/UmlAdocExporterPluginAction.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,7 +29,7 @@
     <property name="project.structure.last.edited" value="Artifacts" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.298583" />
-    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+    <property name="settings.editor.selected.configurable" value="preferences.sourceCode.Java" />
   </component>
   <component name="RunManager" selected="Application.MagicDraw with all plugins" />
   <component name="SvnConfiguration">
@@ -43,6 +45,7 @@
       <workItem from="1581266560417" duration="4142000" />
       <workItem from="1581280401443" duration="769000" />
       <workItem from="1581336663590" duration="142000" />
+      <workItem from="1582742519814" duration="10490000" />
     </task>
     <servers />
   </component>
@@ -54,17 +57,23 @@
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
     <state x="590" y="214" width="800" height="684" key="#Configure_Path_Variables/70.27.1850.1053@70.27.1850.1053" timestamp="1581280450547" />
+    <state x="441" y="150" width="974" height="814" key="CommitChangelistDialog2" timestamp="1582745524433">
+      <screen x="0" y="27" width="1866" height="1053" />
+    </state>
+    <state x="441" y="150" width="974" height="814" key="CommitChangelistDialog2/0.27.1866.1053@0.27.1866.1053" timestamp="1582745524433" />
     <state x="768" y="317" width="424" height="491" key="FileChooserDialogImpl" timestamp="1581280440985">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
     <state x="768" y="317" width="424" height="491" key="FileChooserDialogImpl/70.27.1850.1053@70.27.1850.1053" timestamp="1581280440985" />
-    <state x="484" y="188" width="1022" height="737" key="SettingsEditor" timestamp="1581280476574">
-      <screen x="70" y="27" width="1850" height="1053" />
+    <state x="418" y="188" width="1022" height="737" key="SettingsEditor" timestamp="1582750840910">
+      <screen x="0" y="27" width="1866" height="1053" />
     </state>
+    <state x="418" y="188" key="SettingsEditor/0.27.1866.1053@0.27.1866.1053" timestamp="1582750840910" />
     <state x="484" y="188" width="1022" height="737" key="SettingsEditor/70.27.1850.1053@70.27.1850.1053" timestamp="1581280476574" />
-    <state x="651" y="380" key="com.intellij.ide.util.TipDialog" timestamp="1581336664364">
-      <screen x="70" y="27" width="1850" height="1053" />
+    <state x="586" y="380" key="com.intellij.ide.util.TipDialog" timestamp="1582742547118">
+      <screen x="0" y="27" width="1866" height="1053" />
     </state>
+    <state x="586" y="380" key="com.intellij.ide.util.TipDialog/0.27.1866.1053@0.27.1866.1053" timestamp="1582742547118" />
     <state x="651" y="380" key="com.intellij.ide.util.TipDialog/70.27.1850.1053@70.27.1850.1053" timestamp="1581336664364" />
   </component>
   <component name="masterDetails">
