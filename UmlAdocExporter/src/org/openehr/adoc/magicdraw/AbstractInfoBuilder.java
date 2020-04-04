@@ -165,9 +165,30 @@ public abstract class AbstractInfoBuilder<T> {
 
         // add '=' + default value, if defined
         ValueSpecification defaultValue = property.getDefaultValue();
-        if (defaultValue instanceof LiteralString) {
-            LiteralString value = (LiteralString)defaultValue;
-            typeInfo.append("{nbsp}={nbsp}").append(formatter.escapeLiteral(value.getValue()));
+        if (defaultValue != null) {
+            if (defaultValue instanceof LiteralString) {
+                LiteralString value = (LiteralString)defaultValue;
+                typeInfo.append("{nbsp}={nbsp}").append(formatter.escapeLiteral(value.getValue()));
+            }
+            else if (defaultValue instanceof LiteralInteger) {
+                LiteralInteger value = (LiteralInteger) defaultValue;
+                typeInfo.append("{nbsp}={nbsp}").append(value.getValue());
+            }
+            else if (defaultValue instanceof LiteralReal) {
+                LiteralReal value = (LiteralReal) defaultValue;
+                typeInfo.append("{nbsp}={nbsp}").append(value.getValue());
+            }
+            else if (defaultValue instanceof LiteralBoolean) {
+                LiteralBoolean value = (LiteralBoolean) defaultValue;
+                typeInfo.append("{nbsp}={nbsp}").append(value.isValue());
+            }
+            else {
+                // This case is not yet working; idea is to generate the symbol string
+                // for a constant whose 'value' is another property or constant
+                Expression expr = defaultValue.getExpression();
+                if (expr != null)
+                    typeInfo.append("{nbsp}={nbsp}").append(expr.getSymbol());
+            }
         }
 
         // If there is any type information, append it
