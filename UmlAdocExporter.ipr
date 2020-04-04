@@ -108,18 +108,11 @@
       <method />
     </configuration>
     <configuration default="false" name="MagicDraw with all plugins" type="Application" factoryName="Application">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <option name="MAIN_CLASS_NAME" value="com.nomagic.magicdraw.LaunchGateway" />
-      <option name="VM_PARAMETERS" value="-Xmx2000M -Xss1024K -XX:PermSize=60M -XX:MaxPermSize=200M -DLOCALCONFIG=true -Dmd.plugins.dir=${MAGIC_DRAW_INSTALL_DIRECTORY}/plugins;.. &quot;-javaagent:${MAGIC_DRAW_INSTALL_DIRECTORY}/openapi/ide/lib/com.nomagic.magicdraw.intellij.launcher.jar&quot; -jar &quot;${MAGIC_DRAW_INSTALL_DIRECTORY}/openapi/ide/lib/com.nomagic.magicdraw.intellij.launcher.jar&quot;" />
+      <module name="UmlAdocExporter" />
       <option name="PROGRAM_PARAMETERS" value="-verbose" />
-      <option name="WORKING_DIRECTORY" value="file://$MODULE_DIR$" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <module name="All Plugins" />
-      <envs />
+      <option name="VM_PARAMETERS" value="-Xmx2000M -Xss1024K -XX:PermSize=60M -XX:MaxPermSize=200M -DLOCALCONFIG=true -Dmd.plugins.dir=${MAGIC_DRAW_INSTALL_DIRECTORY}/plugins;.. &quot;-javaagent:${MAGIC_DRAW_INSTALL_DIRECTORY}/openapi/ide/lib/com.nomagic.magicdraw.intellij.launcher.jar&quot; -jar &quot;${MAGIC_DRAW_INSTALL_DIRECTORY}/openapi/ide/lib/com.nomagic.magicdraw.intellij.launcher.jar&quot;" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
       <RunnerSettings RunnerId="Debug">
         <option name="DEBUG_PORT" value="" />
         <option name="TRANSPORT" value="0" />
@@ -131,25 +124,22 @@
       <RunnerSettings RunnerId="Run" />
       <ConfigurationWrapper RunnerId="Debug" />
       <ConfigurationWrapper RunnerId="Run" />
-      <method />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
     </configuration>
     <configuration default="false" name="MyCommandline" type="Application" factoryName="Application">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <option name="MAIN_CLASS_NAME" value="com.nomagic.magicdraw.LaunchGateway" />
-      <option name="VM_PARAMETERS" value="-Xmx2000M -Xss1024K -XX:PermSize=60M -XX:MaxPermSize=200M -DLOCALCONFIG=true -Dcom.nomagic.magicdraw.launcher=mycommandline.MyCommandline &quot;-javaagent:${MAGIC_DRAW_INSTALL_DIRECTORY}/openapi/ide/lib/com.nomagic.magicdraw.intellij.launcher.jar&quot; -jar &quot;${MAGIC_DRAW_INSTALL_DIRECTORY}/openapi/ide/lib/com.nomagic.magicdraw.intellij.launcher.jar&quot;" />
+      <module name="UmlAdocExporter" />
       <option name="PROGRAM_PARAMETERS" value="-verbose" />
-      <option name="WORKING_DIRECTORY" value="file://$MODULE_DIR$" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <module name="My Commandline" />
-      <envs />
+      <option name="VM_PARAMETERS" value="-Xmx2000M -Xss1024K -XX:PermSize=60M -XX:MaxPermSize=200M -DLOCALCONFIG=true -Dcom.nomagic.magicdraw.launcher=mycommandline.MyCommandline &quot;-javaagent:${MAGIC_DRAW_INSTALL_DIRECTORY}/openapi/ide/lib/com.nomagic.magicdraw.intellij.launcher.jar&quot; -jar &quot;${MAGIC_DRAW_INSTALL_DIRECTORY}/openapi/ide/lib/com.nomagic.magicdraw.intellij.launcher.jar&quot;" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
       <RunnerSettings RunnerId="JProfiler">
         <option name="WINDOW" value="false" />
       </RunnerSettings>
-      <method />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
     </configuration>
     <configuration default="false" name="MyPlugin1Test" type="JUnit" factoryName="JUnit">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
