@@ -8,6 +8,8 @@ public interface Formatter {
 
     String monospace(String text);
 
+    String italic(String text);
+
     String italicMonospace(String text);
 
     String boldMonospace(String text);

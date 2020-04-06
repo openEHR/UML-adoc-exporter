@@ -2,10 +2,7 @@ package org.openehr.adoc.magicdraw;
 
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -14,6 +11,14 @@ import java.util.stream.Stream;
  */
 public abstract class AbstractInfoBuilder<T> {
     static String DOC_ERROR_DELIM = ".Errors";
+
+    // The following are names of attributes in the openEHR profile stereotypes
+    // <<Operator>> and <<Symbolic_operator>> respectively, which become UML 'tags'
+    // in the Operation elements to which those stereotypes are applied. These
+    // stereotypes have the effect of adding two possible meta-attributes, i.e.
+    // ops and sym_ops, both defined as List<String>, which may contain string
+    // names of operators (e.g. "+") to be associated with the operation (e.g. add()).
+    static List<String> stereotypeTagNames = Arrays.asList("ops", "sym_ops");
 
     protected final Formatter formatter;
 
@@ -75,6 +80,7 @@ public abstract class AbstractInfoBuilder<T> {
         return formatter;
     }
 
+    // Add class- or routine-level constraints
     protected void addConstraints(List<ConstraintInfo> constraints, Collection<Constraint> constraintOfConstrainedElement) {
         for (Constraint constraint : constraintOfConstrainedElement) {
             constraints.add(new ConstraintInfo().setDocumentation(formatConstraint(constraint)));
@@ -275,6 +281,49 @@ public abstract class AbstractInfoBuilder<T> {
         // append the operation name, bolded
         StringBuilder opSigBuilder = new StringBuilder(formatter.bold(operation.getName()));
 
+        // see if the operation has stereotype <<Operator>>, which has tag ops: List<String>
+        // or <<Symbolic_operator>>, which has tag sym_ops: List<String>
+        // See comment above for stereotypeTagNames for details
+        StringBuilder opAliasBuilder = new StringBuilder();
+        InstanceSpecification stereotypeSpec = operation.getAppliedStereotypeInstance();
+        if (stereotypeSpec != null) {
+            Collection<Slot> slots = stereotypeSpec.getSlot();
+            if (!slots.isEmpty()) {
+                Iterator<Slot> slots_it = slots.iterator();
+                while (slots_it.hasNext()) {
+                    Slot tag = slots_it.next();
+                    // Here we check that the slot attribute name is one of the ones we want
+                    StructuralFeature tagAttr = tag.getDefiningFeature();
+                    if (tagAttr instanceof Property) {
+                        Property tagProp = (Property) tagAttr;
+                        if (stereotypeTagNames.contains(tagProp.getName()) && tag.hasValue()){
+                            // Now we know we have the operator tags, we can output the 'alias' line
+                            // (Use the first variant to put it on a new line, plus uncomment the
+                            // post-loop statement to add another NL)
+                            // opSigBuilder.append(formatter.hardLineBreak() + formatter.italic("alias") + " ");
+                            if (opAliasBuilder.length() == 0)
+                                opAliasBuilder.append(" " + formatter.italic("alias") + " ");
+
+                            List<ValueSpecification> ops = tag.getValue();
+                            Iterator<ValueSpecification> ops_it = ops.iterator();
+
+                            while (ops_it.hasNext()) {
+                                ValueSpecification op = ops_it.next();
+                                if (op instanceof LiteralString) {
+                                    LiteralString op_str = (LiteralString) op;
+                                    opAliasBuilder.append(formatter.escapeLiteral(op_str.getValue()));
+                                    if (ops_it.hasNext() || slots_it.hasNext())
+                                        opAliasBuilder.append(", ");
+                                }
+                            }
+                        }
+                    }
+                }
+                // opAliasBuilder.append(formatter.hardLineBreak());
+            }
+        }
+        opSigBuilder.append(opAliasBuilder);
+
         // If there are parameters, output them within parentheses; also
         // add the parameter documentation to the documentary text
         if (operation.hasOwnedParameter()) {
@@ -374,8 +423,16 @@ public abstract class AbstractInfoBuilder<T> {
      * @param builder string builder containing method definition as a string.
      */
     private void addOperationConstraint(Operation operation, StringBuilder builder) {
+        StringBuilder constraintBuilder = new StringBuilder();
+
         for (Constraint constraint : operation.get_constraintOfConstrainedElement()) {
-            builder.append(" +").append(System.lineSeparator()).append(formatConstraint(constraint));
+            constraintBuilder.append(formatter.hardLineBreak()).append(formatConstraint(constraint));
+        }
+
+        // if there were any constraints, first output a blank line, then the constraints
+        if (constraintBuilder.length() > 0) {
+            builder.append(formatter.hardLineBreak());
+            builder.append(constraintBuilder);
         }
     }
 
