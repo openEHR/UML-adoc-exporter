@@ -169,9 +169,15 @@ public abstract class AbstractInfoBuilder<T> {
         Property qualifier = property.getAssociation() != null && property.hasQualifier() ? property.getQualifier().get(0) : null;
         StringBuilder typeInfo = new StringBuilder(formatType(type, qualifier, property.getLower(), property.getUpper()));
 
-        // add '=' + default value, if defined
+        // If there is a default value defined, output it.
         ValueSpecification defaultValue = property.getDefaultValue();
         if (defaultValue != null) {
+            // if the property is a constant, then
+            // output '=' + <default value>; else
+            // output \n {default '=' + <default value>}
+            if (!property.isReadOnly())
+                typeInfo.append(formatter.hardLineBreak() + "{default");
+
             if (defaultValue instanceof LiteralString) {
                 LiteralString value = (LiteralString)defaultValue;
                 typeInfo.append("{nbsp}={nbsp}").append(formatter.escapeLiteral(value.getValue()));
@@ -195,6 +201,8 @@ public abstract class AbstractInfoBuilder<T> {
                 if (expr != null)
                     typeInfo.append("{nbsp}={nbsp}").append(expr.getSymbol());
             }
+            if (!property.isReadOnly())
+                typeInfo.append("}");
         }
 
         // If there is any type information, append it

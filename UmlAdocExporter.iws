@@ -4,8 +4,6 @@
     <list default="true" id="48dfd104-3932-40fd-aae1-1c12a81f0f48" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/UmlAdocExporter.iws" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter.iws" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/AbstractInfoBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/AbstractInfoBuilder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/AsciidocFormatter.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/AsciidocFormatter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/Formatter.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/Formatter.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,6 +54,7 @@
       <workItem from="1586023122991" duration="7476000" />
       <workItem from="1586095615846" duration="10283000" />
       <workItem from="1586164330696" duration="3696000" />
+      <workItem from="1586170511037" duration="548000" />
     </task>
     <servers />
   </component>
@@ -84,10 +83,10 @@
     </state>
     <state x="418" y="188" key="SettingsEditor/0.27.1866.1053@0.27.1866.1053" timestamp="1582750840910" />
     <state x="484" y="188" width="1022" height="737" key="SettingsEditor/70.27.1850.1053@70.27.1850.1053" timestamp="1581280476574" />
-    <state x="586" y="380" key="com.intellij.ide.util.TipDialog" timestamp="1586164359601">
+    <state x="586" y="380" key="com.intellij.ide.util.TipDialog" timestamp="1586170521012">
       <screen x="0" y="27" width="1866" height="1053" />
     </state>
-    <state x="586" y="380" key="com.intellij.ide.util.TipDialog/0.27.1866.1053@0.27.1866.1053" timestamp="1586164359601" />
+    <state x="586" y="380" key="com.intellij.ide.util.TipDialog/0.27.1866.1053@0.27.1866.1053" timestamp="1586170521012" />
     <state x="651" y="380" key="com.intellij.ide.util.TipDialog/70.27.1850.1053@70.27.1850.1053" timestamp="1581336664364" />
   </component>
   <component name="masterDetails">
