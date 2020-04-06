@@ -88,7 +88,7 @@ public abstract class AbstractInfoBuilder<T> {
     }
 
     private String formatConstraint(Constraint constraint) {
-        StringBuilder builder = new StringBuilder(formatter.italicBold(constraint.getName())).append(": ");
+        StringBuilder builder = new StringBuilder(formatter.italic(constraint.getName())).append(": ");
         if (constraint.getSpecification() instanceof OpaqueExpression) {
             OpaqueExpression opaqueExpression = (OpaqueExpression)constraint.getSpecification();
             if (opaqueExpression.hasBody()) {
@@ -433,8 +433,22 @@ public abstract class AbstractInfoBuilder<T> {
     private void addOperationConstraint(Operation operation, StringBuilder builder) {
         StringBuilder constraintBuilder = new StringBuilder();
 
+        // Pre-conditions first; match by looking for leading "pre" (case-insensitive)
         for (Constraint constraint : operation.get_constraintOfConstrainedElement()) {
-            constraintBuilder.append(formatter.hardLineBreak()).append(formatConstraint(constraint));
+            if (constraint.getName().toLowerCase().startsWith("pre"))
+                constraintBuilder.append(formatter.hardLineBreak()).append(formatConstraint(constraint));
+        }
+
+        // Post-conditions
+        for (Constraint constraint : operation.get_constraintOfConstrainedElement()) {
+            if (constraint.getName().toLowerCase().startsWith("post"))
+                constraintBuilder.append(formatter.hardLineBreak()).append(formatConstraint(constraint));
+        }
+
+        // Any others
+        for (Constraint constraint : operation.get_constraintOfConstrainedElement()) {
+            if (!constraint.getName().toLowerCase().matches("(pre|post).*"))
+                constraintBuilder.append(formatter.hardLineBreak()).append(formatConstraint(constraint));
         }
 
         // if there were any constraints, first output a blank line, then the constraints
