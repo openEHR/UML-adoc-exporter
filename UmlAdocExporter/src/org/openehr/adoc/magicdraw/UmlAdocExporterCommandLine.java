@@ -98,9 +98,8 @@ public class UmlAdocExporterCommandLine extends CommandLine {
                 case "-o":
                     String outputFolder = getParameterValue(iterator, "-o");
                     Path outputPath = Paths.get(outputFolder);
-                    if (!Files.isDirectory(outputPath)) {
+                    if (!Files.isDirectory(outputPath))
                         throw new UmlAdocExporterException("Output folder " + outputFolder + " doesn't exist!");
-                    }
                     outFolder = outputPath.toFile();
                     break;
 
@@ -127,13 +126,13 @@ public class UmlAdocExporterCommandLine extends CommandLine {
                 default:
                     Path projectPath = Paths.get(arg);
                     if (!Files.isReadable(projectPath))
-                        throw new UmlAdocExporterException("Project file " + arg + " doesn't exist!");
+                        throw new UmlAdocExporterException ("Project file " + arg + " doesn't exist!");
                     projectFile = projectPath.toFile();
             }
         }
         if (!helpOnly) {
             if (projectFile == null)
-                throw new UmlAdocExporterException("No project file specified!");
+                throw new UmlAdocExporterException ("No project file specified!");
             if (headingLevel <= 0)
                 headingLevel = 3;
             if (outFolder == null)
@@ -141,10 +140,10 @@ public class UmlAdocExporterCommandLine extends CommandLine {
         }
     }
 
-    private String getParameterValue(Iterator<String> iterator, String param) {
+    private String getParameterValue (Iterator<String> iterator, String param) {
         if (iterator.hasNext())
             return iterator.next();
         else
-            throw new UmlAdocExporterException("Missing parameter for " + param + '!');
+            throw new UmlAdocExporterException ("Missing parameter for " + param + '!');
     }
 }

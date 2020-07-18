@@ -3,6 +3,8 @@ package org.openehr.adoc.magicdraw;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.*;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -233,9 +235,15 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
         String result;
 
         // if there is no qualifier, output either the UML relation target type or List<target type>
-        if (qualifier == null)
-            result = upper == -1 || upper > 1 ? quoteTypeName ("List") +
-                    "<" + quoteTypeName(type) + '>' : quoteTypeName(type);
+        if (qualifier == null) {
+            // have to handle the case where the typename may be of a generic form, usually
+            // only for nested generics, which UML cannot do properly
+            if (type.contains("<"))
+                result = quotedClassNames(type);
+            else
+                result = upper == -1 || upper > 1 ? quoteTypeName("List") +
+                        "<" + quoteTypeName(type) + '>' : quoteTypeName(type);
+        }
         else {
             String qualifierType = qualifier.getType().getName();
             String qualifierName = qualifier.getName();
@@ -249,9 +257,22 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
             // This should only occur with multiple relationships.
             else
                 result = upper == -1 || upper > 1 ? quoteTypeName("Hash") +
-                        "<" + quoteTypeName(qualifierType) + ',' + type + '>' : quoteTypeName(qualifierType);
+                        "<" + quoteTypeName(qualifierType) + ',' + quoteTypeName(type) + '>' : quoteTypeName(qualifierType);
         }
         return result;
+    }
+
+    /**
+     * Add "@TypeName@" quoting to each bare type in a generic type name
+     */
+    private String quotedClassNames (String typeName) {
+        Pattern p = Pattern.compile (BARE_QUOTE_REGEX);
+        Matcher m = p.matcher (typeName);
+        StringBuffer sb = new StringBuffer();
+        while (m.find())
+            m.appendReplacement(sb, quoteTypeName(m.group()));
+        m.appendTail(sb);
+        return sb.toString();
     }
 
     /**
