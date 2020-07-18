@@ -155,7 +155,12 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
 
         // Generate the index file
         if (specRelease != null)
-            generateIndex (outputFolder, allEntitiesMap);
+            generateIndex (outputFolder,
+                    allEntitiesMap.values()
+                    .stream()
+                    .filter (this::matchesComponents)
+                    .collect(Collectors.toList())
+            );
 
         // obtain and generate the diagrams
         File diagramsFolder = new File(outputFolder, DIAGRAMS_FOLDER);
@@ -281,11 +286,10 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
      * Generate an HTML file containing a clickable index of Class names that contain links to the location of
      * the class within the relevant specification.
      * @param targetFolder Directory in which to write the file.
-     * @param allEntities classes, interfaces, and enumerations to include in index.
+     * @param allTypes classes, interfaces, and enumerations to include in index.
      * @exception IOException on fail to write to file.
      */
-    private void generateIndex(File targetFolder, Map<String, ClassInfo> allEntities) {
-        List<ClassInfo> allTypes = new ArrayList<> (allEntities.values());
+    private void generateIndex(File targetFolder, List<ClassInfo> allTypes) {
         Collections.sort(allTypes);
 
         Path targetPath = targetFolder.toPath().resolve("class_index" + ADOC_FILE_EXTENSION);
