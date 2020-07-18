@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 /**
  * @author Bostjan Lah
  */
-public abstract class AbstractInfoBuilder<T> {
+public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
     static String DOC_ERROR_DELIM = ".Errors";
 
     // The following are names of attributes in the openEHR profile stereotypes
@@ -22,7 +22,7 @@ public abstract class AbstractInfoBuilder<T> {
 
     protected final Formatter formatter;
 
-    protected AbstractInfoBuilder(Formatter formatter) {
+    protected AbstractInfoBuilder (Formatter formatter) {
         this.formatter = formatter;
     }
 
@@ -74,7 +74,12 @@ public abstract class AbstractInfoBuilder<T> {
             return "";
     }
 
-    public abstract ClassInfo build(T element);
+    /**
+     * Build a descriptor object from element
+     * @param element class or similar object from the UML model
+     * @return
+     */
+    public abstract ClassInfo build (T element);
 
     protected Formatter getFormatter() {
         return formatter;
@@ -94,9 +99,8 @@ public abstract class AbstractInfoBuilder<T> {
             if (opaqueExpression.hasBody()) {
                 boolean add = false;
                 for (String line : opaqueExpression.getBody()) {
-                    if (add) {
+                    if (add)
                         builder.append(formatter.hardLineBreak());
-                    }
                     builder.append(formatter.monospace(formatter.escape(line)));
                     add = true;
                 }
@@ -137,8 +141,8 @@ public abstract class AbstractInfoBuilder<T> {
         // create a ClassFeatureInfo with attribute documentation, occurrences and redefined marker
         ClassFeatureInfo classFeatureInfo = new ClassFeatureInfo()
                 .setDocumentation(getDocumentation(property, formatter))
-                .setStatus(formatSpecialOccurences(property.getLower(), property.getUpper()) +
-                        (attrStatus.toString().isEmpty()? "" : " +" + System.lineSeparator() + "(" + attrStatus + ")"));
+                .setCardinality(formatSpecialOccurences(property.getLower(), property.getUpper()))
+                .setStatus(attrStatus.toString().isEmpty()? "" : "(" + attrStatus + ")");
 
         // attribute signature
         StringBuilder sigBuilder = new StringBuilder(formatter.bold(property.getName()));
@@ -167,7 +171,7 @@ public abstract class AbstractInfoBuilder<T> {
 
         // if there is a qualifier on the property, get it, since this will modify the type
         Property qualifier = property.getAssociation() != null && property.hasQualifier() ? property.getQualifier().get(0) : null;
-        StringBuilder typeInfo = new StringBuilder(formatType(type, qualifier, property.getLower(), property.getUpper()));
+        StringBuilder typeInfo = new StringBuilder (formatType (type, qualifier, property.getLower(), property.getUpper()));
 
         // If there is a default value defined, output it.
         ValueSpecification defaultValue = property.getDefaultValue();
@@ -201,43 +205,53 @@ public abstract class AbstractInfoBuilder<T> {
                 if (expr != null)
                     typeInfo.append("{nbsp}={nbsp}").append(expr.getSymbol());
             }
+
             if (!property.isReadOnly())
                 typeInfo.append("}");
         }
 
         // If there is any type information, append it
-        if (typeInfo.length() > 0) {
-            sigBuilder.append(formatter.monospace(typeInfo.toString()));
-        }
+        if (typeInfo.length() > 0)
+            sigBuilder.append (formatter.monospace (typeInfo.toString()));
 
         classFeatureInfo.setSignature(sigBuilder.toString());
 
         attributes.add(classFeatureInfo);
     }
 
-    private String formatType(String type, Property qualifier, int lower, int upper) {
-        String formattedType;
+    /**
+     * Here we will do a trick: we will wrap every type name in @@, e.g.
+     * "@List@<@ITEM@>" in preparation for post processing, which will
+     * replace each "@Type@" with a linked version
+     * @param type
+     * @param qualifier
+     * @param lower
+     * @param upper
+     * @return
+     */
+    private String formatType (String type, Property qualifier, int lower, int upper) {
+        String result;
 
         // if there is no qualifier, output either the UML relation target type or List<target type>
-        if (qualifier == null) {
-            formattedType = upper == -1 || upper > 1 ? "List<" + type + '>' : type;
-        }
+        if (qualifier == null)
+            result = upper == -1 || upper > 1 ? quoteTypeName ("List") +
+                    "<" + quoteTypeName(type) + '>' : quoteTypeName(type);
         else {
             String qualifierType = qualifier.getType().getName();
             String qualifierName = qualifier.getName();
 
             // if there is a qualifier, but with no name, the output type is either the UML
             // qualifier type of List<qualifier type>
-            if (qualifierName == null || qualifierName.isEmpty()) {
-                formattedType = upper == -1 || upper > 1 ? "List<" + qualifierType + '>' : qualifierType;
-            }
+            if (qualifierName == null || qualifierName.isEmpty())
+                result = upper == -1 || upper > 1 ? quoteTypeName ("List") +
+                        "<" + quoteTypeName(qualifierType) + '>' : quoteTypeName(qualifierType);
             // else if there is a qualifier name, it stands for a Hash key, and we output a Hash type sig
             // This should only occur with multiple relationships.
-            else {
-                formattedType = upper == -1 || upper > 1 ? "Hash<" + qualifierType + ',' + type + '>' : qualifierType;
-            }
+            else
+                result = upper == -1 || upper > 1 ? quoteTypeName("Hash") +
+                        "<" + quoteTypeName(qualifierType) + ',' + type + '>' : quoteTypeName(qualifierType);
         }
-        return formattedType;
+        return result;
     }
 
     /**
@@ -359,6 +373,7 @@ public abstract class AbstractInfoBuilder<T> {
         }
 
         ClassFeatureInfo classFeatureInfo = new ClassFeatureInfo()
+                .setCardinality(formatSpecialOccurences(operation.getLower(), operation.getUpper()))
                 .setStatus(opStatus.toString().isEmpty()? "" : "(" + opStatus + ")")
                 .setDocumentation(opDocBuilder.toString());
 
@@ -458,17 +473,16 @@ public abstract class AbstractInfoBuilder<T> {
         }
     }
 
-    protected void setHierarchy(String qualifiedName, ClassInfo classInfo) {
+    protected void setHierarchy (String qualifiedName, ClassInfo classInfo) {
         // this is hard-coded for openehr atm
-        String[] parts = qualifiedName.split("::");
+        String[] parts = qualifiedName.split ("::");
         if (parts.length > 4) {
-            classInfo.setIndexComponent(parts[0]);
-            classInfo.setIndexSubPackage(parts[4]);
+            classInfo.setSpecComponent(parts[0]);
+            classInfo.setClassSubPackage(parts[4]);
             StringBuilder indexPackage = new StringBuilder();
-            for (int i = 1; i < 4; i++) {
-                indexPackage.append('.').append(parts[i]);
-            }
-            classInfo.setIndexPackage(indexPackage.substring(1));
+            for (int i = 1; i < 4; i++)
+                indexPackage.append('.').append (parts[i]);
+            classInfo.setClassPackage (indexPackage.substring(1));
         }
     }
 }

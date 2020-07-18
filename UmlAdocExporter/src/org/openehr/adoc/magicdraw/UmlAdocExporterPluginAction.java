@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Action which displays its name.
+ * Plug-in entry point (i.e. invoked from running UI tool) for UML extractor
  *
  * @author Bostjan Lah
  */
@@ -33,9 +33,7 @@ class UmlAdocExporterPluginAction extends MDAction {
         File outputFolder = chooseFolder();
         if (outputFolder != null) {
             try {
-                Set<String> rootPackageNames = new HashSet<>();
-                rootPackageNames.add("openehr");
-                UmlAdocExporter exporter = new UmlAdocExporter(3, rootPackageNames, null, null);
+                UmlAdocExporter exporter = new UmlAdocExporter(3, "openehr", new HashSet<>(), null, null);
                 exporter.exportProject(outputFolder, Application.getInstance().getProject());
 
                 JOptionPane.showMessageDialog(MDDialogParentProvider.getProvider().getDialogOwner(), "Export complete.", "Export",

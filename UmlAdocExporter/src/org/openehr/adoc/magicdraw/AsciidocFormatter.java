@@ -33,7 +33,7 @@ public class AsciidocFormatter implements Formatter {
         if (text == null || text.trim().isEmpty()) {
             return "";
         }
-        return "_" + text + "_";
+        return "__" + text + "__";
     }
 
     @Override
@@ -114,6 +114,59 @@ public class AsciidocFormatter implements Formatter {
     @Override
     public String errorDelimiterLine() {
         return (System.lineSeparator() + ".Errors" + System.lineSeparator());
+    }
+
+    @Override
+    public String heading (String text, int headingLevel) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < headingLevel; i++)
+            sb.append('=');
+        return sb.toString() + " " + text;
+    }
+
+    @Override
+    public String externalLink (String text, String url) {
+        String linkTemplate = "link:%s[%s^]";
+        return String.format (linkTemplate, url, text);
+    }
+
+    @Override
+    public String internalRef (String text, String ref) {
+        return "<<" + ref + "," + text + ">>";
+    }
+
+    @Override
+    public String tableColHeader (String text, int mergeCellCount) {
+        return (mergeCellCount > 1 ? String.valueOf(mergeCellCount) + "+" : "") + "h|" + bold(text);
+    }
+
+    @Override
+    public String tableColHeaderCentred (String text, int mergeCellCount) {
+        return (mergeCellCount > 1 ? String.valueOf (mergeCellCount) + "+" : "") + "^h|" + bold(text);
+    }
+
+    @Override
+    public String tableDelimiter () {
+        return "|===";
+    }
+
+    @Override
+    public String tableDefinition (String colsWidthProportions) {
+        return "[cols=\"^" + colsWidthProportions + "\"]";
+    }
+
+    /*
+     * if mergeCellCount == 1, just output "|text", else output
+     * "N+|text"
+     */
+    @Override
+    public String tableCell (String text, int mergeCellCount) {
+        return (mergeCellCount > 1 ? String.valueOf(mergeCellCount) + "+" : "") + "|" + text;
+    }
+
+    @Override
+    public String tableCellPassthrough (String text, int mergeCellCount) {
+        return (mergeCellCount > 1 ? String.valueOf(mergeCellCount) + "+" : "") + "a|" + escapeColumnSeparator (normalizeLines (text));
     }
 
 }

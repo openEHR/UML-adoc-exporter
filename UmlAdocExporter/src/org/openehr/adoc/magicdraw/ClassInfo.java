@@ -3,6 +3,7 @@ package org.openehr.adoc.magicdraw;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * @author Bostjan Lah
@@ -12,10 +13,11 @@ public class ClassInfo implements Comparable<ClassInfo> {
     private String classTypeName = "";     // including any generics
     private String className = "";         // root class name
     private String documentation = "";
-    private String parentClassName;
-    private String indexComponent = "";
-    private String indexPackage = "";
-    private String indexSubPackage = "";
+    private List<String> parentClassNames  = new ArrayList<>();
+    private String specComponent = "";
+    private String classPackage = "";
+    private String classSubPackage = ""; // generally equals spec name
+    private String specNameOverride;     // an override for the spec, if not = subPackage
     private boolean abstractClass;
 
     private final List<ClassFeatureInfo> attributes = new ArrayList<>();
@@ -39,9 +41,9 @@ public class ClassInfo implements Comparable<ClassInfo> {
         return className;
     }
 
-    public ClassInfo setClassTypeName(String classTypeName) {
-        this.classTypeName = classTypeName;
-        this.className = classTypeName.contains("<") ? classTypeName.substring(0, classTypeName.indexOf('<')): classTypeName;
+    public ClassInfo setClassTypeName (String aTypeName) {
+        classTypeName = aTypeName;
+        className = aTypeName.contains("<") ? aTypeName.substring(0, aTypeName.indexOf('<')): aTypeName;
         return this;
     }
 
@@ -49,17 +51,17 @@ public class ClassInfo implements Comparable<ClassInfo> {
         return documentation;
     }
 
-    public ClassInfo setDocumentation(String documentation) {
-        this.documentation = documentation;
+    public ClassInfo setDocumentation(String aDocumentation) {
+        documentation = aDocumentation;
         return this;
     }
 
-    public String getParentClassName() {
-        return parentClassName;
+    public List<String> getParentClassNames() {
+        return parentClassNames;
     }
 
-    public ClassInfo setParentClassName(String parentClassName) {
-        this.parentClassName = parentClassName;
+    public ClassInfo addParentClassName (String aParentClassName) {
+        parentClassNames.add (aParentClassName);
         return this;
     }
 
@@ -83,51 +85,73 @@ public class ClassInfo implements Comparable<ClassInfo> {
         return abstractClass;
     }
 
-    public ClassInfo setAbstractClass(boolean abstractClass) {
-        this.abstractClass = abstractClass;
+    public ClassInfo setAbstractClass (boolean anAbstractClass) {
+        abstractClass = anAbstractClass;
         return this;
     }
 
-    public String getIndexComponent() {
-        return indexComponent;
+    public String getSpecComponent() {
+        return specComponent;
     }
 
-    public void setIndexComponent(String indexComponent) {
-        this.indexComponent = indexComponent;
+    public void setSpecComponent(String aComponent) {
+        specComponent = aComponent;
     }
 
-    public String getIndexPackage() {
-        return indexPackage;
+    public String getClassPackage() {
+        return classPackage;
     }
 
-    public void setIndexPackage(String indexPackage) {
-        this.indexPackage = indexPackage;
+    public void setClassPackage(String aPackage) {
+        classPackage = aPackage;
     }
 
-    public String getIndexSubPackage() {
-        return indexSubPackage;
+    public String getClassSubPackage() {
+        return classSubPackage;
     }
 
-    public void setIndexSubPackage(String indexSubPackage) {
-        this.indexSubPackage = indexSubPackage;
+    public void setClassSubPackage(String aSubPackage) {
+        classSubPackage = aSubPackage;
+    }
+
+    public String getSpecName() {
+        return specNameOverride == null ? classSubPackage : specNameOverride;
+    }
+
+    public void setSpecName (String aSpecName) {
+        specNameOverride = aSpecName;
+    }
+
+    // Output a URL for the class of the form:
+    //   '/releases/<component>>/<release>/<spec>>.html#<fragment>'
+    // where <release> is an Asciidoctor variable ref like '{am_release}'
+    // e.g.
+    //   '/releases/AM/{am_release}/AOM2.html#_c_object_class'
+    String urlPath (String aRelease) {
+        return "/releases/" + specComponent + "/" + aRelease + "/" + // path
+                getSpecName() + ".html" +                            // doc
+                "#" + localRef();                                    // fragment
+    }
+
+    // Output an internal document ref:
+    //   /releases/AM/{am_release}/AOM2.html#_c_object_class
+    String localRef () {
+        return "_" + className.toLowerCase() + "_" + metaType.toLowerCase();
     }
 
     @Override
-    public int compareTo(@Nonnull ClassInfo o) {
-        int i = indexComponent.compareTo(o.indexComponent);
-        if (i != 0) {
+    public int compareTo (@Nonnull ClassInfo o) {
+        int i = specComponent.compareTo(o.specComponent);
+        if (i != 0)
             return i;
-        }
 
-        int j = indexPackage.compareTo(o.indexPackage);
-        if (j != 0) {
+        int j = classPackage.compareTo(o.classPackage);
+        if (j != 0)
             return j;
-        }
 
-        int k = indexSubPackage.compareTo(o.indexSubPackage);
-        if (k != 0) {
+        int k = classSubPackage.compareTo(o.classSubPackage);
+        if (k != 0)
             return k;
-        }
 
         return classTypeName.compareTo(o.classTypeName);
     }

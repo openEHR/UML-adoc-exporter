@@ -21,13 +21,15 @@ import java.util.stream.Stream;
 import static java.lang.String.join;
 
 /**
+ * Command-line entry point for UML extractor
  * @author Bostjan Lah
  */
 @SuppressWarnings("UseOfSystemOutOrSystemErr")
 public class UmlAdocExporterCommandLine extends CommandLine {
     private int headingLevel;
-    private final Set<String> rootPackageName = new HashSet<>();
-    private String indexRelease;
+    private String rootPackageName = "openehr";
+    private final Set<String> componentPackageNames = new HashSet<>();
+    private String specRelease;
 
     // If not set, output PNG and SVG; else must be set to either "svg" or "png"
     private String imageFormat;
@@ -53,7 +55,7 @@ public class UmlAdocExporterCommandLine extends CommandLine {
         projectsManager.loadProject(projectDescriptor, true);
         Project project = projectsManager.getActiveProject();
 
-        UmlAdocExporter exporter = new UmlAdocExporter(headingLevel, rootPackageName, indexRelease, imageFormats != null? imageFormats : defaultImageFormats);
+        UmlAdocExporter exporter = new UmlAdocExporter (headingLevel, rootPackageName, componentPackageNames, specRelease, imageFormats != null? imageFormats : defaultImageFormats);
         try {
             exporter.exportProject(outFolder, project);
             return (byte)0;
@@ -64,10 +66,14 @@ public class UmlAdocExporterCommandLine extends CommandLine {
 
     @Override
     @SuppressWarnings({"OverlyComplexMethod", "SwitchStatementDensity"})
-    protected void parseArgs(String[] cmdLineArgs) {
+    protected void parseArgs (String[] cmdLineArgs) {
         for (Iterator<String> iterator = Arrays.asList(cmdLineArgs).iterator(); iterator.hasNext(); ) {
             String arg = iterator.next();
             switch (arg) {
+                case "-c":
+                    componentPackageNames.addAll (Pattern.compile(",").splitAsStream (getParameterValue (iterator, "-c")).collect(Collectors.toList()));
+                    break;
+
                 case "-d":
                     String imageFormat = getParameterValue(iterator, "-d").toLowerCase();
                     if (!defaultImageFormats.containsKey(imageFormat)) {
@@ -78,8 +84,8 @@ public class UmlAdocExporterCommandLine extends CommandLine {
                         imageFormats = new HashMap<>();
                         imageFormats.put(imageFormat, defaultImageFormats.get(imageFormat));
                     }
-
                     break;
+
                 case "-l":
                     String level = getParameterValue(iterator, "-l");
                     try {
@@ -88,6 +94,7 @@ public class UmlAdocExporterCommandLine extends CommandLine {
                         throw new UmlAdocExporterException("Invalid argument for -l: " + level + " (expected numeric)!");
                     }
                     break;
+
                 case "-o":
                     String outputFolder = getParameterValue(iterator, "-o");
                     Path outputPath = Paths.get(outputFolder);
@@ -96,15 +103,19 @@ public class UmlAdocExporterCommandLine extends CommandLine {
                     }
                     outFolder = outputPath.toFile();
                     break;
+
                 case "-r":
-                    rootPackageName.addAll(Pattern.compile(",").splitAsStream(getParameterValue(iterator, "-r")).collect(Collectors.toList()));
+                    rootPackageName = getParameterValue (iterator, "-r");
                     break;
+
                 case "-i":
-                    indexRelease = getParameterValue(iterator, "-i");
+                    specRelease = getParameterValue (iterator, "-i");
                     break;
+
                 case "-?":
                 case "-h":
                     System.out.println("Usage: uml_generate [-o output_folder] [-l heading_level] [-r root_package_name] [-i index_release] <project file>");
+                    System.out.println("       -c: component package name(s) under root package to export (comma-separated)");
                     System.out.println("       -d: image format: " + join("|", defaultImageFormats.keySet()) + " (default = all)");
                     System.out.println("       -o: output folder (default = current folder)");
                     System.out.println("       -l: class headings level (default = 3)");
@@ -112,35 +123,28 @@ public class UmlAdocExporterCommandLine extends CommandLine {
                     System.out.println("       -i: generate an index against a specific release, for example Release-1.0.3");
                     helpOnly = true;
                     break;
+
                 default:
                     Path projectPath = Paths.get(arg);
-                    if (!Files.isReadable(projectPath)) {
+                    if (!Files.isReadable(projectPath))
                         throw new UmlAdocExporterException("Project file " + arg + " doesn't exist!");
-                    }
                     projectFile = projectPath.toFile();
             }
         }
         if (!helpOnly) {
-            if (projectFile == null) {
+            if (projectFile == null)
                 throw new UmlAdocExporterException("No project file specified!");
-            }
-            if (headingLevel <= 0) {
+            if (headingLevel <= 0)
                 headingLevel = 3;
-            }
-            if (outFolder == null) {
+            if (outFolder == null)
                 outFolder = new File(".");
-            }
-            if (rootPackageName.isEmpty()) {
-                rootPackageName.add("openehr");
-            }
         }
     }
 
     private String getParameterValue(Iterator<String> iterator, String param) {
-        if (iterator.hasNext()) {
+        if (iterator.hasNext())
             return iterator.next();
-        } else {
+        else
             throw new UmlAdocExporterException("Missing parameter for " + param + '!');
-        }
     }
 }

@@ -4,7 +4,6 @@ import com.nomagic.magicdraw.core.Project;
 import com.nomagic.magicdraw.export.image.ImageExporter;
 import com.nomagic.magicdraw.uml.Finder;
 import com.nomagic.magicdraw.uml.symbols.DiagramPresentationElement;
-import com.nomagic.uml2.ext.jmi.helpers.ModelHelper;
 import com.nomagic.uml2.ext.magicdraw.classes.mdinterfaces.Interface;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Element;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Enumeration;
@@ -18,6 +17,8 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -25,30 +26,32 @@ import java.util.stream.Collectors;
  *
  * @author Bostjan Lah
  */
-public class UmlAdocExporter {
+public class UmlAdocExporter extends UmlExporterDefinitions {
     private static final String ADOC_FILE_EXTENSION = ".adoc";
 
     private static final String DIAGRAMS_FOLDER = "diagrams";
     private static final String CLASSES_FOLDER = "classes";
+
     // component, release, html file, subref classname + type, description
-    private static final String INDEX_LINK_FORMAT = "[.xcode]\n* link:/releases/%s/%s/%s.html#_%s_%s[%s^]\n";
+    private static final String INDEX_LINK_FORMAT = "[.xcode]\n* %s\n";
 
     private final Formatter formatter = new AsciidocFormatter();
-    private final String headingPrefix;
-    private final Set<String> rootPackageNames;
+    private final int headingLevel;
+    private final String rootPackageName;
+    private final Set<String> componentPackageNames;
     private final Map<String, Integer> imageFormats;
 
-    private final String indexRelease;
+    private final String specRelease;
 
-    public UmlAdocExporter(int headingLevel, Set<String> rootPackageNames, String indexRelease, Map<String, Integer> imageFormats) {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < headingLevel; i++) {
-            builder.append('=');
-        }
-        headingPrefix = builder.toString();
-        this.rootPackageNames = rootPackageNames;
-        this.indexRelease = indexRelease;
-        this.imageFormats = imageFormats;
+    // map of all ClassInfo keyed by class name
+    private Map<String, ClassInfo> allEntitiesMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+    public UmlAdocExporter(int aHeadingLevel, String aRootPackageName, Set<String> aComponentPackageNames, String aSpecRelease, Map<String, Integer> anImageFormats) {
+        headingLevel = aHeadingLevel;
+        rootPackageName = aRootPackageName;
+        specRelease = aSpecRelease;
+        imageFormats = anImageFormats;
+        componentPackageNames = aComponentPackageNames;
     }
 
     /**
@@ -70,7 +73,9 @@ public class UmlAdocExporter {
 
         // Gather UML classes, enumerations and interfaces, run through a pipeline that does:
         // * cast to an MD class object
-        // * retain only classes within the root package(s) specified on the command line
+        // * retain only classes within the root package specified on the command line, which
+        //   will generally be more than what is to be published; we do this so as to be able
+        //   to generate links from those classes being published to those in other components
         // * convert to ClassInfo objects (local representation used here)
         // Then export each ClassInfo object as an output file
         ClassInfoBuilder classInfoBuilder = new ClassInfoBuilder(formatter);
@@ -83,10 +88,9 @@ public class UmlAdocExporter {
         List<ClassInfo> classes = umlClasses.stream()
                 .map(e -> (com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Class)e)
                 .filter(c -> ! c.getName().contains("<"))// ignore classes with names simulating template type names
-                .filter(this::matchesRootPackages)
+                .filter(this::matchesRootPackage)
                 .map(classInfoBuilder::build)
                 .collect(Collectors.toList());
-        classes.forEach(cl -> exportClass(cl, classesFolder));
 
         // -------- get the UML model interfaces -------
         Collection<? extends Element> umlInterfaces = umlElementsFinder.find(
@@ -97,10 +101,9 @@ public class UmlAdocExporter {
         List<ClassInfo> interfaces = umlInterfaces.stream()
                 .map(e -> (Interface)e)
                 .filter(c -> ! c.getName().contains("<"))// ignore classes with names simulating template type names
-                .filter(this::matchesRootPackages)
+                .filter(this::matchesRootPackage)
                 .map(interfaceInfoBuilder::build)
                 .collect(Collectors.toList());
-        interfaces.forEach(cl -> exportClass(cl, classesFolder));
 
         // -------- get the UML model enumerations -------
         Collection<? extends Element> umlEnumerations = umlElementsFinder.find(
@@ -111,10 +114,9 @@ public class UmlAdocExporter {
         EnumerationInfoBuilder enumerationInfoBuilder = new EnumerationInfoBuilder(formatter);
         List<ClassInfo> enumerations = umlEnumerations.stream()
                 .map(e -> (Enumeration)e)
-                .filter(this::matchesRootPackages)
+                .filter(this::matchesRootPackage)
                 .map(enumerationInfoBuilder::build)
                 .collect(Collectors.toList());
-        enumerations.forEach(en -> exportClass(en, classesFolder));
 
         // -------- get the UML model state machines -------
 //        Collection<? extends Element> umlStateMachines = umlElementsFinder.find(
@@ -122,33 +124,50 @@ public class UmlAdocExporter {
 //                new Class[]{com.nomagic.uml2.ext.magicdraw.classes.mdkernel.???},
 //                true);
 
+        // --------- build a global map of ClassInfo keyed by class name--------
+        classes.forEach (classInfo -> {
+            if (!allEntitiesMap.containsKey(classInfo.getClassName()) || !matchesComponents(allEntitiesMap.get(classInfo.getClassName())))
+                allEntitiesMap.put(classInfo.getClassName(), classInfo);
+        });
+        interfaces.forEach (classInfo -> {
+            if (!allEntitiesMap.containsKey(classInfo.getClassName()) || !matchesComponents(allEntitiesMap.get(classInfo.getClassName())))
+                allEntitiesMap.put(classInfo.getClassName(), classInfo);
+        });
+        enumerations.forEach (classInfo -> {allEntitiesMap.put(classInfo.getClassName(), classInfo);});
+
+        // iterate through the whole lot and add an override for the spec document, if it is
+        // different from the sub-package inferred from the package structure
+        for (ClassInfo classInfo: allEntitiesMap.values())
+            if (classSpecMapExceptions.containsKey(classInfo.getClassSubPackage()))
+                classInfo.setSpecName(classSpecMapExceptions.get(classInfo.getClassSubPackage()));
+
+        // -------------------------- do the publishing ----------------------------
+
+        // Output the entities, but only those components that were requested to publish,
+        // which equates to some selection of sub-packages of the root package, or maybe all
+        if (!componentPackageNames.isEmpty())
+            allEntitiesMap.values()
+                    .stream()
+                    .filter (this::matchesComponents)
+                    .forEach (ci -> exportClass (ci, classesFolder));
+        else
+            allEntitiesMap.values().forEach (ci -> exportClass (ci, classesFolder));
 
         // Generate the index file
-        if (indexRelease != null) {
-            generateIndex(outputFolder, classes, interfaces, enumerations);
-        }
+        if (specRelease != null)
+            generateIndex (outputFolder, allEntitiesMap);
 
         // obtain and generate the diagrams
         File diagramsFolder = new File(outputFolder, DIAGRAMS_FOLDER);
         if (!diagramsFolder.exists()) {
-            if (!diagramsFolder.mkdir()) {
-                throw new UmlAdocExporterException("Unable to create folder: " + diagramsFolder);
-            }
+            if (!diagramsFolder.mkdir())
+                throw new UmlAdocExporterException ("Unable to create folder: " + diagramsFolder);
         }
 
         List<DiagramPresentationElement> diagrams = project.getDiagrams().stream()
                 .filter(this::diagMatchesRootPackages)
                 .collect(Collectors.toList());
         diagrams.forEach(d -> exportDiagram(diagramsFolder, d));
-    }
-
-    private boolean matchesRootPackages(NamedElement namedElement) {
-        return rootPackageNames.stream().anyMatch (rn -> namedElement.getQualifiedName().contains(rn + "::"));
-     //   return rootPackageNames.stream().filter(rn -> namedElement.getQualifiedName().contains(rn)).findFirst().isPresent();
-    }
-
-    private boolean diagMatchesRootPackages(DiagramPresentationElement diagElement) {
-        return rootPackageNames.stream().anyMatch (rn -> diagElement.getName().contains(rn + "-"));
     }
 
     /**
@@ -179,96 +198,94 @@ public class UmlAdocExporter {
      * @param classInfo info object for the class.
      * @exception IOException on fail to write to file.
      */
-    private void exportClass(ClassInfo classInfo, File targetFolder) {
+    private void exportClass (ClassInfo classInfo, File targetFolder) {
         try (PrintWriter printWriter = new PrintWriter(Files.newBufferedWriter(
                 targetFolder.toPath().resolve(fileName(classInfo.getClassName().toLowerCase()) + ADOC_FILE_EXTENSION), Charset.forName("UTF-8")))) {
-            printWriter.println(headingPrefix + ' ' + classInfo.getClassTypeName() + ' ' + classInfo.getMetaType());
+            printWriter.println(formatter.heading(classInfo.getClassTypeName() + ' ' + classInfo.getMetaType(), headingLevel));
             printWriter.println();
 
-            printWriter.println("[cols=\"^1,3,5\"]");
-            printWriter.println("|===");
-            printWriter.println("h|" + formatter.bold(classInfo.getMetaType()));
-            printWriter.println("2+^h|" +
-                                        (classInfo.isAbstractClass()
-                                                ? formatter.italicBold(classInfo.getClassTypeName() + " (abstract)")
-                                                : formatter.bold(classInfo.getClassTypeName())));
+            printWriter.println(formatter.tableDefinition ("1,3,5"));
+            printWriter.println(formatter.tableDelimiter());
+            printWriter.println(formatter.tableColHeader (classInfo.getMetaType(), 1));
+            printWriter.println(formatter.tableColHeaderCentred (
+                    (classInfo.isAbstractClass()
+                            ? formatter.italic(classInfo.getClassTypeName() + " (abstract)")
+                            : classInfo.getClassTypeName()),
+                    2)
+            );
             printWriter.println();
 
-            printWriter.println("h|" + formatter.bold("Description"));
+            printWriter.println(formatter.tableColHeader ("Description", 1));
 
-            printWriter.println("2+a|" + formatter.escapeColumnSeparator(formatter.normalizeLines(classInfo.getDocumentation())));
+            printWriter.println(formatter.tableCellPassthrough (classInfo.getDocumentation(), 2));
             printWriter.println();
 
-            if (classInfo.getParentClassName() != null) {
-                printWriter.println("h|" + formatter.bold("Inherit"));
-                printWriter.println("2+|" + classInfo.getParentClassName());
-                printWriter.println();
+            // inheritance parents
+            if (!classInfo.getParentClassNames().isEmpty()) {
+                printWriter.println (formatter.tableColHeader ("Inherit", 1));
+                StringBuilder sb = new StringBuilder();
+                for (String parentClass: classInfo.getParentClassNames())
+                    sb.append (formatter.monospace (linkClassName (classInfo, parentClass))).append(", ");
+
+                String parentsString = "";
+                // remove any trailing ", "
+                if (sb.length() > 0)
+                    parentsString = sb.substring(0, sb.length() - 2);
+                printWriter.println (formatter.tableCell (parentsString, 2));
+                printWriter.println ();
             }
 
+            // constants
             if (!classInfo.getConstants().isEmpty()) {
-                printWriter.println("h|" + formatter.bold("Constants"));
-                printWriter.println("^h|" + formatter.bold("Signature"));
-                printWriter.println("^h|" + formatter.bold("Meaning"));
+                printWriter.println (formatter.tableColHeader ("Constants", 1));
+                printWriter.println (formatter.tableColHeaderCentred ("Signature", 1));
+                printWriter.println (formatter.tableColHeaderCentred ("Meaning", 1));
 
-                exportConstants(classInfo, printWriter);
+                for (ClassFeatureInfo classFeatureInfo : classInfo.getConstants())
+                    printWriter.print (postProcess (classInfo, formatFeature  (classFeatureInfo)));
             }
 
+            // attributes
             if (!classInfo.getAttributes().isEmpty()) {
-                printWriter.println("h|" + formatter.bold("Attributes"));
-                printWriter.println("^h|" + formatter.bold("Signature"));
-                printWriter.println("^h|" + formatter.bold("Meaning"));
+                printWriter.println (formatter.tableColHeader ("Attributes", 1));
+                printWriter.println (formatter.tableColHeaderCentred ("Signature", 1));
+                printWriter.println (formatter.tableColHeaderCentred ("Meaning", 1));
 
-                exportAttributes(classInfo, printWriter);
+                for (ClassFeatureInfo classFeatureInfo : classInfo.getAttributes())
+                    printWriter.print (postProcess (classInfo, formatFeature  (classFeatureInfo)));
             }
 
+            // operations
             if (!classInfo.getOperations().isEmpty()) {
-                printWriter.println("h|" + formatter.bold("Functions"));
-                printWriter.println("^h|" + formatter.bold("Signature"));
-                printWriter.println("^h|" + formatter.bold("Meaning"));
+                printWriter.println (formatter.tableColHeader ("Functions", 1));
+                printWriter.println (formatter.tableColHeaderCentred ("Signature", 1));
+                printWriter.println (formatter.tableColHeaderCentred ("Meaning", 1));
 
-                exportFunctions(classInfo, printWriter);
+                for (ClassFeatureInfo classFeatureInfo : classInfo.getOperations())
+                    printWriter.print (postProcess (classInfo, formatFeature  (classFeatureInfo)));
             }
 
-            if (!classInfo.getConstraints().isEmpty()) {
-                exportConstraints(classInfo, printWriter);
-            }
+            // invariants
+            if (!classInfo.getConstraints().isEmpty())
+                printWriter.print (postProcess (classInfo, formatConstraints  (classInfo)));
 
-            printWriter.println("|===");
+            printWriter.println(formatter.tableDelimiter());
+
         } catch (IOException e) {
             throw new UmlAdocExporterException(e);
         }
     }
 
-    /**
-     * Export all constraints in a class as text (invariants) in an Asciidoctor (.adoc) file.
-     * @param classInfo info object for the class.
-     * @param printWriter File outputter.
-     */
-    private void exportConstraints(ClassInfo classInfo, PrintWriter printWriter) {
-        String title = formatter.bold("Invariants");
-        for (ConstraintInfo constraintInfo : classInfo.getConstraints()) {
-            printWriter.println();
-            printWriter.println("h|" + formatter.escapeColumnSeparator(title));
 
-            printWriter.println("2+a|" + formatter.escapeColumnSeparator(formatter.normalizeLines(constraintInfo.getDocumentation())));
-            title = "";
-        }
-    }
     /**
      * Generate an HTML file containing a clickable index of Class names that contain links to the location of
      * the class within the relevant specification.
      * @param targetFolder Directory in which to write the file.
-     * @param classes classes to include in index.
-     * @param interfaces interfaces to include in index.
-     * @param enumerations enumerations to include in index.
+     * @param allEntities classes, interfaces, and enumerations to include in index.
      * @exception IOException on fail to write to file.
      */
-    private void generateIndex(File targetFolder, List<ClassInfo> classes, List<ClassInfo> interfaces, List<ClassInfo> enumerations) {
-        List<ClassInfo> allTypes = new ArrayList<>(classes.size() + interfaces.size() + enumerations.size());
-        allTypes.addAll(classes);
-        allTypes.addAll(interfaces);
-        allTypes.addAll(enumerations);
-
+    private void generateIndex(File targetFolder, Map<String, ClassInfo> allEntities) {
+        List<ClassInfo> allTypes = new ArrayList<> (allEntities.values());
         Collections.sort(allTypes);
 
         Path targetPath = targetFolder.toPath().resolve("class_index" + ADOC_FILE_EXTENSION);
@@ -283,32 +300,32 @@ public class UmlAdocExporter {
                 if (classInfo.getClassName().length() > 2) {
 
                     // if Component of class has changed since last iteration, output a new header line
-                    if (!indexComponent.equals(classInfo.getIndexComponent())) {
+                    if (!indexComponent.equals(classInfo.getSpecComponent())) {
                         printWriter.println();
-                        printWriter.println("== Component " + classInfo.getIndexComponent());
-                        indexComponent = classInfo.getIndexComponent();
+                        printWriter.println(formatter.heading ("Component " + classInfo.getSpecComponent(), 2));
+                        indexComponent = classInfo.getSpecComponent();
                     }
 
                     // if Package of class has changed since last iteration, output a new header line
-                    if (!indexPackage.equals(classInfo.getIndexPackage())) {
+                    if (!indexPackage.equals(classInfo.getClassPackage())) {
                         printWriter.println();
-                        printWriter.println("=== Model " + classInfo.getIndexPackage());
-                        indexPackage = classInfo.getIndexPackage();
+                        printWriter.println(formatter.heading ("Model " + classInfo.getClassPackage(), 3));
+                        indexPackage = classInfo.getClassPackage();
                     }
 
                     // if Sub-package of class has changed since last iteration, output a new header line
-                    if (!indexSubPackage.equals(classInfo.getIndexSubPackage())) {
+                    if (!indexSubPackage.equals(classInfo.getClassSubPackage())) {
                         printWriter.println();
-                        printWriter.println("==== Package " + classInfo.getIndexSubPackage());
+                        printWriter.println(formatter.heading ("Package " + classInfo.getClassSubPackage(), 4));
                         printWriter.println();
-                        indexSubPackage = classInfo.getIndexSubPackage();
+                        indexSubPackage = classInfo.getClassSubPackage();
                     }
 
-                    // Output the class as a linked text line
-                    printWriter.printf(INDEX_LINK_FORMAT, indexComponent, indexRelease,
-                            classSpecMap.containsKey(indexSubPackage) ? classSpecMap.get(indexSubPackage) : indexSubPackage, // base link
-                            classInfo.getClassName().toLowerCase(), classInfo.getMetaType().toLowerCase(), // #href
-                            classInfo.getClassName()); // [descr]
+                    // Output the class as a linked text line of the form:
+                    //   [.xcode]
+                    //   * link:/releases/AM/{am_release}/AOM2.html#_c_object_class[C_OBJECT^]
+                    // from the sprintf template string: "[.xcode]\n* %s\n"
+                    printWriter.printf(INDEX_LINK_FORMAT, formatter.externalLink(classInfo.getClassName(), classInfo.urlPath (specRelease)));
                 }
             }
         } catch (IOException e) {
@@ -316,66 +333,104 @@ public class UmlAdocExporter {
         }
     }
 
+    private boolean matchesRootPackage (NamedElement namedElement) {
+        return namedElement.getQualifiedName().contains(rootPackageName + "::");
+    }
+
+    private boolean diagMatchesRootPackages (DiagramPresentationElement diagElement) {
+        return componentPackageNames.stream().anyMatch (rn -> diagElement.getName().contains(rn + "-"));
+    }
+
+    // note: returns false for empty list - need to check for empty case before using this filter
+    private boolean matchesComponents (ClassInfo classInfo) {
+        return componentPackageNames.stream().anyMatch (cn -> classInfo.getSpecComponent().equalsIgnoreCase (cn));
+    }
+
+    /**
+     * Convert a targetClassName like "ELEMENT" that is referenced from originClass
+     * to a link. If the target is in the same package, then it's the same spec,
+     * so use a local ref, else use a full external URL link
+     * @param originClass
+     * @param targetClassName
+     * @return
+     */
+    private String linkClassName (ClassInfo originClass, String targetClassName) {
+        ClassInfo targetClass = allEntitiesMap.get (targetClassName);
+        if (targetClass != null) {
+            if (!targetClass.getSpecName().equals (originClass.getSpecName()))
+                return formatter.externalLink (targetClassName, targetClass.urlPath (specRelease));
+            else
+                return formatter.internalRef (targetClassName, targetClass.localRef());
+        }
+        else
+            return targetClassName;
+    }
+
+    /**
+     * Post-process a formatted String:
+     * - replace "@TypeName@" with linked Typenames (removing the @@)
+     */
+    private String postProcess (ClassInfo classInfo, String classText) {
+        Pattern p = Pattern.compile (TYPE_QUOTE_REGEX);
+        Matcher m = p.matcher (classText);
+        StringBuffer sb = new StringBuffer();
+        while (m.find()) {
+            String matched = m.group();
+            m.appendReplacement(sb, linkClassName (classInfo, matched.substring(1, matched.length()-1)));
+        }
+        m.appendTail(sb);
+
+        return sb.toString();
+    }
+
     /*
      * Handle exceptions to regular relationship between package name and
      * specification document name.
      */
-    static Hashtable<String, String> classSpecMap = new Hashtable<String, String>();
+    static Hashtable<String, String> classSpecMapExceptions = new Hashtable<>();
 
     static {
-        classSpecMap.put("composition", "ehr");
-        classSpecMap.put("aom2", "AOM2");
-        classSpecMap.put("aom2_profile", "AOM2");
-        classSpecMap.put("p_aom2", "AOM2");
+        classSpecMapExceptions.put("composition", "ehr");
+        classSpecMapExceptions.put("aom2", "AOM2");
+        classSpecMapExceptions.put("aom2_profile", "AOM2");
+        classSpecMapExceptions.put("p_aom2", "AOM2");
     }
 
     /**
-     * Export all methods in a class as text in an Asciidoctor (.adoc) file.
+     * Export all elements of a feature in a class as text in an Asciidoctor (.adoc) file.
+     * @param classFeatureInfo info object for the class.
+     */
+    private String formatFeature (ClassFeatureInfo classFeatureInfo) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(System.lineSeparator());
+        sb.append("h|" + formatter.bold(classFeatureInfo.getCardinality() +
+                (classFeatureInfo.getStatus().isEmpty()? "" : " +" + System.lineSeparator() + classFeatureInfo.getStatus())));
+        sb.append(System.lineSeparator());
+        sb.append('|' + classFeatureInfo.getSignature() + System.lineSeparator());
+        sb.append("a|" + formatter.escapeColumnSeparator(formatter.normalizeLines (classFeatureInfo.getDocumentation())) + System.lineSeparator());
+
+        return sb.toString();
+    }
+
+    /**
+     * Export all constraints in a class as text (invariants) in an Asciidoctor (.adoc) file.
      * @param classInfo info object for the class.
-     * @param printWriter File outputter.
      */
-    private void exportFunctions(ClassInfo classInfo, PrintWriter printWriter) {
-        for (ClassFeatureInfo classFeatureInfo : classInfo.getOperations()) {
-            printWriter.println();
-            printWriter.println("h|" + classFeatureInfo.getStatus());
+    private String formatConstraints (ClassInfo classInfo) {
+        StringBuilder sb = new StringBuilder();
 
-            printWriter.println('|' + classFeatureInfo.getSignature());
-            printWriter.println("a|" + formatter.escapeColumnSeparator(formatter.normalizeLines(classFeatureInfo.getDocumentation())));
+        String title = formatter.bold("Invariants");
+        for (ConstraintInfo constraintInfo : classInfo.getConstraints()) {
+            sb.append (System.lineSeparator());
+            sb.append ("h|" + formatter.escapeColumnSeparator (title));
+            sb.append(System.lineSeparator());
+
+            sb.append ("2+a|" + formatter.escapeColumnSeparator (formatter.normalizeLines(constraintInfo.getDocumentation())));
+            sb.append(System.lineSeparator());
+            title = "";
         }
-    }
 
-    /**
-     * Export all attributes in a class as text in an Asciidoctor (.adoc) file.
-     * @param classInfo info object for the class.
-     * @param printWriter File outputter.
-     */
-    private void exportAttributes(ClassInfo classInfo, PrintWriter printWriter) {
-        for (ClassFeatureInfo classFeatureInfo : classInfo.getAttributes()) {
-            exportAttribute(printWriter, classFeatureInfo);
-        }
-    }
-
-    /**
-     * Export all constants in a class as text in an Asciidoctor (.adoc) file.
-     * @param classInfo info object for the class.
-     * @param printWriter File outputter.
-     */
-    private void exportConstants(ClassInfo classInfo, PrintWriter printWriter) {
-        for (ClassFeatureInfo classFeatureInfo : classInfo.getConstants()) {
-            exportAttribute(printWriter, classFeatureInfo);
-        }
-    }
-
-    /**
-     * Export a single attribute in a class as text in an Asciidoctor (.adoc) file.
-     * @param classFeatureInfo info object for the attribute.
-     * @param printWriter File outputter.
-     */
-    private void exportAttribute(PrintWriter printWriter, ClassFeatureInfo classFeatureInfo) {
-        printWriter.println();
-        printWriter.println("h|" + formatter.bold(classFeatureInfo.getStatus()));
-        printWriter.println('|' + classFeatureInfo.getSignature());
-        printWriter.println("a|" + formatter.escapeColumnSeparator(formatter.normalizeLines(classFeatureInfo.getDocumentation())));
+        return sb.toString();
     }
 
     /**

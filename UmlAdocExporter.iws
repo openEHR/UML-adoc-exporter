@@ -4,11 +4,28 @@
     <list default="true" id="48dfd104-3932-40fd-aae1-1c12a81f0f48" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/UmlAdocExporter.iws" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter.iws" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/AbstractInfoBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/AbstractInfoBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/AsciidocFormatter.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/AsciidocFormatter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/ClassFeatureInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/ClassFeatureInfo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/ClassInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/ClassInfo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/ClassInfoBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/ClassInfoBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/EnumerationInfoBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/EnumerationInfoBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/Formatter.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/Formatter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/InterfaceInfoBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/InterfaceInfoBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/UmlAdocExporter.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/UmlAdocExporter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/UmlAdocExporterCommandLine.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/UmlAdocExporterCommandLine.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/UmlAdocExporterPluginAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/UmlAdocExporterPluginAction.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -54,7 +71,10 @@
       <workItem from="1586023122991" duration="7476000" />
       <workItem from="1586095615846" duration="10283000" />
       <workItem from="1586164330696" duration="3696000" />
-      <workItem from="1586170511037" duration="2723000" />
+      <workItem from="1586170511037" duration="3334000" />
+      <workItem from="1589129513873" duration="5888000" />
+      <workItem from="1593552436524" duration="573000" />
+      <workItem from="1594915486151" duration="39018000" />
     </task>
     <servers />
   </component>
@@ -62,32 +82,23 @@
     <option name="version" value="1" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="590" y="214" width="800" height="684" key="#Configure_Path_Variables" timestamp="1581280450547">
-      <screen x="70" y="27" width="1850" height="1053" />
-    </state>
-    <state x="590" y="214" width="800" height="684" key="#Configure_Path_Variables/70.27.1850.1053@70.27.1850.1053" timestamp="1581280450547" />
     <state x="391" y="211" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1586097849279">
       <screen x="0" y="27" width="1866" height="1053" />
     </state>
     <state x="391" y="211" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.27.1866.1053@0.27.1866.1053" timestamp="1586097849279" />
-    <state x="441" y="150" width="974" height="814" key="CommitChangelistDialog2" timestamp="1582745524433">
-      <screen x="0" y="27" width="1866" height="1053" />
+    <state x="715" y="252" width="424" height="610" key="FileChooserDialogImpl" timestamp="1593552487590">
+      <screen x="0" y="27" width="1864" height="1053" />
     </state>
-    <state x="441" y="150" width="974" height="814" key="CommitChangelistDialog2/0.27.1866.1053@0.27.1866.1053" timestamp="1582745524433" />
-    <state x="768" y="317" width="424" height="491" key="FileChooserDialogImpl" timestamp="1581280440985">
-      <screen x="70" y="27" width="1850" height="1053" />
+    <state x="715" y="252" width="424" height="610" key="FileChooserDialogImpl/0.27.1864.1053@0.27.1864.1053" timestamp="1593552487590" />
+    <state x="517" y="252" width="1180" height="609" key="NewModule_or_Project.wizard" timestamp="1593553003186">
+      <screen x="0" y="27" width="1864" height="1053" />
     </state>
-    <state x="768" y="317" width="424" height="491" key="FileChooserDialogImpl/70.27.1850.1053@70.27.1850.1053" timestamp="1581280440985" />
-    <state x="418" y="188" width="1022" height="737" key="SettingsEditor" timestamp="1582750840910">
-      <screen x="0" y="27" width="1866" height="1053" />
+    <state x="517" y="252" width="1180" height="609" key="NewModule_or_Project.wizard/0.27.1864.1053@0.27.1864.1053" timestamp="1593553003186" />
+    <state x="585" y="380" key="com.intellij.ide.util.TipDialog" timestamp="1593552445648">
+      <screen x="0" y="27" width="1864" height="1053" />
     </state>
-    <state x="418" y="188" key="SettingsEditor/0.27.1866.1053@0.27.1866.1053" timestamp="1582750840910" />
-    <state x="484" y="188" width="1022" height="737" key="SettingsEditor/70.27.1850.1053@70.27.1850.1053" timestamp="1581280476574" />
-    <state x="586" y="380" key="com.intellij.ide.util.TipDialog" timestamp="1586170521012">
-      <screen x="0" y="27" width="1866" height="1053" />
-    </state>
+    <state x="585" y="380" key="com.intellij.ide.util.TipDialog/0.27.1864.1053@0.27.1864.1053" timestamp="1593552445648" />
     <state x="586" y="380" key="com.intellij.ide.util.TipDialog/0.27.1866.1053@0.27.1866.1053" timestamp="1586170521012" />
-    <state x="651" y="380" key="com.intellij.ide.util.TipDialog/70.27.1850.1053@70.27.1850.1053" timestamp="1581336664364" />
   </component>
   <component name="masterDetails">
     <states>
