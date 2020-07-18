@@ -294,9 +294,9 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
 
         Path targetPath = targetFolder.toPath().resolve("class_index" + ADOC_FILE_EXTENSION);
         try (PrintWriter printWriter = new PrintWriter(Files.newBufferedWriter(targetPath, Charset.forName("UTF-8")))) {
-            String indexComponent = "";
-            String indexPackage = "";
-            String indexSubPackage = "";
+            String specComponent = "";
+            String specPackage = "";
+            String specSubPackage = "";
 
             for (ClassInfo classInfo : allTypes) {
                 // The test for className > 2 is to avoid generic parameters like 'T', and
@@ -304,25 +304,25 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
                 if (classInfo.getClassName().length() > 2) {
 
                     // if Component of class has changed since last iteration, output a new header line
-                    if (!indexComponent.equals(classInfo.getSpecComponent())) {
+                    if (!specComponent.equals(classInfo.getSpecComponent())) {
                         printWriter.println();
                         printWriter.println(formatter.heading ("Component " + classInfo.getSpecComponent(), 2));
-                        indexComponent = classInfo.getSpecComponent();
+                        specComponent = classInfo.getSpecComponent();
                     }
 
                     // if Package of class has changed since last iteration, output a new header line
-                    if (!indexPackage.equals(classInfo.getClassPackage())) {
+                    if (!specPackage.equals(classInfo.getClassPackage())) {
                         printWriter.println();
                         printWriter.println(formatter.heading ("Model " + classInfo.getClassPackage(), 3));
-                        indexPackage = classInfo.getClassPackage();
+                        specPackage = classInfo.getClassPackage();
                     }
 
                     // if Sub-package of class has changed since last iteration, output a new header line
-                    if (!indexSubPackage.equals(classInfo.getClassSubPackage())) {
+                    if (!specSubPackage.equals(classInfo.getClassSubPackage())) {
                         printWriter.println();
                         printWriter.println(formatter.heading ("Package " + classInfo.getClassSubPackage(), 4));
                         printWriter.println();
-                        indexSubPackage = classInfo.getClassSubPackage();
+                        specSubPackage = classInfo.getClassSubPackage();
                     }
 
                     // Output the class as a linked text line of the form:
@@ -406,12 +406,12 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
      */
     private String formatFeature (ClassFeatureInfo classFeatureInfo) {
         StringBuilder sb = new StringBuilder();
-        sb.append(System.lineSeparator());
-        sb.append("h|" + formatter.bold(classFeatureInfo.getCardinality() +
-                (classFeatureInfo.getStatus().isEmpty()? "" : " +" + System.lineSeparator() + classFeatureInfo.getStatus())));
-        sb.append(System.lineSeparator());
-        sb.append('|' + classFeatureInfo.getSignature() + System.lineSeparator());
-        sb.append("a|" + formatter.escapeColumnSeparator(formatter.normalizeLines (classFeatureInfo.getDocumentation())) + System.lineSeparator());
+        sb.append (System.lineSeparator());
+        sb.append (formatter.tableColHeader (classFeatureInfo.getCardinality() +
+                (classFeatureInfo.getStatus().isEmpty()? "" : " +" + System.lineSeparator() + classFeatureInfo.getStatus()), 1));
+        sb.append (System.lineSeparator());
+        sb.append (formatter.tableCell (classFeatureInfo.getSignature(), 1) + System.lineSeparator());
+        sb.append (formatter.tableCellPassthrough (classFeatureInfo.getDocumentation(), 1) + System.lineSeparator());
 
         return sb.toString();
     }
@@ -423,14 +423,14 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
     private String formatConstraints (ClassInfo classInfo) {
         StringBuilder sb = new StringBuilder();
 
-        String title = formatter.bold("Invariants");
+        String title = "Invariants";
         for (ConstraintInfo constraintInfo : classInfo.getConstraints()) {
             sb.append (System.lineSeparator());
-            sb.append ("h|" + formatter.escapeColumnSeparator (title));
-            sb.append(System.lineSeparator());
+            sb.append (formatter.tableColHeader(title, 1));
+            sb.append (System.lineSeparator());
 
-            sb.append ("2+a|" + formatter.escapeColumnSeparator (formatter.normalizeLines(constraintInfo.getDocumentation())));
-            sb.append(System.lineSeparator());
+            sb.append (formatter.tableCellPassthrough (constraintInfo.getDocumentation(), 2));
+            sb.append (System.lineSeparator());
             title = "";
         }
 

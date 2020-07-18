@@ -91,20 +91,20 @@ public class AsciidocFormatter implements Formatter {
     }
 
     /**
-     * Removing leading and trailing spaces from lines, except in literal (code etc) blocks.
+     * Removing leading and trailing spaces from lines, except in literal (code etc) blocks
+     * and line continuation lines (i.e. " +")
      * @param doc documentation string.
      */
     @Override
-    public String normalizeLines(String doc) {
-        StringBuilder classDoc = new StringBuilder();
+    public String normalizeLines (String doc) {
+        StringBuilder sb = new StringBuilder();
         boolean inLiteralBlock = false;
         for (String line : doc.split("\n")) {
-            if (line.trim().startsWith("----")) {
+            if (line.trim().startsWith("----") || line.equals(" +"))
                 inLiteralBlock = !inLiteralBlock;
-            }
-            classDoc.append(inLiteralBlock ? line : line.trim()).append('\n');
+            sb.append (inLiteralBlock ? line : line.trim()).append(System.lineSeparator());
         }
-        return classDoc.toString().trim();
+        return sb.toString().trim();
     }
 
     /**
@@ -161,7 +161,7 @@ public class AsciidocFormatter implements Formatter {
      */
     @Override
     public String tableCell (String text, int mergeCellCount) {
-        return (mergeCellCount > 1 ? String.valueOf(mergeCellCount) + "+" : "") + "|" + text;
+        return (mergeCellCount > 1 ? String.valueOf(mergeCellCount) + "+" : "") + "|" + escapeColumnSeparator (normalizeLines (text));
     }
 
     @Override

@@ -88,13 +88,13 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
     }
 
     // Add class- or routine-level constraints
-    protected void addConstraints(List<ConstraintInfo> constraints, Collection<Constraint> constraintOfConstrainedElement) {
+    protected void addConstraints (List<ConstraintInfo> constraints, Collection<Constraint> constraintOfConstrainedElement) {
         for (Constraint constraint : constraintOfConstrainedElement) {
             constraints.add(new ConstraintInfo().setDocumentation(formatConstraint(constraint)));
         }
     }
 
-    private String formatConstraint(Constraint constraint) {
+    private String formatConstraint (Constraint constraint) {
         StringBuilder builder = new StringBuilder(formatter.italic(constraint.getName())).append(": ");
         if (constraint.getSpecification() instanceof OpaqueExpression) {
             OpaqueExpression opaqueExpression = (OpaqueExpression)constraint.getSpecification();
@@ -111,7 +111,7 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
         return builder.toString();
     }
 
-    protected void addAttributes(List<ClassFeatureInfo> attributes, List<Property> properties, Map<String, Property> superClassAttributes) {
+    protected void addAttributes (List<ClassFeatureInfo> attributes, List<Property> properties, Map<String, Property> superClassAttributes) {
         properties.stream()
                 .filter(p -> !superClassAttributes.containsKey(p.getName()))
                 .filter(p -> !p.isReadOnly())
@@ -139,7 +139,7 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
      * @param property the property to add.
      * @param attrStatus Status of attribute in this class: defined, redefined etc.
      */
-    private void addAttribute(List<ClassFeatureInfo> attributes, Property property, OperationStatus attrStatus) {
+    private void addAttribute (List<ClassFeatureInfo> attributes, Property property, OperationStatus attrStatus) {
         // create a ClassFeatureInfo with attribute documentation, occurrences and redefined marker
         ClassFeatureInfo classFeatureInfo = new ClassFeatureInfo()
                 .setDocumentation(getDocumentation(property, formatter))
@@ -219,81 +219,6 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
         classFeatureInfo.setSignature(sigBuilder.toString());
 
         attributes.add(classFeatureInfo);
-    }
-
-    /**
-     * Here we will do a trick: we will wrap every type name in @@, e.g.
-     * "@List@<@ITEM@>" in preparation for post processing, which will
-     * replace each "@Type@" with a linked version
-     * @param type
-     * @param qualifier
-     * @param lower
-     * @param upper
-     * @return
-     */
-    private String formatType (String type, Property qualifier, int lower, int upper) {
-        String result;
-
-        // if there is no qualifier, output either the UML relation target type or List<target type>
-        if (qualifier == null) {
-            // have to handle the case where the typename may be of a generic form, usually
-            // only for nested generics, which UML cannot do properly
-            if (type.contains("<"))
-                result = quotedClassNames(type);
-            else
-                result = upper == -1 || upper > 1 ? quoteTypeName("List") +
-                        "<" + quoteTypeName(type) + '>' : quoteTypeName(type);
-        }
-        else {
-            String qualifierType = qualifier.getType().getName();
-            String qualifierName = qualifier.getName();
-
-            // if there is a qualifier, but with no name, the output type is either the UML
-            // qualifier type of List<qualifier type>
-            if (qualifierName == null || qualifierName.isEmpty())
-                result = upper == -1 || upper > 1 ? quoteTypeName ("List") +
-                        "<" + quoteTypeName(qualifierType) + '>' : quoteTypeName(qualifierType);
-            // else if there is a qualifier name, it stands for a Hash key, and we output a Hash type sig
-            // This should only occur with multiple relationships.
-            else
-                result = upper == -1 || upper > 1 ? quoteTypeName("Hash") +
-                        "<" + quoteTypeName(qualifierType) + ',' + quoteTypeName(type) + '>' : quoteTypeName(qualifierType);
-        }
-        return result;
-    }
-
-    /**
-     * Add "@TypeName@" quoting to each bare type in a generic type name
-     */
-    private String quotedClassNames (String typeName) {
-        Pattern p = Pattern.compile (BARE_QUOTE_REGEX);
-        Matcher m = p.matcher (typeName);
-        StringBuffer sb = new StringBuffer();
-        while (m.find())
-            m.appendReplacement(sb, quoteTypeName(m.group()));
-        m.appendTail(sb);
-        return sb.toString();
-    }
-
-    /**
-     * Format occurrences in the standard way.
-     * @param lower lower value of occurrences.
-     * @param upper upper value of occurrences.
-     */
-    private String formatInlineOccurences(int lower, int upper) {
-        if (upper == -1)
-            return lower == 0 ? "0..1" : "1";
-        else
-            return lower == upper ? "" + lower : lower + ".." + upper;
-    }
-
-    /**
-     * Format occurrences in a way that accounts for 0..* in UML being represented as List<T>.
-     * @param lower lower value of occurrences.
-     * @param upper upper value of occurrences.
-     */
-    private String formatSpecialOccurences(int lower, int upper) {
-        return upper == -1 ? lower + "..1" : lower + ".." + upper;
     }
 
     protected void addOperations(List<ClassFeatureInfo> features, List<Operation> operations, Map<String, Operation> superClassOperations) {
@@ -472,26 +397,101 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
         // Pre-conditions first; match by looking for leading "pre" (case-insensitive)
         for (Constraint constraint : operation.get_constraintOfConstrainedElement()) {
             if (constraint.getName().toLowerCase().startsWith("pre"))
-                constraintBuilder.append(formatter.hardLineBreak()).append(formatConstraint(constraint));
+                constraintBuilder.append (formatter.hardLineBreak()).append(formatConstraint(constraint));
         }
 
         // Post-conditions
         for (Constraint constraint : operation.get_constraintOfConstrainedElement()) {
             if (constraint.getName().toLowerCase().startsWith("post"))
-                constraintBuilder.append(formatter.hardLineBreak()).append(formatConstraint(constraint));
+                constraintBuilder.append (formatter.hardLineBreak()).append(formatConstraint(constraint));
         }
 
         // Any others
         for (Constraint constraint : operation.get_constraintOfConstrainedElement()) {
             if (!constraint.getName().toLowerCase().matches("(pre|post).*"))
-                constraintBuilder.append(formatter.hardLineBreak()).append(formatConstraint(constraint));
+                constraintBuilder.append (formatter.hardLineBreak()).append(formatConstraint(constraint));
         }
 
         // if there were any constraints, first output a blank line, then the constraints
         if (constraintBuilder.length() > 0) {
-            builder.append(formatter.hardLineBreak());
-            builder.append(constraintBuilder);
+            builder.append (formatter.hardLineBreak());
+            builder.append (constraintBuilder);
         }
+    }
+
+    /**
+     * Here we will do a trick: we will wrap every type name in @@, e.g.
+     * "@List@<@ITEM@>" in preparation for post processing, which will
+     * replace each "@Type@" with a linked version
+     * @param type
+     * @param qualifier
+     * @param lower
+     * @param upper
+     * @return
+     */
+    private String formatType (String type, Property qualifier, int lower, int upper) {
+        String result;
+
+        // if there is no qualifier, output either the UML relation target type or List<target type>
+        if (qualifier == null) {
+            // have to handle the case where the typename may be of a generic form, usually
+            // only for nested generics, which UML cannot do properly
+            if (type.contains("<"))
+                result = quotedClassNames(type);
+            else
+                result = upper == -1 || upper > 1 ? quoteTypeName("List") +
+                        "<" + quoteTypeName(type) + '>' : quoteTypeName(type);
+        }
+        else {
+            String qualifierType = qualifier.getType().getName();
+            String qualifierName = qualifier.getName();
+
+            // if there is a qualifier, but with no name, the output type is either the UML
+            // qualifier type of List<qualifier type>
+            if (qualifierName == null || qualifierName.isEmpty())
+                result = upper == -1 || upper > 1 ? quoteTypeName ("List") +
+                        "<" + quoteTypeName(qualifierType) + '>' : quoteTypeName(qualifierType);
+                // else if there is a qualifier name, it stands for a Hash key, and we output a Hash type sig
+                // This should only occur with multiple relationships.
+            else
+                result = upper == -1 || upper > 1 ? quoteTypeName("Hash") +
+                        "<" + quoteTypeName(qualifierType) + ',' + quoteTypeName(type) + '>' : quoteTypeName(qualifierType);
+        }
+        return result;
+    }
+
+    /**
+     * Add "@TypeName@" quoting to each bare type in a generic type name
+     */
+    private String quotedClassNames (String typeName) {
+        Pattern p = Pattern.compile (BARE_QUOTE_REGEX);
+        Matcher m = p.matcher (typeName);
+        StringBuffer sb = new StringBuffer();
+        while (m.find())
+            m.appendReplacement(sb, quoteTypeName(m.group()));
+        m.appendTail(sb);
+        return sb.toString();
+    }
+
+    /**
+     * Format occurrences in the standard way.
+     * @param lower lower value of occurrences.
+     * @param upper upper value of occurrences.
+     */
+    private String formatInlineOccurences(int lower, int upper) {
+        if (upper == -1)
+            return lower == 0 ? "0..1" : "1";
+        else
+            return lower == upper ? "" + lower : lower + ".." + upper;
+    }
+
+    /**
+     * Format occurrences in a way that accounts for 0..* in UML being represented as List<T>.
+     * @param lower lower value of occurrences.
+     * @param upper upper value of occurrences.
+     */
+    private String formatSpecialOccurences(int lower, int upper) {
+        return upper == -1 ? lower + "..1" : lower + ".." + upper;
     }
 
     protected void setHierarchy (String qualifiedName, ClassInfo classInfo) {
