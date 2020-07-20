@@ -206,7 +206,7 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
     private void exportClass (ClassInfo classInfo, File targetFolder) {
         try (PrintWriter printWriter = new PrintWriter(Files.newBufferedWriter(
                 targetFolder.toPath().resolve(fileName(classInfo.getClassName().toLowerCase()) + ADOC_FILE_EXTENSION), Charset.forName("UTF-8")))) {
-            printWriter.println(formatter.heading(classInfo.getClassTypeName() + ' ' + classInfo.getMetaType(), headingLevel));
+            printWriter.println(formatter.heading(classInfo.getClassName() + ' ' + classInfo.getMetaType(), headingLevel));
             printWriter.println();
 
             printWriter.println(formatter.tableDefinition ("1,3,5"));
