@@ -123,18 +123,25 @@ public class ClassInfo implements Comparable<ClassInfo> {
     }
 
     // Output a URL for the class of the form:
-    //   '/releases/<component>>/<release>/<spec>>.html#<fragment>'
-    // where <release> is an Asciidoctor variable ref like '{am_release}'
+    //   "/releases/<component>>/<release_ref>/<spec>>.html#<fragment>"
+    // where <release_ref> is an Asciidoctor variable ref like '{am_release}'
     // e.g.
-    //   '/releases/AM/{am_release}/AOM2.html#_c_object_class'
-    String urlPath (String aRelease) {
-        return "/releases/" + specComponent + "/" + aRelease + "/" + // path
+    //   "/releases/AM/{am_release}/AOM2.html#_c_object_class"
+    String urlPath (String aSpecReleaseVarPattern) {
+        // in the below, we rewrite the release ref to match the spec component i.e. so that a
+        // link to a BASE component class will have a release ref like
+        // "{base_release}", and not the ref for the component for which this
+        // extraction was invoked (e.g. "{rm_release}" or whatever
+
+        return "/releases/" + specComponent + "/" +                  // component e.g. "AM"
+                String.format(aSpecReleaseVarPattern,
+                          specComponent.toLowerCase()) + "/" +       // release
                 getSpecName() + ".html" +                            // doc
                 "#" + localRef();                                    // fragment
     }
 
-    // Output an internal document ref:
-    //   /releases/AM/{am_release}/AOM2.html#_c_object_class
+    // Output an internal document ref, e.g.:
+    //   "_c_object_class"
     String localRef () {
         return "_" + className.toLowerCase() + "_" + metaType.toLowerCase();
     }

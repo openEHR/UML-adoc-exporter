@@ -41,15 +41,20 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
     private final Set<String> componentPackageNames;
     private final Map<String, Integer> imageFormats;
 
-    private final String specRelease;
+    // This is a printf pattern giving the form of an Asciidoctor variable name containing
+    // a single '%s' for substitution, e.g. "{%s_release}", where the %s will be substituted
+    // by the component name (lower case) of each class, some of which are in the core package
+    // others of which are in other components.
+    private final String specReleaseVarPattern;
 
     // map of all ClassInfo keyed by class name
     private Map<String, ClassInfo> allEntitiesMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-    public UmlAdocExporter(int aHeadingLevel, String aRootPackageName, Set<String> aComponentPackageNames, String aSpecRelease, Map<String, Integer> anImageFormats) {
+    public UmlAdocExporter(int aHeadingLevel, String aRootPackageName, Set<String> aComponentPackageNames, String aSpecReleasePattern, Map<String, Integer> anImageFormats) {
         headingLevel = aHeadingLevel;
         rootPackageName = aRootPackageName;
-        specRelease = aSpecRelease;
+        specReleaseVarPattern = aSpecReleasePattern;
+
         imageFormats = anImageFormats;
         componentPackageNames = aComponentPackageNames;
     }
@@ -154,13 +159,12 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
             allEntitiesMap.values().forEach (ci -> exportClass (ci, classesFolder));
 
         // Generate the index file
-        if (specRelease != null)
-            generateIndex (outputFolder,
-                    allEntitiesMap.values()
-                    .stream()
-                    .filter (this::matchesComponents)
-                    .collect(Collectors.toList())
-            );
+        generateIndex (outputFolder,
+                allEntitiesMap.values()
+                .stream()
+                .filter (this::matchesComponents)
+                .collect(Collectors.toList())
+        );
 
         // obtain and generate the diagrams
         File diagramsFolder = new File(outputFolder, DIAGRAMS_FOLDER);
@@ -329,7 +333,7 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
                     //   [.xcode]
                     //   * link:/releases/AM/{am_release}/AOM2.html#_c_object_class[C_OBJECT^]
                     // from the sprintf template string: "[.xcode]\n* %s\n"
-                    printWriter.printf(INDEX_LINK_FORMAT, formatter.externalLink(classInfo.getClassName(), classInfo.urlPath (specRelease)));
+                    printWriter.printf(INDEX_LINK_FORMAT, formatter.externalLink(classInfo.getClassName(), classInfo.urlPath (specReleaseVarPattern)));
                 }
             }
         } catch (IOException e) {
@@ -362,7 +366,7 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
         ClassInfo targetClass = allEntitiesMap.get (targetClassName);
         if (targetClass != null) {
             if (!targetClass.getSpecName().equals (originClass.getSpecName()))
-                return formatter.externalLink (targetClassName, targetClass.urlPath (specRelease));
+                return formatter.externalLink (targetClassName, targetClass.urlPath (specReleaseVarPattern));
             else
                 return formatter.internalRef (targetClassName, targetClass.localRef());
         }

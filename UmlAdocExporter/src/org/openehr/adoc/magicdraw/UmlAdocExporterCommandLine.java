@@ -29,7 +29,7 @@ public class UmlAdocExporterCommandLine extends CommandLine {
     private int headingLevel;
     private String rootPackageName = "openehr";
     private final Set<String> componentPackageNames = new HashSet<>();
-    private String specRelease;
+    private String specReleaseVarPattern = UmlExporterDefinitions.SPEC_RELEASE_PATTERN_DEFAULT; // default value
 
     // If not set, output PNG and SVG; else must be set to either "svg" or "png"
     private String imageFormat;
@@ -55,7 +55,7 @@ public class UmlAdocExporterCommandLine extends CommandLine {
         projectsManager.loadProject(projectDescriptor, true);
         Project project = projectsManager.getActiveProject();
 
-        UmlAdocExporter exporter = new UmlAdocExporter (headingLevel, rootPackageName, componentPackageNames, specRelease, imageFormats != null? imageFormats : defaultImageFormats);
+        UmlAdocExporter exporter = new UmlAdocExporter (headingLevel, rootPackageName, componentPackageNames, specReleaseVarPattern, imageFormats != null? imageFormats : defaultImageFormats);
         try {
             exporter.exportProject(outFolder, project);
             return (byte)0;
@@ -108,7 +108,7 @@ public class UmlAdocExporterCommandLine extends CommandLine {
                     break;
 
                 case "-i":
-                    specRelease = getParameterValue (iterator, "-i");
+                    specReleaseVarPattern = getParameterValue (iterator, "-i");
                     break;
 
                 case "-?":
@@ -119,7 +119,7 @@ public class UmlAdocExporterCommandLine extends CommandLine {
                     System.out.println("       -o: output folder (default = current folder)");
                     System.out.println("       -l: class headings level (default = 3)");
                     System.out.println("       -r: root package name to export (default = openehr)");
-                    System.out.println("       -i: generate an index against a specific release, for example Release-1.0.3");
+                    System.out.println("       -i: pass asciidoctor release var name pattern, e.g. '{%s_release}'");
                     helpOnly = true;
                     break;
 
