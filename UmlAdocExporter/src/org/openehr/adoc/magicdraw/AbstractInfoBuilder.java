@@ -300,7 +300,7 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
             addDocumentParameters(opDocBuilder, operation.getOwnedParameter());
         }
 
-        // If there is a return type, append to the signature it in monospace.
+        // If there is a return type, append it to the signature in monospace.
         String type = operation.getType() == null ? "" : operation.getType().getName();
         StringBuilder fullSigBuilder = type.isEmpty()
                 ? new StringBuilder(opSigBuilder)
@@ -432,30 +432,28 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
     private String formatType (String type, Property qualifier, int lower, int upper) {
         String result;
 
+        String quotedTypeName = type.contains("<")? quotedClassNames(type) :  quoteTypeName(type);
+
         // if there is no qualifier, output either the UML relation target type or List<target type>
         if (qualifier == null) {
-            // have to handle the case where the typename may be of a generic form, usually
-            // only for nested generics, which UML cannot do properly
-            if (type.contains("<"))
-                result = quotedClassNames(type);
-            else
-                result = upper == -1 || upper > 1 ? quoteTypeName("List") +
-                        "<" + quoteTypeName(type) + '>' : quoteTypeName(type);
+            // synthesise List<> wrapper where cardinality indicates a container
+            result = upper == -1 || upper > 1 ? quoteTypeName("List") +
+                        "<" + quotedTypeName + '>' : quotedTypeName;
         }
         else {
-            String qualifierType = qualifier.getType().getName();
+            String quotedQualifierType = quoteTypeName (qualifier.getType().getName());
             String qualifierName = qualifier.getName();
 
             // if there is a qualifier, but with no name, the output type is either the UML
             // qualifier type of List<qualifier type>
             if (qualifierName == null || qualifierName.isEmpty())
                 result = upper == -1 || upper > 1 ? quoteTypeName ("List") +
-                        "<" + quoteTypeName(qualifierType) + '>' : quoteTypeName(qualifierType);
+                        "<" + quotedQualifierType + '>' : quotedQualifierType;
                 // else if there is a qualifier name, it stands for a Hash key, and we output a Hash type sig
                 // This should only occur with multiple relationships.
             else
                 result = upper == -1 || upper > 1 ? quoteTypeName("Hash") +
-                        "<" + quoteTypeName(qualifierType) + ',' + quoteTypeName(type) + '>' : quoteTypeName(qualifierType);
+                        "<" + quotedQualifierType + ',' + quotedTypeName + '>' : quotedQualifierType;
         }
         return result;
     }

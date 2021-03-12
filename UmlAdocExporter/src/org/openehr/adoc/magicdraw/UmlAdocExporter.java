@@ -129,22 +129,22 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
 //                new Class[]{com.nomagic.uml2.ext.magicdraw.classes.mdkernel.???},
 //                true);
 
-        // --------- build a global map of ClassInfo keyed by class name--------
+        // --------- build a global map of ClassInfo keyed by class name --------
         classes.forEach (classInfo -> {
-            if (!allEntitiesMap.containsKey(classInfo.getClassName()) || !matchesComponents(allEntitiesMap.get(classInfo.getClassName())))
-                allEntitiesMap.put(classInfo.getClassName(), classInfo);
+            if (!allEntitiesMap.containsKey (classInfo.getClassName()) || !matchesComponents (allEntitiesMap.get (classInfo.getClassName())))
+                allEntitiesMap.put (classInfo.getClassName(), classInfo);
         });
         interfaces.forEach (classInfo -> {
-            if (!allEntitiesMap.containsKey(classInfo.getClassName()) || !matchesComponents(allEntitiesMap.get(classInfo.getClassName())))
+            if (!allEntitiesMap.containsKey (classInfo.getClassName()) || !matchesComponents (allEntitiesMap.get (classInfo.getClassName())))
                 allEntitiesMap.put(classInfo.getClassName(), classInfo);
         });
-        enumerations.forEach (classInfo -> {allEntitiesMap.put(classInfo.getClassName(), classInfo);});
+        enumerations.forEach (classInfo -> {allEntitiesMap.put (classInfo.getClassName(), classInfo);});
 
         // iterate through the whole lot and add an override for the spec document, if it is
         // different from the sub-package inferred from the package structure
         for (ClassInfo classInfo: allEntitiesMap.values())
-            if (classSpecMapExceptions.containsKey(classInfo.getClassSubPackage()))
-                classInfo.setSpecName(classSpecMapExceptions.get(classInfo.getClassSubPackage()));
+            if (classSpecMapExceptions.containsKey (classInfo.getClassSubPackage()))
+                classInfo.setSpecName (classSpecMapExceptions.get (classInfo.getClassSubPackage()));
 
         // -------------------------- do the publishing ----------------------------
 
