@@ -9,24 +9,24 @@ import java.util.function.Function;
  * @author Bostjan Lah
  */
 public class ClassInfo implements Comparable<ClassInfo> {
-    private final String metaType;         // "Class", "Interface", "Enumeration" etc
-    private String classTypeName = "";     // including any generics
-    private String className = "";         // root class name
-    private String documentation = "";
+    private final String metaType;          // "Class", "Interface", "Enumeration" etc
+    private String classTypeName = "";      // including any generics
+    private String className = "";          // root class name
+    private String documentation = "";      // class documentation
     private List<String> parentClassNames  = new ArrayList<>();
-    private String specComponent = "";
-    private String classPackage = "";
-    private String classSubPackage = ""; // generally equals spec name
-    private String specNameOverride;     // an override for the spec, if not = subPackage
-    private boolean abstractClass;
+    private String specComponent = "";      // specification component, extracted from package hierarchy
+    private String classPackage = "";       // Usually something like org.openehr.rm
+    private String classSubPackage = "";    // generally equals spec name, e.g. 'common'
+    private String specNameOverride;        // an override for the spec, if not = subPackage
+    private boolean abstractClass;          // True if abstract
 
     private final List<ClassFeatureInfo> attributes = new ArrayList<>();
     private final List<ClassFeatureInfo> constants = new ArrayList<>();
     private final List<ClassFeatureInfo> operations = new ArrayList<>();
     private final List<ConstraintInfo> constraints = new ArrayList<>();
 
-    public ClassInfo(String type) {
-        this.metaType = type;
+    public ClassInfo(String metaType) {
+        this.metaType = metaType;
     }
 
     public String getMetaType() {

@@ -3,11 +3,11 @@
   <component name="ChangeListManager">
     <list default="true" id="48dfd104-3932-40fd-aae1-1c12a81f0f48" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/UmlAdocExporter.iws" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter.iws" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/AbstractInfoBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/AbstractInfoBuilder.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/ClassInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/ClassInfo.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/UmlAdocExporter.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/UmlAdocExporter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/UmlAdocExporterCommandLine.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/UmlAdocExporterCommandLine.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/UmlExporterDefinitions.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/UmlExporterDefinitions.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/UmlAdocExporter.jar" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/UmlAdocExporter.jar" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,7 +28,6 @@
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
-    <option name="showExcludedFiles" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
@@ -48,6 +47,7 @@
       <item itemvalue="JUnit.MyPlugin1Test" />
     </list>
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -72,30 +72,22 @@
       <workItem from="1595592248441" duration="622000" />
       <workItem from="1596206621526" duration="598000" />
       <workItem from="1601374904267" duration="5308000" />
+      <workItem from="1601483681822" duration="1935000" />
+      <workItem from="1602501561559" duration="2166000" />
+      <workItem from="1607034192811" duration="162000" />
+      <workItem from="1615587709793" duration="3140000" />
+      <workItem from="1616173546930" duration="8901000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="1" />
+    <option name="version" value="3" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="391" y="211" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1586097849279">
-      <screen x="0" y="27" width="1866" height="1053" />
-    </state>
-    <state x="391" y="211" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.27.1866.1053@0.27.1866.1053" timestamp="1586097849279" />
-    <state x="715" y="252" width="424" height="610" key="FileChooserDialogImpl" timestamp="1593552487590">
+    <state x="585" y="380" key="com.intellij.ide.util.TipDialog" timestamp="1607034203401">
       <screen x="0" y="27" width="1864" height="1053" />
     </state>
-    <state x="715" y="252" width="424" height="610" key="FileChooserDialogImpl/0.27.1864.1053@0.27.1864.1053" timestamp="1593552487590" />
-    <state x="517" y="252" width="1180" height="609" key="NewModule_or_Project.wizard" timestamp="1593553003186">
-      <screen x="0" y="27" width="1864" height="1053" />
-    </state>
-    <state x="517" y="252" width="1180" height="609" key="NewModule_or_Project.wizard/0.27.1864.1053@0.27.1864.1053" timestamp="1593553003186" />
-    <state x="585" y="380" key="com.intellij.ide.util.TipDialog" timestamp="1593552445648">
-      <screen x="0" y="27" width="1864" height="1053" />
-    </state>
-    <state x="585" y="380" key="com.intellij.ide.util.TipDialog/0.27.1864.1053@0.27.1864.1053" timestamp="1593552445648" />
-    <state x="586" y="380" key="com.intellij.ide.util.TipDialog/0.27.1866.1053@0.27.1866.1053" timestamp="1586170521012" />
+    <state x="585" y="380" key="com.intellij.ide.util.TipDialog/0.27.1864.1053@0.27.1864.1053" timestamp="1607034203401" />
   </component>
   <component name="masterDetails">
     <states>

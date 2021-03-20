@@ -26,13 +26,19 @@ import static java.lang.String.join;
  */
 @SuppressWarnings("UseOfSystemOutOrSystemErr")
 public class UmlAdocExporterCommandLine extends CommandLine {
-    private int headingLevel;
-    private String rootPackageName = "openehr";
-    private final Set<String> componentPackageNames = new HashSet<>();
-    private String specReleaseVarPattern = UmlExporterDefinitions.SPEC_RELEASE_PATTERN_DEFAULT; // default value
 
-    // If not set, output PNG and SVG; else must be set to either "svg" or "png"
-    private String imageFormat;
+    // Asciidoctor document heading level to generate for class texts
+    private int headingLevel;
+
+    // root package name to filter on - avoid packages not under this root
+    private String rootPackageName = UmlExporterDefinitions.ROOT_PACKAGE_NAME_DEFAULT;
+
+    // List of package names under root representing 'components'
+    private final Set<String> componentPackageNames = new HashSet<>();
+
+    // String pattern to insert that represents version id of a component, so that later
+    // Asciidoctor substitution of version name will work
+    private String specReleaseVarPattern = UmlExporterDefinitions.SPEC_RELEASE_PATTERN_DEFAULT;
 
     private Map<String, Integer> defaultImageFormats = Stream.of(new Object[][] {
             { "svg", ImageExporter.SVG },
@@ -70,11 +76,11 @@ public class UmlAdocExporterCommandLine extends CommandLine {
         for (Iterator<String> iterator = Arrays.asList(cmdLineArgs).iterator(); iterator.hasNext(); ) {
             String arg = iterator.next();
             switch (arg) {
-                case "-c":
+                case "-c":  // Component names - packages under root package to include
                     componentPackageNames.addAll (Pattern.compile(",").splitAsStream (getParameterValue (iterator, "-c")).collect(Collectors.toList()));
                     break;
 
-                case "-d":
+                case "-d":  // Asciidoctor only: Diagram file formats
                     String imageFormat = getParameterValue(iterator, "-d").toLowerCase();
                     if (!defaultImageFormats.containsKey(imageFormat)) {
                         throw new UmlAdocExporterException("Invalid argument for -d: " + imageFormat + " (expected one of " +
@@ -86,7 +92,7 @@ public class UmlAdocExporterCommandLine extends CommandLine {
                     }
                     break;
 
-                case "-l":
+                case "-l":  // Asciidoctor only: heading level
                     String level = getParameterValue(iterator, "-l");
                     try {
                         headingLevel = Integer.valueOf(level);
@@ -95,7 +101,7 @@ public class UmlAdocExporterCommandLine extends CommandLine {
                     }
                     break;
 
-                case "-o":
+                case "-o":  // Output folder
                     String outputFolder = getParameterValue(iterator, "-o");
                     Path outputPath = Paths.get(outputFolder);
                     if (!Files.isDirectory(outputPath))
@@ -103,11 +109,11 @@ public class UmlAdocExporterCommandLine extends CommandLine {
                     outFolder = outputPath.toFile();
                     break;
 
-                case "-r":
+                case "-r":  // Root package
                     rootPackageName = getParameterValue (iterator, "-r");
                     break;
 
-                case "-i":
+                case "-i":  // Asciidoctor only: specification release variable pattern to insert in links
                     specReleaseVarPattern = getParameterValue (iterator, "-i");
                     break;
 

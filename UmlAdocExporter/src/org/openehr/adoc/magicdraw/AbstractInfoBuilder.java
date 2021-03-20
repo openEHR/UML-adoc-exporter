@@ -113,13 +113,13 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
 
     protected void addAttributes (List<ClassFeatureInfo> attributes, List<Property> properties, Map<String, Property> superClassAttributes) {
         properties.stream()
-                .filter(p -> !superClassAttributes.containsKey(p.getName()))
-                .filter(p -> !p.isReadOnly())
-                .forEach(p -> addAttribute(attributes, p, OperationStatus.DEFINED));
+                .filter(p -> !superClassAttributes.containsKey(p.getName()))        // if not in inherited properties, it's 'new'
+                .filter(p -> !p.isReadOnly())                                       // treat as a constant; do below
+                .forEach(p -> addAttribute(attributes, p, OperationStatus.DEFINED));// group 'new' properties here
         properties.stream()
-                .filter(p -> superClassAttributes.containsKey(p.getName()))
+                .filter(p -> superClassAttributes.containsKey(p.getName()))         // if in inherited properties, it's a redefine
                 .filter(p -> !p.isReadOnly())
-                .forEach(p -> addAttribute(attributes, p, OperationStatus.REDEFINED));
+                .forEach(p -> addAttribute(attributes, p, OperationStatus.REDEFINED));// group redefined properties here
     }
 
     protected void addConstants(List<ClassFeatureInfo> attributes, List<Property> properties, Map<String, Property> superClassAttributes) {
@@ -492,6 +492,10 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
         return upper == -1 ? lower + "..1" : lower + ".." + upper;
     }
 
+    /**
+     * Extract package information from a string like
+     * "RM::org::openehr::rm::common
+     */
     protected void setHierarchy (String qualifiedName, ClassInfo classInfo) {
         // this is hard-coded for openehr atm
         String[] parts = qualifiedName.split ("::");

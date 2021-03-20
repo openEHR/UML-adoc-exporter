@@ -8,6 +8,8 @@ public abstract class UmlExporterDefinitions {
 
     public static final String SPEC_RELEASE_PATTERN_DEFAULT = "{%s_release}";
 
+    public static final String ROOT_PACKAGE_NAME_DEFAULT = "openehr";
+
     protected String quoteTypeName (String aTypeName) {
         return aTypeName.length() == 1 ? aTypeName : "@" + aTypeName + "@";
     }

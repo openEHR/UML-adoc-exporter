@@ -345,6 +345,8 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
         return namedElement.getQualifiedName().contains(rootPackageName + "::");
     }
 
+    // diagram names follow the pattern COMPONENT-xxxx, e.g. RM-common etc. This returns True if
+    // a diagram matches any of the components being requested.
     private boolean diagMatchesRootPackages (DiagramPresentationElement diagElement) {
         return componentPackageNames.stream().anyMatch (rn -> diagElement.getName().contains(rn + "-"));
     }
