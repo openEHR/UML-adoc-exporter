@@ -1,5 +1,7 @@
 package org.openehr.adoc.magicdraw;
 
+import com.nomagic.uml2.ext.magicdraw.auxiliaryconstructs.mdtemplates.TemplateParameter;
+import com.nomagic.uml2.ext.magicdraw.auxiliaryconstructs.mdtemplates.TemplateSignature;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.*;
 
 import java.util.*;
@@ -12,6 +14,7 @@ import java.util.stream.Stream;
  * @author Bostjan Lah
  */
 public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
+
     static String DOC_ERROR_DELIM = ".Errors";
 
     // The following are names of attributes in the openEHR profile stereotypes
@@ -153,12 +156,6 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
         // determine the type
         String type = property.getType() == null ? "" : property.getType().getName();
 
-        // if there are template parameters, add them to the type name. Because UML doesn't
-        // support a proper notion of types, we have to get the qualified type name, then
-        // search for that, and then check if it is a template type, and if so obtain the
-        // list of parameters and construct a string of the form "<T,U,V>" to add to the root
-        // type name.
-
         // THE FOLLOWING CODE IS AN INITIAL ATTEMPT BUT IS WRONG
         //String type = property.getMetaType() == null ? "" : property.getMetaType().getQualifiedName();
         //TemplateParameter tplParam = property.getClassType().getTypeName();
@@ -173,7 +170,7 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
 
         // if there is a qualifier on the property, get it, since this will modify the type
         Property qualifier = property.getAssociation() != null && property.hasQualifier() ? property.getQualifier().get(0) : null;
-        StringBuilder typeInfo = new StringBuilder (formatType (type, qualifier, property.getLower(), property.getUpper()));
+        StringBuilder typeInfo = new StringBuilder (correctType(type, qualifier, property.getLower(), property.getUpper()));
 
         // If there is a default value defined, output it.
         ValueSpecification defaultValue = property.getDefaultValue();
@@ -304,7 +301,7 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
         String type = operation.getType() == null ? "" : operation.getType().getName();
         StringBuilder fullSigBuilder = type.isEmpty()
                 ? new StringBuilder(opSigBuilder)
-                : new StringBuilder(opSigBuilder + ": " + formatter.monospace(formatType(type, null, operation.getLower(), operation.getUpper())));
+                : new StringBuilder(opSigBuilder + ": " + formatter.monospace(correctType(type, null, operation.getLower(), operation.getUpper())));
 
         // Output any operation pre- and post-conditions (UML constraints)
         addOperationConstraint(operation, fullSigBuilder);
@@ -343,7 +340,7 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
                 else {
                     formattedParameters.add(
                             paramSignature + ": " + formatter.monospace(
-                                    formatType(parameter.getType().getName(), null, parameter.getLower(), parameter.getUpper()) +
+                                    correctType(parameter.getType().getName(), null, parameter.getLower(), parameter.getUpper()) +
                                             '[' + formatInlineOccurences(parameter.getLower(), parameter.getUpper()) + ']'
                             )
                     );
@@ -429,7 +426,7 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
      * @param upper
      * @return
      */
-    private String formatType (String type, Property qualifier, int lower, int upper) {
+    private String correctType(String type, Property qualifier, int lower, int upper) {
         String result;
 
         String quotedTypeName = type.contains("<")? quotedClassNames(type) :  quoteTypeName(type);
@@ -438,7 +435,7 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
         if (qualifier == null) {
             // synthesise List<> wrapper where cardinality indicates a container
             result = upper == -1 || upper > 1 ? quoteTypeName("List") +
-                        "<" + quotedTypeName + '>' : quotedTypeName;
+                        '<' + quotedTypeName + '>' : quotedTypeName;
         }
         else {
             String quotedQualifierType = quoteTypeName (qualifier.getType().getName());
@@ -448,12 +445,12 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
             // qualifier type of List<qualifier type>
             if (qualifierName == null || qualifierName.isEmpty())
                 result = upper == -1 || upper > 1 ? quoteTypeName ("List") +
-                        "<" + quotedQualifierType + '>' : quotedQualifierType;
+                        '<' + quotedQualifierType + '>' : quotedQualifierType;
                 // else if there is a qualifier name, it stands for a Hash key, and we output a Hash type sig
                 // This should only occur with multiple relationships.
             else
                 result = upper == -1 || upper > 1 ? quoteTypeName("Hash") +
-                        "<" + quotedQualifierType + ',' + quotedTypeName + '>' : quotedQualifierType;
+                        '<' + quotedQualifierType + ',' + quotedTypeName + '>' : quotedQualifierType;
         }
         return result;
     }
