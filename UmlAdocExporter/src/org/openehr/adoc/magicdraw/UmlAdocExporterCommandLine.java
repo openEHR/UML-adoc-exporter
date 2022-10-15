@@ -47,6 +47,8 @@ public class UmlAdocExporterCommandLine extends CommandLine {
 
     private Map<String, Integer> imageFormats;
 
+    private boolean qualifiedClassNames;
+
     private File projectFile;
     private File outFolder;
     private boolean helpOnly;
@@ -61,7 +63,7 @@ public class UmlAdocExporterCommandLine extends CommandLine {
         projectsManager.loadProject(projectDescriptor, true);
         Project project = projectsManager.getActiveProject();
 
-        UmlAdocExporter exporter = new UmlAdocExporter (headingLevel, rootPackageName, componentPackageNames, specReleaseVarPattern, imageFormats != null? imageFormats : defaultImageFormats);
+        UmlAdocExporter exporter = new UmlAdocExporter (headingLevel, rootPackageName, componentPackageNames, qualifiedClassNames, specReleaseVarPattern, imageFormats != null? imageFormats : defaultImageFormats);
         try {
             exporter.exportProject(outFolder, project);
             return (byte)0;
@@ -107,6 +109,10 @@ public class UmlAdocExporterCommandLine extends CommandLine {
                     if (!Files.isDirectory(outputPath))
                         throw new UmlAdocExporterException("Output folder " + outputFolder + " doesn't exist!");
                     outFolder = outputPath.toFile();
+                    break;
+
+                case "-q":  // flag to include class-name qualifiers in class file names, i.e. pkg.pkg.class_name.ext
+                    qualifiedClassNames = true;
                     break;
 
                 case "-r":  // Root package

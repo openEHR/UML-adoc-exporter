@@ -9,7 +9,9 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -33,7 +35,7 @@ class UmlAdocExporterPluginAction extends MDAction {
         File outputFolder = chooseFolder();
         if (outputFolder != null) {
             try {
-                UmlAdocExporter exporter = new UmlAdocExporter(3, "openehr", new HashSet<>(), null, null);
+                UmlAdocExporter exporter = new UmlAdocExporter(3, "openehr", new HashSet<>(), false, null, new HashMap<>());
                 exporter.exportProject(outputFolder, Application.getInstance().getProject());
 
                 JOptionPane.showMessageDialog(MDDialogParentProvider.getProvider().getDialogOwner(), "Export complete.", "Export",

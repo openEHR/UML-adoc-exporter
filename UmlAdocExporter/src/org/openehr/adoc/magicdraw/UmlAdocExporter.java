@@ -40,6 +40,7 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
     private final String rootPackageName;
     private final Set<String> componentPackageNames;
     private final Map<String, Integer> imageFormats;
+    private final boolean qualifiedClassNames;
 
     // This is a printf pattern giving the form of an Asciidoctor variable name containing
     // a single '%s' for substitution, e.g. "{%s_release}", where the %s will be substituted
@@ -50,13 +51,21 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
     // map of all ClassInfo keyed by class name
     private Map<String, ClassInfo> allEntitiesMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-    public UmlAdocExporter(int aHeadingLevel, String aRootPackageName, Set<String> aComponentPackageNames, String aSpecReleasePattern, Map<String, Integer> anImageFormats) {
+    public UmlAdocExporter(int aHeadingLevel,
+                           String aRootPackageName,
+                           Set<String> aComponentPackageNames,
+                           boolean qualifiedClassNamesFlag,
+                           String aSpecReleasePattern,
+                           Map<String, Integer> anImageFormats)
+    {
         headingLevel = aHeadingLevel;
         rootPackageName = aRootPackageName;
         specReleaseVarPattern = aSpecReleasePattern;
 
         imageFormats = anImageFormats;
         componentPackageNames = aComponentPackageNames;
+
+        qualifiedClassNames = qualifiedClassNamesFlag;
     }
 
     /**
@@ -209,7 +218,7 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
      */
     private void exportClass (ClassInfo classInfo, File targetFolder) {
         try (PrintWriter printWriter = new PrintWriter(Files.newBufferedWriter(
-                targetFolder.toPath().resolve(fileName(classInfo.getClassName().toLowerCase()) + ADOC_FILE_EXTENSION), Charset.forName("UTF-8")))) {
+                targetFolder.toPath().resolve(fileName(qualifiedClassNames? classInfo.getQualifiedClassName().toLowerCase(): classInfo.getClassName().toLowerCase()) + ADOC_FILE_EXTENSION), Charset.forName("UTF-8")))) {
             printWriter.println(formatter.heading(classInfo.getClassName() + ' ' + classInfo.getMetaType(), headingLevel));
             printWriter.println();
 
@@ -449,7 +458,7 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
      * @return filename..
      */
     private String fileName(String className) {
-        String name = className.replaceAll("[^a-z0-9]", "_");
+        String name = className.replaceAll("[^a-z0-9.]", "_");
         return name.replaceAll("^_+", "");
     }
 

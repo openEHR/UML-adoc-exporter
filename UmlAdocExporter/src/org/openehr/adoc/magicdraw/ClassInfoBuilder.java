@@ -67,6 +67,8 @@ public class ClassInfoBuilder extends AbstractInfoBuilder<com.nomagic.uml2.ext.m
 
     private void getSuperClassData (Class element, Map<String, Property> superClassAttributes, Map<String, Operation> superClassOperations) {
         for (Class superClass : element.getSuperClass()) {
+            // note that we use the 3-argument form of the toMap() function below, with the 3rd argument providing a clash resolver
+            // to avoid clashing keys, i.e. due to same-named attributes and or operations being put into the Map result.
             superClassAttributes.putAll (superClass.getOwnedAttribute().stream().collect (Collectors.toMap (NamedElement::getName, p -> p, (p1, p2) -> p1)));
             superClassOperations.putAll (superClass.getOwnedOperation().stream().collect (Collectors.toMap (NamedElement::getName, p -> p, (p1, p2) -> p1)));
             getSuperClassData (superClass, superClassAttributes, superClassOperations);

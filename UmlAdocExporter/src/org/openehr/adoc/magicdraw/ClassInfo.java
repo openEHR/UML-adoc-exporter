@@ -122,6 +122,14 @@ public class ClassInfo implements Comparable<ClassInfo> {
         specNameOverride = aSpecName;
     }
 
+    public String getQualifiedClassName() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(classPackage != null? classPackage + "." : "");
+        sb.append(classSubPackage != null? classSubPackage + "." : "");
+        sb.append(className);
+        return sb.toString();
+    }
+
     // Output a URL for the class of the form:
     //   "/releases/<component>>/<release_ref>/<spec>>.html#<fragment>"
     // where <release_ref> is an Asciidoctor variable ref like '{am_release}'
