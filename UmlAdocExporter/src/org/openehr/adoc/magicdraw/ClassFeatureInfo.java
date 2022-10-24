@@ -13,7 +13,7 @@ public class ClassFeatureInfo {
         return cardinality;
     }
 
-    public ClassFeatureInfo setCardinality(String aCardinality) {
+    public ClassFeatureInfo setCardinality (String aCardinality) {
         cardinality = aCardinality;
         return this;
     }
@@ -44,4 +44,5 @@ public class ClassFeatureInfo {
         documentation = aDocumentation;
         return this;
     }
+
 }

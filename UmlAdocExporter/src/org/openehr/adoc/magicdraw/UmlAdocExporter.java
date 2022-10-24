@@ -5,6 +5,7 @@ import com.nomagic.magicdraw.export.image.ImageExporter;
 import com.nomagic.magicdraw.uml.Finder;
 import com.nomagic.magicdraw.uml.symbols.DiagramPresentationElement;
 import com.nomagic.uml2.ext.magicdraw.classes.mdinterfaces.Interface;
+import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Class;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Element;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Enumeration;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.NamedElement;
@@ -37,6 +38,7 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
 
     private final Formatter formatter = new AsciidocFormatter();
     private final int headingLevel;
+    private final int packageDepth;
     private final String rootPackageName;
     private final Set<String> componentPackageNames;
     private final Map<String, Integer> imageFormats;
@@ -48,11 +50,17 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
     // others of which are in other components.
     private final String specReleaseVarPattern;
 
-    // map of all ClassInfo keyed by class name
-    private Map<String, ClassInfo> allEntitiesMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    // map of all ClassInfo keyed by class key
+    private final Map<String, ClassInfo> allEntitiesMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+    private Finder.ByTypeRecursivelyFinder umlElementsFinder;
+    private Finder.ByQualifiedNameFinder umlQualifiedNameFinder;
+
+    private Project project;
 
     public UmlAdocExporter(int aHeadingLevel,
                            String aRootPackageName,
+                           int pkgDepth,
                            Set<String> aComponentPackageNames,
                            boolean qualifiedClassNamesFlag,
                            String aSpecReleasePattern,
@@ -66,6 +74,8 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
         componentPackageNames = aComponentPackageNames;
 
         qualifiedClassNames = qualifiedClassNamesFlag;
+
+        packageDepth = pkgDepth;
     }
 
     /**
@@ -82,8 +92,12 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
             }
         }
 
+        // Save the project reference
+        this.project = project;
+
         // Get a Finder object
-        Finder.ByTypeRecursivelyFinder umlElementsFinder = Finder.byTypeRecursively();
+        umlElementsFinder = Finder.byTypeRecursively();
+        umlQualifiedNameFinder = Finder.byQualifiedName();
 
         // Gather UML classes, enumerations and interfaces, run through a pipeline that does:
         // * cast to an MD class object
@@ -92,12 +106,12 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
         //   to generate links from those classes being published to those in other components
         // * convert to ClassInfo objects (local representation used here)
         // Then export each ClassInfo object as an output file
-        ClassInfoBuilder classInfoBuilder = new ClassInfoBuilder(formatter);
+        ClassInfoBuilder classInfoBuilder = new ClassInfoBuilder(formatter, packageDepth, this::getUMLClassByQualifiedName);
 
         // -------- get the UML model classes -------
         Collection<? extends Element> umlClasses = umlElementsFinder.find(
                 project.getPrimaryModel(),
-                new Class[]{com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Class.class},
+                new java.lang.Class[]{com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Class.class},
                 true);
         List<ClassInfo> classes = umlClasses.stream()
                 .map(e -> (com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Class)e)
@@ -109,9 +123,9 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
         // -------- get the UML model interfaces -------
         Collection<? extends Element> umlInterfaces = umlElementsFinder.find(
                 project.getPrimaryModel(),
-                new Class[]{Interface.class},
+                new java.lang.Class[]{Interface.class},
                 true);
-        InterfaceInfoBuilder interfaceInfoBuilder = new InterfaceInfoBuilder(formatter);
+        InterfaceInfoBuilder interfaceInfoBuilder = new InterfaceInfoBuilder(formatter, packageDepth, this::getUMLClassByQualifiedName);
         List<ClassInfo> interfaces = umlInterfaces.stream()
                 .map(e -> (Interface)e)
                 .filter(c -> ! c.getName().contains("<"))// ignore classes with names simulating template type names
@@ -122,10 +136,10 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
         // -------- get the UML model enumerations -------
         Collection<? extends Element> umlEnumerations = umlElementsFinder.find(
                 project.getPrimaryModel(),
-                new Class[]{Enumeration.class},
+                new java.lang.Class[]{Enumeration.class},
                 true);
 
-        EnumerationInfoBuilder enumerationInfoBuilder = new EnumerationInfoBuilder(formatter);
+        EnumerationInfoBuilder enumerationInfoBuilder = new EnumerationInfoBuilder(formatter, packageDepth, this::getUMLClassByQualifiedName);
         List<ClassInfo> enumerations = umlEnumerations.stream()
                 .map(e -> (Enumeration)e)
                 .filter(this::matchesRootPackage)
@@ -140,20 +154,24 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
 
         // --------- build a global map of ClassInfo keyed by class name --------
         classes.forEach (classInfo -> {
-            if (!allEntitiesMap.containsKey (classInfo.getClassName()) || !matchesComponents (allEntitiesMap.get (classInfo.getClassName())))
-                allEntitiesMap.put (classInfo.getClassName(), classInfo);
+            if (!allEntitiesMap.containsKey (classInfo.getClassKey()) || !matchesComponents (allEntitiesMap.get (classInfo.getClassKey())))
+                allEntitiesMap.put (classInfo.getClassKey(), classInfo);
+//            if (classInfo.getClassName().equals("List"))
+//                listClassQualifiedName = classInfo.getQualifiedClassName();
+//            else if (classInfo.getClassName().equals("Hash"))
+//                hashClassQualifiedName = classInfo.getQualifiedClassName();
         });
         interfaces.forEach (classInfo -> {
-            if (!allEntitiesMap.containsKey (classInfo.getClassName()) || !matchesComponents (allEntitiesMap.get (classInfo.getClassName())))
-                allEntitiesMap.put(classInfo.getClassName(), classInfo);
+            if (!allEntitiesMap.containsKey (classInfo.getClassKey()) || !matchesComponents (allEntitiesMap.get (classInfo.getClassKey())))
+                allEntitiesMap.put(classInfo.getClassKey(), classInfo);
         });
-        enumerations.forEach (classInfo -> {allEntitiesMap.put (classInfo.getClassName(), classInfo);});
+        enumerations.forEach (classInfo -> {allEntitiesMap.put (classInfo.getClassKey(), classInfo);});
 
         // iterate through the whole lot and add an override for the spec document, if it is
         // different from the sub-package inferred from the package structure
         for (ClassInfo classInfo: allEntitiesMap.values())
-            if (classSpecMapExceptions.containsKey (classInfo.getClassSubPackage()))
-                classInfo.setSpecName (classSpecMapExceptions.get (classInfo.getClassSubPackage()));
+            if (classSpecMapExceptions.containsKey (classInfo.getClassPackage()))
+                classInfo.setSpecName (classSpecMapExceptions.get (classInfo.getClassPackage()));
 
         // -------------------------- do the publishing ----------------------------
 
@@ -239,11 +257,11 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
             printWriter.println();
 
             // inheritance parents
-            if (!classInfo.getParentClassNames().isEmpty()) {
+            if (!classInfo.getQualifiedParentClassNames().isEmpty()) {
                 printWriter.println (formatter.tableColHeader ("Inherit", 1));
                 StringBuilder sb = new StringBuilder();
-                for (String parentClass: classInfo.getParentClassNames())
-                    sb.append (formatter.monospace (linkClassName (classInfo, parentClass))).append(", ");
+                for (String qualifiedParentClassName: classInfo.getQualifiedParentClassNames())
+                    sb.append (formatter.monospace (linkClassName (classInfo, qualifiedParentClassName))).append(", ");
 
                 String parentsString = "";
                 // remove any trailing ", "
@@ -324,18 +342,18 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
                     }
 
                     // if Package of class has changed since last iteration, output a new header line
-                    if (!specPackage.equals(classInfo.getClassPackage())) {
+                    if (!specPackage.equals(classInfo.getComponentPackage())) {
                         printWriter.println();
-                        printWriter.println(formatter.heading ("Model " + classInfo.getClassPackage(), 3));
-                        specPackage = classInfo.getClassPackage();
+                        printWriter.println(formatter.heading ("Model " + classInfo.getComponentPackage(), 3));
+                        specPackage = classInfo.getComponentPackage();
                     }
 
                     // if Sub-package of class has changed since last iteration, output a new header line
-                    if (!specSubPackage.equals(classInfo.getClassSubPackage())) {
+                    if (!specSubPackage.equals(classInfo.getClassPackage())) {
                         printWriter.println();
-                        printWriter.println(formatter.heading ("Package " + classInfo.getClassSubPackage(), 4));
+                        printWriter.println(formatter.heading ("Package " + classInfo.getClassPackage(), 4));
                         printWriter.println();
-                        specSubPackage = classInfo.getClassSubPackage();
+                        specSubPackage = classInfo.getClassPackage();
                     }
 
                     // Output the class as a linked text line of the form:
@@ -348,6 +366,10 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
         } catch (IOException e) {
             throw new UmlAdocExporterException("Unable to write to " + targetPath + '!', e);
         }
+    }
+
+    private Class getUMLClassByQualifiedName (String aName) {
+        return umlQualifiedNameFinder.find(project, aName);
     }
 
     private boolean matchesRootPackage (NamedElement namedElement) {
@@ -369,20 +391,20 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
      * Convert a targetClassName like "ELEMENT" that is referenced from originClass
      * to a link. If the target is in the same package, then it's the same spec,
      * so use a local ref, else use a full external URL link
-     * @param originClass
-     * @param targetClassName
+     * @param originClassInfo
+     * @param targetQualifiedClassName
      * @return
      */
-    private String linkClassName (ClassInfo originClass, String targetClassName) {
-        ClassInfo targetClass = allEntitiesMap.get (targetClassName);
-        if (targetClass != null) {
-            if (!targetClass.getSpecName().equals (originClass.getSpecName()))
-                return formatter.externalLink (targetClassName, targetClass.urlPath (specReleaseVarPattern));
+    private String linkClassName (ClassInfo originClassInfo, String targetQualifiedClassName) {
+        ClassInfo targetClassInfo = allEntitiesMap.get (targetQualifiedClassName);
+        if (targetClassInfo != null) {
+            if (!targetClassInfo.getSpecName().equals (originClassInfo.getSpecName()))
+                return formatter.externalLink (targetClassInfo.getClassName(), targetClassInfo.urlPath (specReleaseVarPattern));
             else
-                return formatter.internalRef (targetClassName, targetClass.localRef());
+                return formatter.internalRef (targetClassInfo.getClassName(), targetClassInfo.localRef());
         }
         else
-            return targetClassName;
+            return targetQualifiedClassName;
     }
 
     /**

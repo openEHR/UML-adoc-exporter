@@ -35,7 +35,14 @@ class UmlAdocExporterPluginAction extends MDAction {
         File outputFolder = chooseFolder();
         if (outputFolder != null) {
             try {
-                UmlAdocExporter exporter = new UmlAdocExporter(3, "openehr", new HashSet<>(), false, null, new HashMap<>());
+                UmlAdocExporter exporter = new UmlAdocExporter(
+                        3,
+                        "openehr",
+                        4,
+                        new HashSet<>(),
+                        false,
+                        null,
+                        new HashMap<>());
                 exporter.exportProject(outputFolder, Application.getInstance().getProject());
 
                 JOptionPane.showMessageDialog(MDDialogParentProvider.getProvider().getDialogOwner(), "Export complete.", "Export",

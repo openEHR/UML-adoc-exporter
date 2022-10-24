@@ -8,14 +8,15 @@ import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Property;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
  * @author Bostjan Lah
  */
 public class ClassInfoBuilder extends AbstractInfoBuilder<com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Class> {
-    public ClassInfoBuilder(Formatter formatter) {
-        super(formatter);
+    public ClassInfoBuilder(Formatter formatter, int pkgDepth, Function<String, Class> getUMLClassByQualifiedName) {
+        super(formatter, pkgDepth, getUMLClassByQualifiedName);
     }
 
     @Override
@@ -40,14 +41,14 @@ public class ClassInfoBuilder extends AbstractInfoBuilder<com.nomagic.uml2.ext.m
                 .setDocumentation (getDocumentation (umlClass, getFormatter()))
                 .setAbstractClass (umlClass.isAbstract());
 
-        setHierarchy (umlClass.getQualifiedName(), classInfo);
+        setHierarchy (umlClass.getQualifiedName(), packageDepth, classInfo);
 
         Map<String, Property> superClassAttributes = new HashMap<>();
         Map<String, Operation> superClassOperations = new HashMap<>();
 
         if (umlClass.hasSuperClass()) {
             for (Class umlSuperClass: umlClass.getSuperClass())
-                classInfo.addParentClassName(umlSuperClass.getName());
+                classInfo.addQualifiedParentClassName(packageQualifiedClassName(umlSuperClass.getQualifiedName(), packageDepth));
 
             getSuperClassData (umlClass, superClassAttributes, superClassOperations);
         }

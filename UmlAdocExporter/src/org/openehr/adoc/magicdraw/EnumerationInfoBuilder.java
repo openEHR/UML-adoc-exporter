@@ -1,16 +1,19 @@
 package org.openehr.adoc.magicdraw;
 
+import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Class;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Enumeration;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.EnumerationLiteral;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 /**
  * @author Bostjan Lah
  */
 public class EnumerationInfoBuilder extends AbstractInfoBuilder<Enumeration> {
-    public EnumerationInfoBuilder(Formatter formatter) {
-        super(formatter);
+    public EnumerationInfoBuilder(Formatter formatter, int pkgDepth, Function<String, Class> getUMLClassByQualifiedName) {
+        super(formatter, pkgDepth, getUMLClassByQualifiedName);
     }
 
     @Override
@@ -22,7 +25,7 @@ public class EnumerationInfoBuilder extends AbstractInfoBuilder<Enumeration> {
                 .setClassTypeName (className)
                 .setDocumentation (getDocumentation (element, getFormatter()));
 
-        setHierarchy (element.getQualifiedName(), classInfo);
+        setHierarchy (element.getQualifiedName(), packageDepth, classInfo);
 
         if (element.hasOwnedLiteral()) {
             addLiterals(classInfo.getAttributes(), element.getOwnedLiteral(), getFormatter());

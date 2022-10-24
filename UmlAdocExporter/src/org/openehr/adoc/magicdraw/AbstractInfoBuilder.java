@@ -1,10 +1,13 @@
 package org.openehr.adoc.magicdraw;
 
-import com.nomagic.uml2.ext.magicdraw.auxiliaryconstructs.mdtemplates.TemplateParameter;
-import com.nomagic.uml2.ext.magicdraw.auxiliaryconstructs.mdtemplates.TemplateSignature;
+import com.nomagic.magicdraw.uml.Finder;
+import com.nomagic.uml2.ext.magicdraw.auxiliaryconstructs.mdtemplates.*;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.*;
+import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Class;
+import org.openehr.adoc.magicdraw.exception.UmlAdocExporterException;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -26,9 +29,14 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
     static List<String> stereotypeTagNames = Arrays.asList("ops", "sym_ops");
 
     protected final Formatter formatter;
+    protected final int packageDepth;
 
-    protected AbstractInfoBuilder (Formatter formatter) {
+    protected final Function<String, Class> getUMLClassByQualifiedName;
+
+    protected AbstractInfoBuilder (Formatter formatter, int pkgDepth, Function<String, Class> getUMLClassByQualifiedName) {
         this.formatter = formatter;
+        this.packageDepth = pkgDepth;
+        this.getUMLClassByQualifiedName = getUMLClassByQualifiedName;
     }
 
     /**
@@ -139,47 +147,90 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
     /**
      * Build a ClassFeatureInfo object for property and add it to the attributes list.
      * @param attributes List of ClassFeatureInfo objects for this class so far built.
-     * @param property the property to add.
+     * @param umlProperty the property to add.
      * @param attrStatus Status of attribute in this class: defined, redefined etc.
      */
-    private void addAttribute (List<ClassFeatureInfo> attributes, Property property, OperationStatus attrStatus) {
+    private void addAttribute (List<ClassFeatureInfo> attributes, Property umlProperty, OperationStatus attrStatus) {
         // create a ClassFeatureInfo with attribute documentation, occurrences and redefined marker
         ClassFeatureInfo classFeatureInfo = new ClassFeatureInfo()
-                .setDocumentation(getDocumentation(property, formatter))
-                .setCardinality(formatSpecialOccurences(property.getLower(), property.getUpper()))
+                .setDocumentation(getDocumentation(umlProperty, formatter))
+                .setCardinality(formatSpecialOccurences(umlProperty.getLower(), umlProperty.getUpper()))
                 .setStatus(attrStatus.toString().isEmpty()? "" : "(" + attrStatus + ")");
 
         // attribute signature
-        StringBuilder sigBuilder = new StringBuilder(formatter.bold(property.getName()));
+        StringBuilder sigBuilder = new StringBuilder(formatter.bold(umlProperty.getName()));
         sigBuilder.append(": ");
 
-        // determine the type
-        String type = property.getType() == null ? "" : property.getType().getName();
+        // determine the type in qualified form
+        String propertyQualifiedTypeName = "";
+        String propertyUmlQualifiedTypeName = "";
+        if (umlProperty.getType() != null) {
+            propertyUmlQualifiedTypeName = umlProperty.getType().getQualifiedName();
+            propertyQualifiedTypeName = packageQualifiedClassName(propertyUmlQualifiedTypeName, packageDepth);
+        }
 
-        // THE FOLLOWING CODE IS AN INITIAL ATTEMPT BUT IS WRONG
-        //String type = property.getMetaType() == null ? "" : property.getMetaType().getQualifiedName();
-        //TemplateParameter tplParam = property.getClassType().getTypeName();
-        //getMetaType(). getOwningTemplateParameter();
-//        if (tplParam != null) {
-//            List<TemplateParameter> tplParams = tplParam.getSignature().getOwnedParameter();
-//            String tplParamList = tplParams.stream()
-//                    .map(t -> t.getHumanName())
-//                    .collect(Collectors.joining(","));
-//            type = type + '<' + tplParamList + '>';
-//        }
+        // For generic types, propertyQualifiedTypeName will be something like
+        // org.openehr.rm.data_types.DV_INTERVAL<DV_DATE>
+        // what we need is org.openehr.rm.data_types.DV_INTERVAL<org.openehr.rm.data_types.DV_DATE>;
+        // We can get the inner parameters from the binding
+        // ASSUMPTION: only one level of generics!
+        if (propertyQualifiedTypeName.contains("<")) {
+            StringBuilder genericTypeNameSb = new StringBuilder(propertyQualifiedTypeName.substring(0, propertyQualifiedTypeName.indexOf("<")+1));
+            Class propClass = getUMLClassByQualifiedName.apply(propertyUmlQualifiedTypeName);
+            if (propClass != null) {
+                Collection<TemplateBinding> tplBindings = propClass.getTemplateBinding();
+                if (!tplBindings.isEmpty()) {
+                    for (TemplateBinding tplBinding: tplBindings) {
+                        Collection<TemplateParameterSubstitution>  tplParamSubsts = tplBinding.getParameterSubstitution();
+                        if (!tplParamSubsts.isEmpty()) {
+                            for (TemplateParameterSubstitution tplParamSubst: tplParamSubsts) {
+                                ParameterableElement pElem = tplParamSubst.getActual();
+                                if (pElem instanceof Class)
+                                    genericTypeNameSb.append(packageQualifiedClassName(((Class) pElem).getQualifiedName(), packageDepth)).append(",");
+                                else if (pElem instanceof PrimitiveType)
+                                    genericTypeNameSb.append(((PrimitiveType) pElem).getName()).append(",");
+                                else if (pElem == null) {
+                                    String msg = "Null actual generic class parameter in " + propertyUmlQualifiedTypeName + "; check model";
+                                    System.out.println(msg);
+                                    throw new UmlAdocExporterException(msg);
+                                }
+                                else {
+                                    String msg = "Couldn't find meta-type for generic class parameter in " +
+                                            propertyUmlQualifiedTypeName + "; Java type " + pElem.getClass() + "; check model";
+                                    System.out.println(msg);
+                                    throw new UmlAdocExporterException(msg);
+                                }
+                            }
+                            // get rid of trailing ','
+                            genericTypeNameSb.deleteCharAt(genericTypeNameSb.length()-1).append(">");
+                        }
+                        else
+                            throw new UmlAdocExporterException("Couldn't find any template param substitutions for generic class " + propertyUmlQualifiedTypeName);
+                    }
+                }
+                else
+                    throw new UmlAdocExporterException("Couldn't find any template bindings for generic class " + propertyUmlQualifiedTypeName);
+            }
+            else
+                throw new UmlAdocExporterException("Couldn't find MD UML Class object for type: " + propertyUmlQualifiedTypeName);
+
+            propertyQualifiedTypeName = genericTypeNameSb.toString();
+        }
 
         // if there is a qualifier on the property, get it, since this will modify the type
-        Property qualifier = property.getAssociation() != null && property.hasQualifier() ? property.getQualifier().get(0) : null;
-        StringBuilder typeInfo = new StringBuilder (correctType(type, qualifier, property.getLower(), property.getUpper()));
+        Property umlQualifier = umlProperty.getAssociation() != null && umlProperty.hasQualifier() ? umlProperty.getQualifier().get(0) : null;
 
-        // If there is a default value defined, output it.
-        ValueSpecification defaultValue = property.getDefaultValue();
+        // Now create a proper type string, with corrections to inject List<> and Hash<> where needed
+        StringBuilder typeInfo = new StringBuilder (correctType (propertyQualifiedTypeName, umlQualifier, umlProperty.getLower(), umlProperty.getUpper()));
+
+        // If there is a default value defined, attach it to the type, on a new line.
+        ValueSpecification defaultValue = umlProperty.getDefaultValue();
         if (defaultValue != null) {
             // if the property is a constant, then
             // output '=' + <default value>; else
             // output \n {default '=' + <default value>}
-            if (!property.isReadOnly())
-                typeInfo.append(formatter.hardLineBreak() + "{default");
+            if (!umlProperty.isReadOnly())
+                typeInfo.append(formatter.hardLineBreak()).append("{default");
 
             if (defaultValue instanceof LiteralString) {
                 LiteralString value = (LiteralString)defaultValue;
@@ -205,7 +256,7 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
                     typeInfo.append("{nbsp}={nbsp}").append(expr.getSymbol());
             }
 
-            if (!property.isReadOnly())
+            if (!umlProperty.isReadOnly())
                 typeInfo.append("}");
         }
 
@@ -234,23 +285,23 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
     /**
      * Build a ClassFeatureInfo for operation, and append it to the features list so far built.
      * @param features List of class features so far built.
-     * @param operation UML operation definition.
+     * @param umlOperation UML operation definition.
      * @param opStatus Status of operation in this class: abstract, effected, defined etc.
      */
-    private void addOperation(List<ClassFeatureInfo> features, Operation operation, OperationStatus opStatus) {
+    private void addOperation(List<ClassFeatureInfo> features, Operation umlOperation, OperationStatus opStatus) {
         // Create the main documentation.
-        StringBuilder opDocBuilder = new StringBuilder(getDocumentation(operation, formatter));
+        StringBuilder opDocBuilder = new StringBuilder(getDocumentation(umlOperation, formatter));
         opDocBuilder.append(System.lineSeparator());
 
         // Start building the operation signature
         // append the operation name, bolded
-        StringBuilder opSigBuilder = new StringBuilder(formatter.bold(operation.getName()));
+        StringBuilder opSigBuilder = new StringBuilder(formatter.bold(umlOperation.getName()));
 
         // see if the operation has stereotype <<Operator>>, which has tag ops: List<String>
         // or <<Symbolic_operator>>, which has tag sym_ops: List<String>
         // See comment above for stereotypeTagNames for details
         StringBuilder opAliasBuilder = new StringBuilder();
-        InstanceSpecification stereotypeSpec = operation.getAppliedStereotypeInstance();
+        InstanceSpecification stereotypeSpec = umlOperation.getAppliedStereotypeInstance();
         if (stereotypeSpec != null) {
             Collection<Slot> slots = stereotypeSpec.getSlot();
             if (!slots.isEmpty()) {
@@ -291,36 +342,35 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
 
         // If there are parameters, output them within parentheses; also
         // add the parameter documentation to the documentary text
-        if (operation.hasOwnedParameter()) {
-            addSignatureParameters(opSigBuilder, operation.getOwnedParameter());
+        if (umlOperation.hasOwnedParameter()) {
+            addSignatureParameters(opSigBuilder, umlOperation.getOwnedParameter());
             opDocBuilder.append(System.lineSeparator());
-            addDocumentParameters(opDocBuilder, operation.getOwnedParameter());
+            addDocumentParameters(opDocBuilder, umlOperation.getOwnedParameter());
         }
 
         // If there is a return type, append it to the signature in monospace.
-        String type = operation.getType() == null ? "" : operation.getType().getName();
-        StringBuilder fullSigBuilder = type.isEmpty()
+        String qualifiedTypeName = umlOperation.getType() == null ? "" : packageQualifiedClassName (umlOperation.getType().getQualifiedName(), packageDepth);
+        StringBuilder fullSigBuilder = qualifiedTypeName.isEmpty()
                 ? new StringBuilder(opSigBuilder)
-                : new StringBuilder(opSigBuilder + ": " + formatter.monospace(correctType(type, null, operation.getLower(), operation.getUpper())));
+                : new StringBuilder(opSigBuilder + ": " + formatter.monospace(correctType(qualifiedTypeName, null, umlOperation.getLower(), umlOperation.getUpper())));
 
         // Output any operation pre- and post-conditions (UML constraints)
-        addOperationConstraint(operation, fullSigBuilder);
+        addOperationConstraint(umlOperation, fullSigBuilder);
 
         // Create and set the error documentation, if there is any.
-        String errStr = getErrorDocumentation(operation, formatter);
+        String errStr = getErrorDocumentation(umlOperation, formatter);
         if (!errStr.isEmpty()) {
-            opDocBuilder.append(System.lineSeparator());
-            opDocBuilder.append(formatter.errorDelimiterLine());
-            opDocBuilder.append (getErrorDocumentation(operation, formatter));
-            opDocBuilder.append(System.lineSeparator());
+            opDocBuilder.append(System.lineSeparator())
+                .append (formatter.errorDelimiterLine())
+                .append (getErrorDocumentation(umlOperation, formatter))
+                .append (System.lineSeparator());
         }
 
         ClassFeatureInfo classFeatureInfo = new ClassFeatureInfo()
-                .setCardinality(formatSpecialOccurences(operation.getLower(), operation.getUpper()))
-                .setStatus(opStatus.toString().isEmpty()? "" : "(" + opStatus + ")")
-                .setDocumentation(opDocBuilder.toString());
-
-        classFeatureInfo.setSignature(fullSigBuilder.toString());
+                .setCardinality (formatSpecialOccurences(umlOperation.getLower(), umlOperation.getUpper()))
+                .setStatus (opStatus.toString().isEmpty()? "" : "(" + opStatus + ")")
+                .setDocumentation (opDocBuilder.toString())
+                .setSignature (fullSigBuilder.toString());
 
         features.add(classFeatureInfo);
     }
@@ -340,7 +390,8 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
                 else {
                     formattedParameters.add(
                             paramSignature + ": " + formatter.monospace(
-                                    correctType(parameter.getType().getName(), null, parameter.getLower(), parameter.getUpper()) +
+                                    correctType(packageQualifiedClassName (parameter.getType().getQualifiedName(), packageDepth),
+                                            null, parameter.getLower(), parameter.getUpper()) +
                                             '[' + formatInlineOccurences(parameter.getLower(), parameter.getUpper()) + ']'
                             )
                     );
@@ -420,43 +471,43 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
      * Here we will do a trick: we will wrap every type name in @@, e.g.
      * "@List@<@ITEM@>" in preparation for post processing, which will
      * replace each "@Type@" with a linked version
-     * @param type
+     * @param qualifiedTypeName
      * @param qualifier
      * @param lower
      * @param upper
      * @return
      */
-    private String correctType(String type, Property qualifier, int lower, int upper) {
+    private String correctType(String qualifiedTypeName, Property qualifier, int lower, int upper) {
         String result;
 
-        String quotedTypeName = type.contains("<")? quotedClassNames(type) :  quoteTypeName(type);
+        String quotedQualifiedTypeName = qualifiedTypeName.contains("<")? quotedClassNames(qualifiedTypeName) :  quoteTypeName(qualifiedTypeName);
 
         // if there is no qualifier, output either the UML relation target type or List<target type>
         if (qualifier == null) {
             // synthesise List<> wrapper where cardinality indicates a container
-            result = upper == -1 || upper > 1 ? quoteTypeName("List") +
-                        '<' + quotedTypeName + '>' : quotedTypeName;
+            result = upper == -1 || upper > 1 ? quoteTypeName(listClassQualifiedName) +
+                        '<' + quotedQualifiedTypeName + '>' : quotedQualifiedTypeName;
         }
         else {
-            String quotedQualifierType = quoteTypeName (qualifier.getType().getName());
+            String quotedQualifierType = quoteTypeName (packageQualifiedClassName (qualifier.getType().getQualifiedName(), packageDepth));
             String qualifierName = qualifier.getName();
 
             // if there is a qualifier, but with no name, the output type is either the UML
             // qualifier type of List<qualifier type>
             if (qualifierName == null || qualifierName.isEmpty())
-                result = upper == -1 || upper > 1 ? quoteTypeName ("List") +
+                result = upper == -1 || upper > 1 ? quoteTypeName (listClassQualifiedName) +
                         '<' + quotedQualifierType + '>' : quotedQualifierType;
-                // else if there is a qualifier name, it stands for a Hash key, and we output a Hash type sig
-                // This should only occur with multiple relationships.
+            // else if there is a qualifier name, it stands for a Hash key, and we output a Hash type sig
+            // This should only occur with multiple relationships.
             else
-                result = upper == -1 || upper > 1 ? quoteTypeName("Hash") +
-                        '<' + quotedQualifierType + ',' + quotedTypeName + '>' : quotedQualifierType;
+                result = upper == -1 || upper > 1 ? quoteTypeName (hashClassQualifiedName) +
+                        '<' + quotedQualifierType + ',' + quotedQualifiedTypeName + '>' : quotedQualifierType;
         }
         return result;
     }
 
     /**
-     * Add "@TypeName@" quoting to each bare type in a generic type name
+     * Add "@TypeName@" quoting to each bare type name in a generic type name
      */
     private String quotedClassNames (String typeName) {
         Pattern p = Pattern.compile (BARE_QUOTE_REGEX);
@@ -493,16 +544,38 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
      * Extract package information from a string like
      * "RM::org::openehr::rm::common
      */
-    protected void setHierarchy (String qualifiedName, ClassInfo classInfo) {
-        // this is hard-coded for openehr atm
-        String[] parts = qualifiedName.split ("::");
-        if (parts.length > 4) {
+    protected void setHierarchy (String umlQualifiedName, int pkgDepth, ClassInfo classInfo) {
+        String[] parts = umlQualifiedName.split ("::");
+        int depth = Math.min(parts.length, pkgDepth);
+        if (parts.length > depth) {
             classInfo.setSpecComponent(parts[0]);
-            classInfo.setClassSubPackage(parts[4]);
-            StringBuilder indexPackage = new StringBuilder();
-            for (int i = 1; i < 4; i++)
-                indexPackage.append('.').append (parts[i]);
-            classInfo.setClassPackage (indexPackage.substring(1));
+            classInfo.setClassPackage(parts[depth]);
+
+            StringBuilder sb = new StringBuilder();
+            for (int i = 1; i < depth; i++)
+                sb.append('.').append (parts[i]);
+            classInfo.setComponentPackage(sb.substring(1));
         }
     }
+
+    /**
+     * Convert a UML style qualified class name string like
+     * "RM::org::openehr::rm::entity::physical_entity::...::class_name
+     * to a fixed depth form like org.openehr.rm.entity.class_name for pkgDepth = 4
+     */
+    protected String packageQualifiedClassName (String umlQualifiedName, int pkgDepth) {
+        String[] parts = umlQualifiedName.split ("::");
+        int depth = Math.min(parts.length, pkgDepth);
+        if (parts.length > depth) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 1; i <= depth; i++)
+                sb.append('.').append (parts[i]);
+            // now add the class name from the end
+            sb.append('.').append (parts[parts.length-1]);
+            return sb.substring(1);
+        }
+        else
+            return "";
+    }
+
 }

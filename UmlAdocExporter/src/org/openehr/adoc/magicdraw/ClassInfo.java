@@ -3,7 +3,6 @@ package org.openehr.adoc.magicdraw;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * @author Bostjan Lah
@@ -13,10 +12,10 @@ public class ClassInfo implements Comparable<ClassInfo> {
     private String classTypeName = "";      // including any generics
     private String className = "";          // root class name
     private String documentation = "";      // class documentation
-    private List<String> parentClassNames  = new ArrayList<>();
+    private final List<String> qualifiedParentClassNames = new ArrayList<>();
     private String specComponent = "";      // specification component, extracted from package hierarchy
-    private String classPackage = "";       // Usually something like org.openehr.rm
-    private String classSubPackage = "";    // generally equals spec name, e.g. 'common'
+    private String componentPackage = "";   // Usually something like org.openehr.rm
+    private String classPackage = "";       // generally equals spec name, e.g. 'common'
     private String specNameOverride;        // an override for the spec, if not = subPackage
     private boolean abstractClass;          // True if abstract
 
@@ -27,6 +26,11 @@ public class ClassInfo implements Comparable<ClassInfo> {
 
     public ClassInfo(String metaType) {
         this.metaType = metaType;
+    }
+
+    // return a reliable unique key to ensure no clashes of same-named classes
+    public String getClassKey() {
+        return getQualifiedClassName();
     }
 
     public String getMetaType() {
@@ -56,12 +60,12 @@ public class ClassInfo implements Comparable<ClassInfo> {
         return this;
     }
 
-    public List<String> getParentClassNames() {
-        return parentClassNames;
+    public List<String> getQualifiedParentClassNames() {
+        return qualifiedParentClassNames;
     }
 
-    public ClassInfo addParentClassName (String aParentClassName) {
-        parentClassNames.add (aParentClassName);
+    public ClassInfo addQualifiedParentClassName(String aParentClassQualifiedName) {
+        qualifiedParentClassNames.add (aParentClassQualifiedName);
         return this;
     }
 
@@ -98,24 +102,24 @@ public class ClassInfo implements Comparable<ClassInfo> {
         specComponent = aComponent;
     }
 
+    public String getComponentPackage() {
+        return componentPackage;
+    }
+
+    public void setComponentPackage(String aPackage) {
+        componentPackage = aPackage;
+    }
+
     public String getClassPackage() {
         return classPackage;
     }
 
-    public void setClassPackage(String aPackage) {
-        classPackage = aPackage;
-    }
-
-    public String getClassSubPackage() {
-        return classSubPackage;
-    }
-
-    public void setClassSubPackage(String aSubPackage) {
-        classSubPackage = aSubPackage;
+    public void setClassPackage(String aSubPackage) {
+        classPackage = aSubPackage;
     }
 
     public String getSpecName() {
-        return specNameOverride == null ? classSubPackage : specNameOverride;
+        return specNameOverride == null ? classPackage : specNameOverride;
     }
 
     public void setSpecName (String aSpecName) {
@@ -124,8 +128,8 @@ public class ClassInfo implements Comparable<ClassInfo> {
 
     public String getQualifiedClassName() {
         StringBuilder sb = new StringBuilder();
+        sb.append(componentPackage != null? componentPackage + "." : "");
         sb.append(classPackage != null? classPackage + "." : "");
-        sb.append(classSubPackage != null? classSubPackage + "." : "");
         sb.append(className);
         return sb.toString();
     }
@@ -160,11 +164,11 @@ public class ClassInfo implements Comparable<ClassInfo> {
         if (i != 0)
             return i;
 
-        int j = classPackage.compareTo(o.classPackage);
+        int j = componentPackage.compareTo(o.componentPackage);
         if (j != 0)
             return j;
 
-        int k = classSubPackage.compareTo(o.classSubPackage);
+        int k = classPackage.compareTo(o.classPackage);
         if (k != 0)
             return k;
 

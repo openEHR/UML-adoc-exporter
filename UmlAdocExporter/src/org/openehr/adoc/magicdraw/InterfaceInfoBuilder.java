@@ -1,19 +1,21 @@
 package org.openehr.adoc.magicdraw;
 
 import com.nomagic.uml2.ext.magicdraw.classes.mdinterfaces.Interface;
+import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Class;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Operation;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Property;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * @author Bostjan Lah
  */
 public class InterfaceInfoBuilder extends AbstractInfoBuilder<Interface> {
 
-    public InterfaceInfoBuilder (Formatter formatter) {
-        super(formatter);
+    public InterfaceInfoBuilder (Formatter formatter, int pkgDepth, Function<String, Class> getUMLClassByQualifiedName) {
+        super(formatter, pkgDepth, getUMLClassByQualifiedName);
     }
 
     @Override
@@ -26,7 +28,7 @@ public class InterfaceInfoBuilder extends AbstractInfoBuilder<Interface> {
                 .setDocumentation (getDocumentation(element, getFormatter()))
                 .setAbstractClass (element.isAbstract());
 
-        setHierarchy(element.getQualifiedName(), classInfo);
+        setHierarchy(element.getQualifiedName(), packageDepth, classInfo);
 
         Map<String, Property> superClassAttributes = new HashMap<>();
         Map<String, Operation> superClassOperations = new HashMap<>();

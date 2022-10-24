@@ -30,6 +30,12 @@ public class UmlAdocExporterCommandLine extends CommandLine {
     // Asciidoctor document heading level to generate for class texts
     private int headingLevel;
 
+    // depth to build package name qualifiers for classes. Avoids having to use very
+    // deep package hierarchies as qualifiers. Class qualifiers are used
+    // a) as the key for classes in global hashmap for internal comparisons
+    // b) to build filenames for writing out classes to.
+    private int packageDepth = 4;
+
     // root package name to filter on - avoid packages not under this root
     private String rootPackageName = UmlExporterDefinitions.ROOT_PACKAGE_NAME_DEFAULT;
 
@@ -63,7 +69,14 @@ public class UmlAdocExporterCommandLine extends CommandLine {
         projectsManager.loadProject(projectDescriptor, true);
         Project project = projectsManager.getActiveProject();
 
-        UmlAdocExporter exporter = new UmlAdocExporter (headingLevel, rootPackageName, componentPackageNames, qualifiedClassNames, specReleaseVarPattern, imageFormats != null? imageFormats : defaultImageFormats);
+        UmlAdocExporter exporter = new UmlAdocExporter (
+                headingLevel,
+                rootPackageName,
+                packageDepth,
+                componentPackageNames,
+                qualifiedClassNames,
+                specReleaseVarPattern,
+                imageFormats != null? imageFormats : defaultImageFormats);
         try {
             exporter.exportProject(outFolder, project);
             return (byte)0;
@@ -115,6 +128,15 @@ public class UmlAdocExporterCommandLine extends CommandLine {
                     qualifiedClassNames = true;
                     break;
 
+                case "-p":  // UML package depth to guarantee uniquely qualified classes
+                    String depth = getParameterValue(iterator, "-p");
+                    try {
+                        packageDepth = Integer.valueOf(depth);
+                    } catch (NumberFormatException ignored) {
+                        throw new UmlAdocExporterException("Invalid argument for -p: " + depth + " (expected numeric)!");
+                    }
+                    break;
+
                 case "-r":  // Root package
                     rootPackageName = getParameterValue (iterator, "-r");
                     break;
@@ -125,11 +147,13 @@ public class UmlAdocExporterCommandLine extends CommandLine {
 
                 case "-?":
                 case "-h":
-                    System.out.println("Usage: uml_generate [-o output_folder] [-l heading_level] [-r root_package_name] [-i index_release] <project file>");
+                    System.out.println("Usage: uml_generate [-c component_pkg_names] [-d image_formats] [-o output_folder] [-l heading_level]  [-p uml_pkg_depth] [-q] [-r root_package_name] [-i index_release] <project file>");
                     System.out.println("       -c: component package name(s) under root package to export (comma-separated)");
                     System.out.println("       -d: image format: " + join("|", defaultImageFormats.keySet()) + " (default = all)");
                     System.out.println("       -o: output folder (default = current folder)");
                     System.out.println("       -l: class headings level (default = 3)");
+                    System.out.println("       -p: UML package depth for uniqueness (default = 4)");
+                    System.out.println("       -q: if set, use package-qualified class-names in output files");
                     System.out.println("       -r: root package name to export (default = openehr)");
                     System.out.println("       -i: pass asciidoctor release var name pattern, e.g. '{%s_release}'");
                     helpOnly = true;
