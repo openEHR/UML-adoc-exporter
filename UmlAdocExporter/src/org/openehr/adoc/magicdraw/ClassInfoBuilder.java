@@ -48,7 +48,7 @@ public class ClassInfoBuilder extends AbstractInfoBuilder<com.nomagic.uml2.ext.m
 
         if (umlClass.hasSuperClass()) {
             for (Class umlSuperClass: umlClass.getSuperClass())
-                classInfo.addQualifiedParentClassName(packageQualifiedClassName(umlSuperClass.getQualifiedName(), packageDepth));
+                classInfo.addQualifiedParentClassName (convertToQualified (umlSuperClass.getQualifiedName()));
 
             getSuperClassData (umlClass, superClassAttributes, superClassOperations);
         }

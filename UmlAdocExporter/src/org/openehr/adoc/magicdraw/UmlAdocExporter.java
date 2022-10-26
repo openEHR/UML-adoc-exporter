@@ -156,10 +156,6 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
         classes.forEach (classInfo -> {
             if (!allEntitiesMap.containsKey (classInfo.getClassKey()) || !matchesComponents (allEntitiesMap.get (classInfo.getClassKey())))
                 allEntitiesMap.put (classInfo.getClassKey(), classInfo);
-//            if (classInfo.getClassName().equals("List"))
-//                listClassQualifiedName = classInfo.getQualifiedClassName();
-//            else if (classInfo.getClassName().equals("Hash"))
-//                hashClassQualifiedName = classInfo.getQualifiedClassName();
         });
         interfaces.forEach (classInfo -> {
             if (!allEntitiesMap.containsKey (classInfo.getClassKey()) || !matchesComponents (allEntitiesMap.get (classInfo.getClassKey())))

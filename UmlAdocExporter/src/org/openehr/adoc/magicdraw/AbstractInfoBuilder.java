@@ -166,55 +166,7 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
         String propertyUmlQualifiedTypeName = "";
         if (umlProperty.getType() != null) {
             propertyUmlQualifiedTypeName = umlProperty.getType().getQualifiedName();
-            propertyQualifiedTypeName = packageQualifiedClassName(propertyUmlQualifiedTypeName, packageDepth);
-        }
-
-        // For generic types, propertyQualifiedTypeName will be something like
-        // org.openehr.rm.data_types.DV_INTERVAL<DV_DATE>
-        // what we need is org.openehr.rm.data_types.DV_INTERVAL<org.openehr.rm.data_types.DV_DATE>;
-        // We can get the inner parameters from the binding
-        // ASSUMPTION: only one level of generics!
-        if (propertyQualifiedTypeName.contains("<")) {
-            StringBuilder genericTypeNameSb = new StringBuilder(propertyQualifiedTypeName.substring(0, propertyQualifiedTypeName.indexOf("<")+1));
-            Class propClass = getUMLClassByQualifiedName.apply(propertyUmlQualifiedTypeName);
-            if (propClass != null) {
-                Collection<TemplateBinding> tplBindings = propClass.getTemplateBinding();
-                if (!tplBindings.isEmpty()) {
-                    for (TemplateBinding tplBinding: tplBindings) {
-                        Collection<TemplateParameterSubstitution>  tplParamSubsts = tplBinding.getParameterSubstitution();
-                        if (!tplParamSubsts.isEmpty()) {
-                            for (TemplateParameterSubstitution tplParamSubst: tplParamSubsts) {
-                                ParameterableElement pElem = tplParamSubst.getActual();
-                                if (pElem instanceof Class)
-                                    genericTypeNameSb.append(packageQualifiedClassName(((Class) pElem).getQualifiedName(), packageDepth)).append(",");
-                                else if (pElem instanceof PrimitiveType)
-                                    genericTypeNameSb.append(((PrimitiveType) pElem).getName()).append(",");
-                                else if (pElem == null) {
-                                    String msg = "Null actual generic class parameter in " + propertyUmlQualifiedTypeName + "; check model";
-                                    System.out.println(msg);
-                                    throw new UmlAdocExporterException(msg);
-                                }
-                                else {
-                                    String msg = "Couldn't find meta-type for generic class parameter in " +
-                                            propertyUmlQualifiedTypeName + "; Java type " + pElem.getClass() + "; check model";
-                                    System.out.println(msg);
-                                    throw new UmlAdocExporterException(msg);
-                                }
-                            }
-                            // get rid of trailing ','
-                            genericTypeNameSb.deleteCharAt(genericTypeNameSb.length()-1).append(">");
-                        }
-                        else
-                            throw new UmlAdocExporterException("Couldn't find any template param substitutions for generic class " + propertyUmlQualifiedTypeName);
-                    }
-                }
-                else
-                    throw new UmlAdocExporterException("Couldn't find any template bindings for generic class " + propertyUmlQualifiedTypeName);
-            }
-            else
-                throw new UmlAdocExporterException("Couldn't find MD UML Class object for type: " + propertyUmlQualifiedTypeName);
-
-            propertyQualifiedTypeName = genericTypeNameSb.toString();
+            propertyQualifiedTypeName = convertToQualified (propertyUmlQualifiedTypeName);
         }
 
         // if there is a qualifier on the property, get it, since this will modify the type
@@ -267,6 +219,74 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
         classFeatureInfo.setSignature(sigBuilder.toString());
 
         attributes.add(classFeatureInfo);
+    }
+
+    /**
+     *  Convert a UML style qualified class name string like
+     *      RM::org::openehr::rm::entity::physical_entity::...::class_name
+     *  to a fixed depth form like
+     *      org.openehr.rm.entity.class_name (for pkgDepth = 4)
+     *
+     *  For generic types, the result will be something like
+     *  org.openehr.rm.data_types.DV_INTERVAL<DV_DATE>
+     *  what we need is org.openehr.rm.data_types.DV_INTERVAL<org.openehr.rm.data_types.DV_DATE>;
+     *  So we also inject the qualifiers into the generic parts
+     *
+     *  ASSUMPTION: only one level of generics!
+     */
+    String convertToQualified (String umlQualifiedTypeName) {
+        String qualifiedTypeName = packageQualifiedClassName (umlQualifiedTypeName, packageDepth);
+        if (qualifiedTypeName.contains("<")) {
+            StringBuilder genericTypeNameSb = new StringBuilder(qualifiedTypeName.substring(0, qualifiedTypeName.indexOf("<")+1));
+            Class typeClass = getUMLClassByQualifiedName.apply(umlQualifiedTypeName);
+            if (typeClass != null) {
+                Collection<TemplateBinding> tplBindings = typeClass.getTemplateBinding();
+                if (!tplBindings.isEmpty()) {
+                    for (TemplateBinding tplBinding: tplBindings) {
+                        Collection<TemplateParameterSubstitution>  tplParamSubsts = tplBinding.getParameterSubstitution();
+                        if (!tplParamSubsts.isEmpty()) {
+                            for (TemplateParameterSubstitution tplParamSubst: tplParamSubsts) {
+                                ParameterableElement pElem = tplParamSubst.getActual();
+                                if (pElem == null) {
+                                    String msg = "Null actual generic class parameter in " + umlQualifiedTypeName + "; check model";
+                                    System.out.println(msg);
+                                    throw new UmlAdocExporterException(msg);
+                                }
+                                else if (pElem instanceof NamedElement) {
+                                    String qName = ((NamedElement) pElem).getQualifiedName();
+                                    if (qName.contains("<"))
+                                        genericTypeNameSb.append (convertToQualified (qName));
+                                    else if (pElem instanceof Class)
+                                        genericTypeNameSb.append (packageQualifiedClassName(((Class) pElem).getQualifiedName(), packageDepth));
+                                    else
+                                        genericTypeNameSb.append (((NamedElement) pElem).getName());
+
+                                    genericTypeNameSb.append(",");
+                                }
+                                else {
+                                    String msg = "Couldn't find meta-type for generic class parameter in " +
+                                            umlQualifiedTypeName + "; Java type " + pElem.getClass() + "; check model";
+                                    System.out.println(msg);
+                                    throw new UmlAdocExporterException(msg);
+                                }
+                            }
+                            // Replace final trailing ',' with final '>'
+                            genericTypeNameSb.deleteCharAt (genericTypeNameSb.length()-1).append(">");
+                        }
+                        else
+                            throw new UmlAdocExporterException("Couldn't find any template param substitutions for generic class " + umlQualifiedTypeName);
+                    }
+                }
+                else
+                    throw new UmlAdocExporterException("Couldn't find any template bindings for generic class " + umlQualifiedTypeName);
+            }
+            else
+                throw new UmlAdocExporterException("Couldn't find MD UML Class object for type: " + umlQualifiedTypeName);
+
+            return genericTypeNameSb.toString();
+        }
+        else
+            return qualifiedTypeName;
     }
 
     protected void addOperations(List<ClassFeatureInfo> features, List<Operation> operations, Map<String, Operation> superClassOperations) {
@@ -349,7 +369,7 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
         }
 
         // If there is a return type, append it to the signature in monospace.
-        String qualifiedTypeName = umlOperation.getType() == null ? "" : packageQualifiedClassName (umlOperation.getType().getQualifiedName(), packageDepth);
+        String qualifiedTypeName = umlOperation.getType() == null ? "" : convertToQualified (umlOperation.getType().getQualifiedName());
         StringBuilder fullSigBuilder = qualifiedTypeName.isEmpty()
                 ? new StringBuilder(opSigBuilder)
                 : new StringBuilder(opSigBuilder + ": " + formatter.monospace(correctType(qualifiedTypeName, null, umlOperation.getLower(), umlOperation.getUpper())));
@@ -390,9 +410,9 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
                 else {
                     formattedParameters.add(
                             paramSignature + ": " + formatter.monospace(
-                                    correctType(packageQualifiedClassName (parameter.getType().getQualifiedName(), packageDepth),
+                                    correctType(convertToQualified (parameter.getType().getQualifiedName()),
                                             null, parameter.getLower(), parameter.getUpper()) +
-                                            '[' + formatInlineOccurences(parameter.getLower(), parameter.getUpper()) + ']'
+                                            '[' + formatInlineOccurences (parameter.getLower(), parameter.getUpper()) + ']'
                             )
                     );
                 }
@@ -489,7 +509,7 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
                         '<' + quotedQualifiedTypeName + '>' : quotedQualifiedTypeName;
         }
         else {
-            String quotedQualifierType = quoteTypeName (packageQualifiedClassName (qualifier.getType().getQualifiedName(), packageDepth));
+            String quotedQualifierType = quoteTypeName (convertToQualified (qualifier.getType().getQualifiedName()));
             String qualifierName = qualifier.getName();
 
             // if there is a qualifier, but with no name, the output type is either the UML
@@ -575,7 +595,7 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
             return sb.substring(1);
         }
         else
-            return "";
+            return parts[parts.length-1];
     }
 
 }
