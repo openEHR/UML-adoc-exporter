@@ -4,14 +4,18 @@ public abstract class UmlExporterDefinitions {
 
     public static final String TYPE_QUOTE_REGEX = "@[A-Za-z0-9_. ]+@";
 
-    public static final String BARE_QUOTE_REGEX = "[A-Za-z0-9_. ]+";
+    public static final String BARE_QUOTE_REGEX = "[A-Za-z0-9_][A-Za-z0-9_. ]+";
 
     public static final String SPEC_RELEASE_PATTERN_DEFAULT = "{%s_release}";
 
     public static final String ROOT_PACKAGE_NAME_DEFAULT = "openehr";
 
-    protected String quoteTypeName (String aTypeName) {
-        return aTypeName.length() == 1 ? aTypeName : "@" + aTypeName + "@";
+    // wrap class names in @@ except if they are single letter names, which are formal generic parameters
+    // aQualifiedTypeName is of form pkg.pkg.pkg.name
+    protected String quoteTypeName (String aQualifiedTypeName) {
+        return aQualifiedTypeName.lastIndexOf(".") + 2 == aQualifiedTypeName.length() ?
+                aQualifiedTypeName.substring(aQualifiedTypeName.length()-1) :
+                "@" + aQualifiedTypeName + "@";
     }
 
     // Need these for type name injection in the AbstractINfoBuilder.correctType routine.

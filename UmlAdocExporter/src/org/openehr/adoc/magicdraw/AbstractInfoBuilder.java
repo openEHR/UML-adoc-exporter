@@ -243,15 +243,16 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
                 Collection<TemplateBinding> tplBindings = typeClass.getTemplateBinding();
                 if (!tplBindings.isEmpty()) {
                     for (TemplateBinding tplBinding: tplBindings) {
-                        Collection<TemplateParameterSubstitution>  tplParamSubsts = tplBinding.getParameterSubstitution();
+                        List<TemplateParameterSubstitution> tplParamSubsts = new ArrayList<> (tplBinding.getParameterSubstitution());
                         if (!tplParamSubsts.isEmpty()) {
-                            for (TemplateParameterSubstitution tplParamSubst: tplParamSubsts) {
-                                ParameterableElement pElem = tplParamSubst.getActual();
-                                if (pElem == null) {
-                                    String msg = "Null actual generic class parameter in " + umlQualifiedTypeName + "; check model";
-                                    System.out.println(msg);
-                                    throw new UmlAdocExporterException(msg);
-                                }
+                            // We should be using the following line of code instead of the for loop below, but...
+                            // for (TemplateParameterSubstitution tplParamSubst: tplParamSubstsList) {
+                            // TODO: for whatever reasons, the result of tplBinding.getParameterSubstitution() appears to be
+                            // in reverse order to that declared in the UML model. Here we iterate backwards through it.
+                            for (int i = tplParamSubsts.size() - 1; i >= 0 ; i--) {
+                                ParameterableElement pElem = tplParamSubsts.get(i).getActual();
+                                if (pElem == null)
+                                    throw new UmlAdocExporterException("Null actual generic class parameter in " + umlQualifiedTypeName + "; check model");
                                 else if (pElem instanceof NamedElement) {
                                     String qName = ((NamedElement) pElem).getQualifiedName();
                                     if (qName.contains("<"))
@@ -261,17 +262,14 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
                                     else
                                         genericTypeNameSb.append (((NamedElement) pElem).getName());
 
-                                    genericTypeNameSb.append(",");
+                                    genericTypeNameSb.append(", ");
                                 }
-                                else {
-                                    String msg = "Couldn't find meta-type for generic class parameter in " +
-                                            umlQualifiedTypeName + "; Java type " + pElem.getClass() + "; check model";
-                                    System.out.println(msg);
-                                    throw new UmlAdocExporterException(msg);
-                                }
+                                else
+                                    throw new UmlAdocExporterException("Couldn't find meta-type for generic class parameter in " +
+                                            umlQualifiedTypeName + "; Java type " + pElem.getClass() + "; check model");
                             }
-                            // Replace final trailing ',' with final '>'
-                            genericTypeNameSb.deleteCharAt (genericTypeNameSb.length()-1).append(">");
+                            // Replace final trailing ', ' with final '>'
+                            genericTypeNameSb.delete(genericTypeNameSb.lastIndexOf(", "), genericTypeNameSb.length()).append(">");
                         }
                         else
                             throw new UmlAdocExporterException("Couldn't find any template param substitutions for generic class " + umlQualifiedTypeName);
@@ -500,7 +498,7 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
     private String correctType(String qualifiedTypeName, Property qualifier, int lower, int upper) {
         String result;
 
-        String quotedQualifiedTypeName = qualifiedTypeName.contains("<")? quotedClassNames(qualifiedTypeName) :  quoteTypeName(qualifiedTypeName);
+        String quotedQualifiedTypeName = qualifiedTypeName.contains("<")? quotedClassNames (qualifiedTypeName) :  quoteTypeName (qualifiedTypeName);
 
         // if there is no qualifier, output either the UML relation target type or List<target type>
         if (qualifier == null) {
