@@ -135,7 +135,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
     }
 
     // Output a URL for the class of the form:
-    //   "/releases/<component>>/<release_ref>/<spec>>.html#<fragment>"
+    //   "/releases/<component>/<release_ref>/<spec>.html#<fragment>"
     // where <release_ref> is an Asciidoctor variable ref like '{am_release}'
     // e.g.
     //   "/releases/AM/{am_release}/AOM2.html#_c_object_class"

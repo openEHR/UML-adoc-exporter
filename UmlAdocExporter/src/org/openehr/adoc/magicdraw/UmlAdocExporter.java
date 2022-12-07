@@ -400,7 +400,7 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
                 return formatter.internalRef (targetClassInfo.getClassName(), targetClassInfo.localRef());
         }
         else
-            return targetQualifiedClassName;
+            return targetQualifiedClassName.substring(targetQualifiedClassName.lastIndexOf(".")+1);
     }
 
     /**
