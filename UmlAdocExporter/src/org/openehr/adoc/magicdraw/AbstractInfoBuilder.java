@@ -200,6 +200,18 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
                 LiteralBoolean value = (LiteralBoolean) defaultValue;
                 typeInfo.append("{nbsp}={nbsp}").append(value.isValue());
             }
+            else if (defaultValue instanceof EnumerationLiteral) {
+                EnumerationLiteral value = (EnumerationLiteral) defaultValue;
+                typeInfo.append("{nbsp}={nbsp}").append(value);
+            }
+            else if (defaultValue instanceof InstanceValue) {
+                InstanceValue value = (InstanceValue) defaultValue;
+                String spec = value.getInstance().getName();
+                if (spec != null)
+                    typeInfo.append("{nbsp}={nbsp}").append(spec);
+                else
+                    typeInfo.append("{nbsp}={nbsp}(unknown)");
+            }
             else {
                 // This case is not yet working; idea is to generate the symbol string
                 // for a constant whose 'value' is another property or constant
