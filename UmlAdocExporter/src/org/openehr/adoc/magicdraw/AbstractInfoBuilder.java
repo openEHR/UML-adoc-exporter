@@ -331,41 +331,33 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
         // or <<Symbolic_operator>>, which has tag sym_ops: List<String>
         // See comment above for stereotypeTagNames for details
         StringBuilder opAliasBuilder = new StringBuilder();
-        InstanceSpecification stereotypeSpec = umlOperation.getAppliedStereotypeInstance();
-        if (stereotypeSpec != null) {
-            Collection<Slot> slots = stereotypeSpec.getSlot();
-            if (!slots.isEmpty()) {
-                Iterator<Slot> slots_it = slots.iterator();
-                while (slots_it.hasNext()) {
-                    Slot tag = slots_it.next();
-                    // Here we check that the slot attribute name is one of the ones we want
-                    StructuralFeature tagAttr = tag.getDefiningFeature();
-                    if (tagAttr instanceof Property) {
-                        Property tagProp = (Property) tagAttr;
-                        if (stereotypeTagNames.contains(tagProp.getName()) && tag.hasValue()){
-                            // Now we know we have the operator tags, we can output the 'alias' line
-                            // (Use the first variant to put it on a new line, plus uncomment the
-                            // post-loop statement to add another NL)
-                            // opSigBuilder.append(formatter.hardLineBreak() + formatter.italic("alias") + " ");
-                            if (opAliasBuilder.length() == 0)
-                                opAliasBuilder.append(" " + formatter.italic("alias") + " ");
+        List<TaggedValue> taggedValues = umlOperation.getTaggedValue();
 
-                            List<ValueSpecification> ops = tag.getValue();
-                            Iterator<ValueSpecification> ops_it = ops.iterator();
+        Iterator<TaggedValue> taggedValuesIt = taggedValues.iterator();
+        while (taggedValuesIt.hasNext()) {
+            TaggedValue taggedValue = taggedValuesIt.next();
+            Property tagProp = taggedValue.getTagDefinition();
 
-                            while (ops_it.hasNext()) {
-                                ValueSpecification op = ops_it.next();
-                                if (op instanceof LiteralString) {
-                                    LiteralString op_str = (LiteralString) op;
-                                    opAliasBuilder.append(formatter.escapeLiteral(op_str.getValue()));
-                                    if (ops_it.hasNext() || slots_it.hasNext())
-                                        opAliasBuilder.append(", ");
-                                }
-                            }
-                        }
-                    }
+            // Here we check that the slot attribute name is one of the ones we want
+            if (stereotypeTagNames.contains(tagProp.getName()) &&
+                    taggedValue instanceof StringTaggedValue &&
+                    taggedValue.hasValue()) {
+                // Now we know we have the operator tags, we can output the 'alias' line
+                // (Use the first variant to put it on a new line, plus uncomment the
+                // post-loop statement to add another NL)
+                // opSigBuilder.append(formatter.hardLineBreak() + formatter.italic("alias") + " ");
+                if (opAliasBuilder.length() == 0)
+                    opAliasBuilder.append(" " + formatter.italic("alias") + " ");
+
+                StringTaggedValue stringTaggedValue = (StringTaggedValue) taggedValue;
+
+                Iterator<String> stringTaggedValueIt = stringTaggedValue.getValue().iterator();
+                while (stringTaggedValueIt.hasNext()) {
+                    String opStr = stringTaggedValueIt.next();
+                    opAliasBuilder.append(formatter.escapeLiteral(opStr));
+                    if (taggedValuesIt.hasNext() || stringTaggedValueIt.hasNext())
+                        opAliasBuilder.append(", ");
                 }
-                // opAliasBuilder.append(formatter.hardLineBreak());
             }
         }
         opSigBuilder.append(opAliasBuilder);

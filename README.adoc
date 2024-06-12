@@ -1,18 +1,68 @@
 = UML-adoc-exporter
 
-UML AsciiDoctor `.adoc` format class and diagram exporter for MagicDraw UML tool.
+UML AsciiDoctor `.adoc` format class and diagram exporter for MagicDraw UML tool, release 2024x. Note that MagicDraw is now owned and distributed by Catia, a part of Dassault Systems.
+
+== Previous version(s)
+
+Previous versions of this plug-in are found on branches. The version for MagicDraw 19.4 is found https://github.com/openEHR/UML-adoc-exporter/tree/MagicDraw-19.4[here^]. **To build and use a previous version, clone this repo and check out the appropriate branch**. 
 
 == Installation of the plugin
 
-If you just want to install the plugin to MagicDraw, the two files `UmlAdocExporter.jar` and `plugin.xml` need to be copied from `/plugin` to the location `<MagicDraw-install>/plugins/org.openehr.adoc.magicdraw`.
+To install the plugin to MagicDraw, the two files `UmlAdocExporter.jar` and `plugin.xml` need to be copied from `/plugin` to the location `<MagicDraw-install>/plugins/org.openehr.adoc.magicdraw`.
 
 == Running the plugin
 
-The plugin is used by the openEHR publishing toolchain in batch mode. Specifically, https://github.com/openEHR/specifications-AA_GLOBAL/blob/master/bin/uml_generate.sh[the script uml_generate.sh] is invoked by the script https://github.com/openEHR/specifications-AA_GLOBAL/blob/master/bin/do_spec_publish.sh[do_spec_publish.sh], run from the top `openEHR-specifications` directory, as https://github.com/openEHR/specifications-AA_GLOBAL[described here].
+The plugin is used via direct command line invocation, using a script like the one shown below.
+
+[source, bash]
+----
+#!/bin/bash
+
+#
+# Script created according to MagicDraw documentation file Specifying_batch_mode_program_classpath_and_required_system_properties.html
+# 
+# This script will only work with MagicDraw 2024x or later.
+#
+
+if [ -z "$MAGICDRAW_HOME" ]; then
+    echo "MAGICDRAW_HOME environment variable not set, please set it to the MagicDraw installation folder"
+    exit 1
+fi
+
+# Reads CLASSPATH value from magicdraw.properties files (change to your properties file name)
+MD_CLASSPATH=`grep "CLASSPATH" $MAGICDRAW_HOME/bin/msa.properties | cut -d'=' -f 2`
+
+# prepend MAGICDRAW_HOME to classpath
+MD_CLASSPATH="$MAGICDRAW_HOME/$MD_CLASSPATH"
+
+# add path to plugin
+MD_CLASSPATH="$MD_CLASSPATH:$MAGICDRAW_HOME/plugins/org.openehr.magicdraw.adocexporter/MsaAsciidocExporterPlugin.jar"
+
+# Adjust CP for operating system
+if [ "$OS" = Windows_NT ]; then
+    MD_CLASSPATH=$(echo "$MD_CLASSPATH" | sed "s/\\\:/;/g")
+else
+    MD_CLASSPATH=$(echo "$MD_CLASSPATH" | sed "s/\\\:/:/g")
+fi
+
+echo " ************* CP = $MD_CLASSPATH"
+
+# Note that the version of java needed in the final invocation of this script is Java17 or later
+java -Xmx1200M -Xss1024K \
+       -cp "$MD_CLASSPATH" \
+       -Desi.system.config="$MAGICDRAW_HOME/data/application.conf" \
+       -Dfile.encoding=UTF-8 \
+       @$MAGICDRAW_HOME/bin/vm.options \
+       org.openehr.magicdraw.adocexporter.UmlAdocExporterCommandLine "$@"
+----
+
+== Plug-in Source Code
+
+The plug-in relies on the UML 2.x OpenAPI from Catia. This is (as far as we can tell) a faithful implementation of the UML 2.5.1 meta-model. Note that breaking changes occurred between UML 2.5 and UML 2.5.1, to do with how stereotypes are represented (https://docs.nomagic.com/display/MD2021x/2021x+Version+News#id-2021xVersionNews-ProfilingChangesintheUML2.5.1Metamodel[described here^]), which meant that code changes were required between the MD 19.4 version of the extractor and the current one.
 
 == Building
 
-The repo is currently set up as an IntelliJ project thatbuilds a .jar that works as a plugin for Magicdraw, as https://docs.nomagic.com/display/MD190/Plugins[described here].
+The repo is currently set up as an IntelliJ project thatbuilds a .jar that works as a plugin for Magicdraw, as described in the MagicDraw 2024x documentation, found in $MAGICDRAW_HOME/openapi/guide.zip.
 
 Steps to performing a build:
 
@@ -24,5 +74,5 @@ If you make changes, the latest build should be copied to `/plugin` in this repo
 
 == Acknowledgements
 
-The original version of the extractor was created by Boštjan Lah at Better.care; subsequent updates done by Thomas Beale at Ars Semantica.
+The original version of the extractor was created by Boštjan Lah at Better.care; subsequent updates done by Thomas Beale at Ars Semantica & Graphite Health.
 

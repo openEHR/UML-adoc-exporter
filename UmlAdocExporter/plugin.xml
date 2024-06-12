@@ -2,7 +2,7 @@
 <plugin
 	id="org.openehr.adoc.magicdraw"
 	signature="UML AsciiDoctor Exporter"
-	version="1.0"
+	version="2024x"
 	provider-signature="openEHR"
 	class="org.openehr.adoc.magicdraw.UmlAdocExporterPlugin">
 

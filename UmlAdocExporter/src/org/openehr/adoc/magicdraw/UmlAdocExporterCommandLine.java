@@ -59,7 +59,11 @@ public class UmlAdocExporterCommandLine extends CommandLine {
     private File outFolder;
     private boolean helpOnly;
 
-    @Override
+    public static void main(String[] args) throws InstantiationException
+    {
+        new UmlAdocExporterCommandLine().launch(args);
+    }
+
     protected byte execute() {
         ProjectDescriptor projectDescriptor = ProjectDescriptorsFactory.createProjectDescriptor(projectFile.toURI());
         if (projectDescriptor == null) {
@@ -85,8 +89,6 @@ public class UmlAdocExporterCommandLine extends CommandLine {
         }
     }
 
-    @Override
-    @SuppressWarnings({"OverlyComplexMethod", "SwitchStatementDensity"})
     protected void parseArgs (String[] cmdLineArgs) {
         for (Iterator<String> iterator = Arrays.asList(cmdLineArgs).iterator(); iterator.hasNext(); ) {
             String arg = iterator.next();

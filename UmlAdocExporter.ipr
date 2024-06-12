@@ -7,7 +7,8 @@
         <element id="archive" name="UmlAdocExporter.jar">
           <element id="module-output" name="UmlAdocExporter" />
         </element>
-        <element id="library" level="project" name="MagicDraw" />
+        <element id="library" level="project" name="MagicDraw Libs" />
+        <element id="library" level="project" name="MagicDraw Patch" />
       </root>
     </artifact>
   </component>
@@ -172,16 +173,218 @@
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
   </component>
   <component name="libraryTable">
-    <library name="MagicDraw">
+    <library name="MagicDraw Libs">
       <CLASSES>
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/patch.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/brand.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/brand_api.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/md.jar!/" />
         <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/md_api.jar!/" />
-        <root url="file://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/launcher.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/akka-actor_2.13-2.6.20.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/akka-slf4j_2.13-2.6.20.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/angus-activation-2.0.1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/animal-sniffer-annotations-1.9.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/annotation-1.11.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/annotations-3.0.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/asm-9.5.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/batik-all-1.16.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/bcprov-jdk18on-1.74.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/CATMBSESerialization-R2024x.v202309042146.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/checker-qual-3.33.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/cmof-1.4.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.dassault_systemes.catia.mbse.esi-2024.0.0.v20231003-0637.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.dassault_systemes.catia.mbse.esi.md-2024.0.0.v20231003-0637.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.dassault_systemes.dsclient-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.dassault_systemes.modeler.foundation-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.ci-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.ci.admin.lock.test.metamodel-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.ci.binary-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.ci.metamodel.project-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.ci.metamodel.querytest-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.ci.persistence-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.ci.persistence.local-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.ci.services-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.esi.announcement.client-2024.0.0.v20231003-0637.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.esi.announcement.msg-2024.0.0.v20231003-0637.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.esi.api-2024.0.0.v20231003-0637.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.esi.api.messages-2024.0.0.v20231003-0637.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.esi.client.core-2024.0.0.v20231003-0637.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.esi.common-2024.0.0.v20231003-0637.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.esi.config-2024.0.0.v20231003-0637.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.esi.core.msg-2024.0.0.v20231003-0637.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.esi.emf-2024.0.0.v20231003-0637.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.esi.helper-2024.0.0.v20231003-0637.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.esi.indexer.client-2024.0.0.v20231003-0637.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.esi.indexer.msg-2024.0.0.v20231003-0637.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.esi.net-2024.0.0.v20231003-0637.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.esi.query.client-2024.0.0.v20231003-0637.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.esi.query.msg-2024.0.0.v20231003-0637.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.esi.resourceupdate-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.esi.serializer-2024.0.0.v20231003-0637.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.esi.serializer.akka-2024.0.0.v20231003-0637.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.esi.services.api-2024.0.0.v20231003-0637.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.esi.services.client-2024.0.0.v20231003-0637.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.esi.services.common-2024.0.0.v20231003-0637.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.esi.stream-2024.0.0.v20231003-0637.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.globalusages.common-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.magicdraw.ce-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.magicdraw.core.diagram-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.magicdraw.core.project.options-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.magicdraw.elementreferenceintext-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.magicdraw.esi.binary.metamodel-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.magicdraw.esi.esiproject-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.magicdraw.fileattachments-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.magicdraw.foundation-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.magicdraw.importexport-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.magicdraw.modeling-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.magicdraw.patch-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.magicdraw.resourcedescriptor-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.magicdraw.security-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.magicdraw.uml2-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.text-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.umlresources-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/com.nomagic.utils-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/common-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/commons-codec-1.15.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/commons-collections4-4.4.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/commons-compress-1.21.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/commons-io-2.11.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/commons-lang3-3.12.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/commons-logging-1.2.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/commons-math3-3.6.1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/commons-text-1.10.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/config-1.3.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/decryptor-2022x-e59cbba6.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/eccpresso-all-11.14.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/error_prone_annotations-2.18.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/failureaccess-1.0.1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/FcsClient-R2024x.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/freehep-base-1.0.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/freehep-graphics2d-1.0.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/freehep-graphicsio-1.0.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/freehep-graphicsio-emf-1.0.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/freehep-graphicsio-ps-1.0.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/gson-2.9.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/guava-32.0.1-jre.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/HTMLEditorEnterprise-22.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/httpclient-4.5.13.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/httpcore-4.4.13.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/httpmime-4.5.13.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/istack-commons-runtime-4.1.2.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/j2objc-annotations-2.8.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jackson-annotations-2.15.2.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jackson-core-2.15.2.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jackson-core-asl-1.9.13.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jackson-databind-2.15.2.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jakarta.activation-api-2.1.2.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jakarta.xml.bind-api-4.0.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/javax.jmi-1.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jaxb-api-2.2.11.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jaxb-core-4.0.3.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jaxb-runtime-4.0.3.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jhall-2.0_03.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jide-action-3.7.13.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jide-charts-3.7.13.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jide-common-3.7.13.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jide-components-3.7.13.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jide-diff-3.7.13.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jide-dock-3.7.13.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jide-editor-3.7.13.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jide-gantt-3.7.13.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jide-grids-3.7.13.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jide-shortcut-3.7.13.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jimi-1.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jna-4.3.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/joda-time-2.9.9.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/json-20230618.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jsr250-api-1.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jsr305-2.0.1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jtidy-r938.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/junit-4.13.2.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/junit-jupiter-api-5.9.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/JUnitParams-1.0.1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jxbrowser-7.30.3.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jxbrowser-linux64-7.30.3.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jxbrowser-linux64-arm-7.30.3.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jxbrowser-mac-7.30.3.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jxbrowser-mac-arm-7.30.3.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jxbrowser-swing-7.30.3.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/jxbrowser-win64-7.30.3.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/kryo-esi-4.0.2.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/log4j-1.2-api-2.17.1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/log4j-api-2.17.1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/log4j-core-2.17.1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/log4j-slf4j-impl-2.17.1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/lucene-analysis-common-9.2.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/lucene-core-9.2.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/lucene-misc-9.2.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/lz4-java-1.8.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/md-flexlm-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/md-yfiles-2024.0.0-86-7321dda1.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/metrics-core-3.2.2.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/metrics-graphite-3.2.2.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/metrics-jmx-4.2.7.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/netty-buffer-4.1.95.Final.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/netty-codec-4.1.95.Final.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/netty-codec-http-4.1.95.Final.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/netty-common-4.1.95.Final.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/netty-handler-4.1.95.Final.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/netty-resolver-4.1.95.Final.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/netty-tcnative-classes-2.0.61.Final.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/netty-transport-4.1.95.Final.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/netty-transport-native-unix-common-4.1.95.Final.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/objenesis-3.2.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/org.apache.felix.scr-2.0.10.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/org.eclipse.emf.common-2.28.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/org.eclipse.emf.ecore-2.33.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/org.eclipse.emf.ecore.xmi-2.18.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/org.eclipse.uml2.common-1.5.0.v201005031530.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/org.osgi.annotation.versioning-1.1.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/poi-5.2.2.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/poi-ooxml-5.2.2.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/poi-ooxml-full-5.2.2.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/Saxon-HE-11.4.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/scala-java8-compat_2.13-1.0.0.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/scala-library-2.13.10.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/slf4j-api-1.7.25.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/SparseBitSet-1.2.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/supercsv-1.52.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/tas-1.4.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/trove4j-3.0.3.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/truezip-driver-zip-7.7.10.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/truezip-kernel-7.7.10.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/truezip-swing-7.7.10.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/txw2-4.0.3.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/xercesImpl-2.12.2.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/xml-apis-ext-1.3.04.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/xmlbeans-5.0.3.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/xmlgraphics-commons-2.7.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/xmlresolver-4.4.3-data.jar!/" />
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/xmlresolver-4.4.3.jar!/" />
       </CLASSES>
       <JAVADOC>
-        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/openapi/docs/javadoc.zip!/" />
+        <root url="http://jdocs.nomagic.com/2024x/" />
       </JAVADOC>
       <SOURCES />
-      <jarDirectory url="file://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib" recursive="true" />
+    </library>
+    <library name="MagicDraw Patch">
+      <CLASSES>
+        <root url="jar://$MAGIC_DRAW_INSTALL_DIRECTORY$/lib/patch.jar!/" />
+      </CLASSES>
+      <JAVADOC>
+        <root url="http://jdocs.nomagic.com/2024x/" />
+      </JAVADOC>
+      <SOURCES />
+    </library>
+    <library name="Test Libs">
+      <CLASSES>
+        <root url="file://$PROJECT_DIR$/testLibs" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+      <jarDirectory url="file://$PROJECT_DIR$/testLibs" recursive="false" />
     </library>
   </component>
 </project>

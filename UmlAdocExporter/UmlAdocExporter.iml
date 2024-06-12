@@ -6,8 +6,9 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="17" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="MagicDraw" level="project" />
+    <orderEntry type="library" name="MagicDraw Libs" level="project" />
+    <orderEntry type="library" name="MagicDraw Patch" level="project" />
   </component>
 </module>
