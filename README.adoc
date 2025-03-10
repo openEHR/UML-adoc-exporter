@@ -1,6 +1,7 @@
 = UML-adoc-exporter
 
-UML AsciiDoctor `.adoc` format class and diagram exporter for MagicDraw UML tool, release 2024x. Note that MagicDraw is now owned and distributed by Catia, a part of Dassault Systems.
+UML AsciiDoctor `.adoc` format class and diagram exporter for MagicDraw UML tool, release 2024x. Note that MagicDraw is now owned and distributed by Dassault Systems as part of the Catia product suite.
+https://docs.nomagic.com/display/MD2024x/Developer+Guide[Developer documentation^].
 
 == Previous version(s)
 

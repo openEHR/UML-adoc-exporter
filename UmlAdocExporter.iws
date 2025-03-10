@@ -1,171 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="48dfd104-3932-40fd-aae1-1c12a81f0f48" name="Default Changelist" comment="">
+    <list default="true" id="1f95c62e-0be9-44cf-b9f6-38625aa58dc5" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/README.adoc" beforeDir="false" afterPath="$PROJECT_DIR$/README.adoc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UmlAdocExporter.iws" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter.iws" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/AbstractInfoBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/AbstractInfoBuilder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/ClassInfoBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/ClassInfoBuilder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plugin/UmlAdocExporter.jar" beforeDir="false" afterPath="$PROJECT_DIR$/plugin/UmlAdocExporter.jar" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Class" />
-      </list>
-    </option>
-  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectId" id="1XaNlW7joLN5CE8mPtIJ2OSRyEx" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectId" id="2hnCg1ljitHffpvpa7qaqwjqaeX" />
   <component name="ProjectViewState">
-    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="autoscrollFromSource" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">
-    <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/UmlAdocExporter.ipr" />
-    <property name="project.structure.last.edited" value="Artifacts" />
-    <property name="project.structure.proportion" value="0.15" />
-    <property name="project.structure.side.proportion" value="0.298583" />
-    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
-  </component>
-  <component name="RunManager" selected="Application.MyCommandline">
-    <list>
-      <item itemvalue="Application.MagicDraw with all plugins" />
-      <item itemvalue="Application.MyCommandline" />
-      <item itemvalue="JUnit.JUnit4Test" />
-      <item itemvalue="JUnit.MyPlugin1Test" />
-    </list>
-  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "/home/thomas/openEHR/UML-adoc-exporter/UmlAdocExporter.ipr",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "project.structure.last.edited": "SDKs",
+    "project.structure.proportion": "0.1875",
+    "project.structure.side.proportion": "0.112107635",
+    "settings.editor.selected.configurable": "preferences.pathVariables",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RunManager" selected="Application.MagicDraw with all plugins" />
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
-  <component name="SvnConfiguration">
-    <configuration />
-  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="48dfd104-3932-40fd-aae1-1c12a81f0f48" name="Default Changelist" comment="" />
-      <created>1581266554877</created>
+      <changelist id="1f95c62e-0be9-44cf-b9f6-38625aa58dc5" name="Changes" comment="" />
+      <created>1718220561933</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1581266554877</updated>
-      <workItem from="1581266560417" duration="4142000" />
-      <workItem from="1581280401443" duration="769000" />
-      <workItem from="1581336663590" duration="142000" />
-      <workItem from="1582742519814" duration="10490000" />
-      <workItem from="1586023122991" duration="7476000" />
-      <workItem from="1586095615846" duration="10283000" />
-      <workItem from="1586164330696" duration="3696000" />
-      <workItem from="1586170511037" duration="3334000" />
-      <workItem from="1589129513873" duration="5888000" />
-      <workItem from="1593552436524" duration="573000" />
-      <workItem from="1594915486151" duration="45107000" />
-      <workItem from="1595592248441" duration="622000" />
-      <workItem from="1596206621526" duration="598000" />
-      <workItem from="1601374904267" duration="5308000" />
-      <workItem from="1601483681822" duration="1935000" />
-      <workItem from="1602501561559" duration="2166000" />
-      <workItem from="1607034192811" duration="162000" />
-      <workItem from="1615587709793" duration="3140000" />
-      <workItem from="1616173546930" duration="10826000" />
-      <workItem from="1620665655056" duration="10516000" />
-      <workItem from="1621444377404" duration="598000" />
-      <workItem from="1625001558745" duration="239000" />
-      <workItem from="1625001839731" duration="902000" />
-      <workItem from="1627402817105" duration="646000" />
-      <workItem from="1627407541921" duration="1322000" />
-      <workItem from="1627489739777" duration="679000" />
-      <workItem from="1627491822457" duration="610000" />
-      <workItem from="1627646898195" duration="653000" />
-      <workItem from="1630340497480" duration="3631000" />
+      <updated>1718220561933</updated>
+      <workItem from="1718220563183" duration="432000" />
+      <workItem from="1718221537116" duration="789000" />
+      <workItem from="1718222335691" duration="2775000" />
+      <workItem from="1741459343779" duration="36000" />
+      <workItem from="1741459390309" duration="272000" />
+      <workItem from="1741459680606" duration="5631000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="masterDetails">
-    <states>
-      <state key="ArtifactsStructureConfigurable.UI">
-        <settings>
-          <artifact-editor />
-          <last-edited>UmlAdocExporter:jar</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.298583" />
-                <option value="0.5" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="FacetStructureConfigurable.UI">
-        <settings>
-          <last-edited>No facets are configured</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.298583" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="GlobalLibrariesConfigurable.UI">
-        <settings>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="JdkListConfigurable.UI">
-        <settings>
-          <last-edited>1.8</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="ModuleStructureConfigurable.UI">
-        <settings>
-          <last-edited>UmlAdocExporter</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.298583" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="ProjectLibrariesConfigurable.UI">
-        <settings>
-          <last-edited>MagicDraw</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.298583" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-    </states>
   </component>
 </project>
