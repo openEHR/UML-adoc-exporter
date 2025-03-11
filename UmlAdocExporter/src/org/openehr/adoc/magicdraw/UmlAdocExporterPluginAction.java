@@ -40,6 +40,7 @@ class UmlAdocExporterPluginAction extends MDAction {
                         "openehr",
                         4,
                         new HashSet<>(),
+                        "",
                         false,
                         null,
                         new HashMap<>());

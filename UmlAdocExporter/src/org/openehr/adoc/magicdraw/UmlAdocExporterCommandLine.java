@@ -42,9 +42,9 @@ public class UmlAdocExporterCommandLine extends CommandLine {
     // List of package names under root representing 'components'
     private final Set<String> componentPackageNames = new HashSet<>();
 
-    // String pattern to insert that represents version id of a component, so that later
-    // Asciidoctor substitution of version name will work
-    private String specReleaseVarPattern = UmlExporterDefinitions.SPEC_RELEASE_PATTERN_DEFAULT;
+    private String componentPackageNamePrefix = "";
+
+    private String specLinkTemplate = UmlExporterDefinitions.DEFAULT_SPEC_LINK_TEMPLATE;
 
     private Map<String, Integer> defaultImageFormats = Stream.of(new Object[][] {
             { "svg", ImageExporter.SVG },
@@ -54,7 +54,6 @@ public class UmlAdocExporterCommandLine extends CommandLine {
     private Map<String, Integer> imageFormats;
 
     private boolean qualifiedClassNames;
-
     private File projectFile;
     private File outFolder;
     private boolean helpOnly;
@@ -78,8 +77,9 @@ public class UmlAdocExporterCommandLine extends CommandLine {
                 rootPackageName,
                 packageDepth,
                 componentPackageNames,
+                componentPackageNamePrefix,
                 qualifiedClassNames,
-                specReleaseVarPattern,
+                specLinkTemplate,
                 imageFormats != null? imageFormats : defaultImageFormats);
         try {
             exporter.exportProject(outFolder, project);
@@ -93,8 +93,12 @@ public class UmlAdocExporterCommandLine extends CommandLine {
         for (Iterator<String> iterator = Arrays.asList(cmdLineArgs).iterator(); iterator.hasNext(); ) {
             String arg = iterator.next();
             switch (arg) {
-                case "-c":  // Component names - packages under root package to include
+                case "-c":  // short component name(s) - packages under root package to include
                     componentPackageNames.addAll (Pattern.compile(",").splitAsStream (getParameterValue (iterator, "-c")).collect(Collectors.toList()));
+                    break;
+
+                case "-P":  // component name prefix to use in links
+                    componentPackageNamePrefix = getParameterValue (iterator, "-P");
                     break;
 
                 case "-d":  // Asciidoctor only: Diagram file formats
@@ -107,6 +111,10 @@ public class UmlAdocExporterCommandLine extends CommandLine {
                         imageFormats = new HashMap<>();
                         imageFormats.put(imageFormat, defaultImageFormats.get(imageFormat));
                     }
+                    break;
+
+                case "-k":  // link template
+                    specLinkTemplate = getParameterValue(iterator, "-k");
                     break;
 
                 case "-l":  // Asciidoctor only: heading level
@@ -143,21 +151,22 @@ public class UmlAdocExporterCommandLine extends CommandLine {
                     rootPackageName = getParameterValue (iterator, "-r");
                     break;
 
-                case "-i":  // Asciidoctor only: specification release variable pattern to insert in links
-                    specReleaseVarPattern = getParameterValue (iterator, "-i");
+                case "-i":  // LEAVE in until removed from calling script used by openEHR
+                    String str = getParameterValue (iterator, "-i");
                     break;
 
                 case "-?":
                 case "-h":
-                    System.out.println("Usage: uml_generate [-c component_pkg_names] [-d image_formats] [-o output_folder] [-l heading_level]  [-p uml_pkg_depth] [-q] [-r root_package_name] [-i index_release] <project file>");
+                    System.out.println("Usage: uml_generate [-c component_pkg_names] [-P link_component_prefix] [-k link_template] [-d image_formats] [-o output_folder] [-l heading_level]  [-p uml_pkg_depth] [-q] [-r root_package_name] [-i index_release] <project file>");
                     System.out.println("       -c: component package name(s) under root package to export (comma-separated)");
+                    System.out.println("       -P: component name prefix to use in links");
                     System.out.println("       -d: image format: " + join("|", defaultImageFormats.keySet()) + " (default = all)");
+                    System.out.println("       -k: spec URL template (default = \"" + UmlExporterDefinitions.DEFAULT_SPEC_LINK_TEMPLATE + "\"");
                     System.out.println("       -o: output folder (default = current folder)");
                     System.out.println("       -l: class headings level (default = 3)");
-                    System.out.println("       -p: UML package depth for uniqueness (default = 4)");
+                    System.out.println("       -p: UML package depth for uniqueness (default = " + String.valueOf(packageDepth) + ")");
                     System.out.println("       -q: if set, use package-qualified class-names in output files");
                     System.out.println("       -r: root package name to export (default = openehr)");
-                    System.out.println("       -i: pass asciidoctor release var name pattern, e.g. '{%s_release}'");
                     helpOnly = true;
                     break;
 

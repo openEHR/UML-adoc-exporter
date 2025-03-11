@@ -19,6 +19,8 @@ public class ClassInfo implements Comparable<ClassInfo> {
     private String specNameOverride;        // an override for the spec, if not = subPackage
     private boolean abstractClass;          // True if abstract
 
+    private String specUrlPath;        // generated from first call to getSpecUrlPath();
+
     private final List<ClassFeatureInfo> attributes = new ArrayList<>();
     private final List<ClassFeatureInfo> constants = new ArrayList<>();
     private final List<ClassFeatureInfo> operations = new ArrayList<>();
@@ -139,17 +141,22 @@ public class ClassInfo implements Comparable<ClassInfo> {
     // where <release_ref> is an Asciidoctor variable ref like '{am_release}'
     // e.g.
     //   "/releases/AM/{am_release}/AOM2.html#_c_object_class"
-    String urlPath (String aSpecReleaseVarPattern) {
+    String getSpecUrlPath (String specLinkTemplate, String componentPackageNamePrefix) {
         // in the below, we rewrite the release ref to match the spec component i.e. so that a
         // link to a BASE component class will have a release ref like
         // "{base_release}", and not the ref for the component for which this
         // extraction was invoked (e.g. "{rm_release}" or whatever
 
-        return "/releases/" + specComponent + "/" +                  // component e.g. "AM"
-                String.format(aSpecReleaseVarPattern,
-                          specComponent.toLowerCase()) + "/" +       // release
-                getSpecName() + ".html" +                            // doc
-                "#" + localRef();                                    // fragment
+        if (specUrlPath == null) {
+            String s = specLinkTemplate;
+            s = s.replace("${component}",  specComponent);
+            s = s.replace("${component_prefix}", componentPackageNamePrefix);
+            s = s.replace("${component_lower}", specComponent.toLowerCase());
+            s = s.replace("${spec_name}", getSpecName());
+            s = s + "#" + localRef();
+            specUrlPath = s;
+        }
+        return specUrlPath;
     }
 
     // Output an internal document ref, e.g.:

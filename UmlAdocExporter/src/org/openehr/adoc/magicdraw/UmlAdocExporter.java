@@ -41,6 +41,8 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
     private final int packageDepth;
     private final String rootPackageName;
     private final Set<String> componentPackageNames;
+
+    private final String componentPackageNamePrefix;
     private final Map<String, Integer> imageFormats;
     private final boolean qualifiedClassNames;
 
@@ -48,7 +50,7 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
     // a single '%s' for substitution, e.g. "{%s_release}", where the %s will be substituted
     // by the component name (lower case) of each class, some of which are in the core package
     // others of which are in other components.
-    private final String specReleaseVarPattern;
+    private final String specLinkTemplate;
 
     // map of all ClassInfo keyed by class key
     private final Map<String, ClassInfo> allEntitiesMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -62,16 +64,20 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
                            String aRootPackageName,
                            int pkgDepth,
                            Set<String> aComponentPackageNames,
+                           String aComponentPackageNamePrefix,
                            boolean qualifiedClassNamesFlag,
-                           String aSpecReleasePattern,
+                           String aSpecLinkTemplate,
                            Map<String, Integer> anImageFormats)
     {
         headingLevel = aHeadingLevel;
         rootPackageName = aRootPackageName;
-        specReleaseVarPattern = aSpecReleasePattern;
+        specLinkTemplate = aSpecLinkTemplate;
 
         imageFormats = anImageFormats;
         componentPackageNames = aComponentPackageNames;
+
+        // this may be empty; if so, use specComponentName in links
+        componentPackageNamePrefix = aComponentPackageNamePrefix;
 
         qualifiedClassNames = qualifiedClassNamesFlag;
 
@@ -356,7 +362,7 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
                     //   [.xcode]
                     //   * link:/releases/AM/{am_release}/AOM2.html#_c_object_class[C_OBJECT^]
                     // from the sprintf template string: "[.xcode]\n* %s\n"
-                    printWriter.printf(INDEX_LINK_FORMAT, formatter.externalLink(classInfo.getClassName(), classInfo.urlPath (specReleaseVarPattern)));
+                    printWriter.printf(INDEX_LINK_FORMAT, formatter.externalLink(classInfo.getClassName(), classInfo.getSpecUrlPath (specLinkTemplate, componentPackageNamePrefix)));
                 }
             }
         } catch (IOException e) {
@@ -395,7 +401,7 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
         ClassInfo targetClassInfo = allEntitiesMap.get (targetQualifiedClassName);
         if (targetClassInfo != null) {
             if (!targetClassInfo.getSpecName().equals (originClassInfo.getSpecName()))
-                return formatter.externalLink (targetClassInfo.getClassName(), targetClassInfo.urlPath (specReleaseVarPattern));
+                return formatter.externalLink (targetClassInfo.getClassName(), targetClassInfo.getSpecUrlPath (specLinkTemplate, componentPackageNamePrefix));
             else
                 return formatter.internalRef (targetClassInfo.getClassName(), targetClassInfo.localRef());
         }
