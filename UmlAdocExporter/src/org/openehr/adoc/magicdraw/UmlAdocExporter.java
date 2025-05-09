@@ -142,8 +142,8 @@ public class UmlAdocExporter {
         // iterate through the whole lot and add an override for the spec document, if it is
         // different from the sub-package inferred from the package structure
         for (ClassInfo classInfo: allEntitiesMap.values())
-            if (classSpecMapExceptions.containsKey (classInfo.getClassPackage()))
-                classInfo.setSpecName (classSpecMapExceptions.get (classInfo.getClassPackage()));
+            if (UmlExporterDefinitions.classSpecMapExceptions.containsKey (classInfo.getClassPackage()))
+                classInfo.setSpecName (UmlExporterDefinitions.classSpecMapExceptions.get (classInfo.getClassPackage()));
 
         // -------------------------- do the publishing ----------------------------
 
@@ -398,18 +398,6 @@ public class UmlAdocExporter {
         return sb.toString();
     }
 
-    /*
-     * Handle exceptions to regular relationship between package name and
-     * specification document name.
-     */
-    static Hashtable<String, String> classSpecMapExceptions = new Hashtable<>();
-
-    static {
-        classSpecMapExceptions.put("composition", "ehr");
-        classSpecMapExceptions.put("aom2", "AOM2");
-        classSpecMapExceptions.put("aom2_profile", "AOM2");
-        classSpecMapExceptions.put("p_aom2", "AOM2");
-    }
 
     /**
      * Export all elements of a feature in a class as text in an Asciidoctor (.adoc) file.

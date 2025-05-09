@@ -2,6 +2,7 @@ package org.openehr.adoc.magicdraw;
 
 import com.nomagic.magicdraw.export.image.ImageExporter;
 
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,5 +35,19 @@ public class UmlExporterDefinitions {
 
     public static Set<String> defaultImageFormatNames () {
         return defaultImageFormats.keySet();
+    }
+
+
+    /*
+     * Handle exceptions to regular relationship between package name and
+     * specification document name.
+     */
+    static Hashtable<String, String> classSpecMapExceptions = new Hashtable<>();
+
+    static {
+        classSpecMapExceptions.put("composition", "ehr");
+        classSpecMapExceptions.put("aom2", "AOM2");
+        classSpecMapExceptions.put("aom2_profile", "AOM2");
+        classSpecMapExceptions.put("p_aom2", "AOM2");
     }
 }
