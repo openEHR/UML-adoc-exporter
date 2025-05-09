@@ -13,7 +13,7 @@ To install the plugin to MagicDraw, the two files `UmlAdocExporter.jar` and `plu
 
 == Running the plugin
 
-The plugin is used via direct command line invocation, using a script like the one shown below.
+The plugin is used via direct command line invocation, using a script like the one shown below, assumed to be named `uml_generate_msa.sh`:
 
 [source, bash]
 ----
@@ -57,13 +57,45 @@ java -Xmx1200M -Xss1024K \
        org.openehr.magicdraw.adocexporter.UmlAdocExporterCommandLine "$@"
 ----
 
+== Plug-in Usage
+
+The command line arguments passed to the script above are passed to the plugin (see final line of script). Usage is as follows:
+
+----
+-c: component package name(s) under root package to export (comma-separated)
+-P: component name prefix to use in links
+-d: image format: svg|png (default = all)
+-k: spec URL template
+-o: output folder (default = current folder)
+-l: class headings level (default = 3)
+-p: UML package depth for uniqueness (default = 4);
+-q: if set, use package-qualified class-names in output files (default = set)
+-r: root package name to export (default = openehr)
+----
+
+The command line for openEHR looks as follows:
+
+[source,bash]
+----
+# create a command that will look like the following
+# -d svg
+# -k /releases/\${component_prefix}\${component}/{\${component_lower}_release}/docs/\${spec_name}.html
+# -p 4
+# -r openehr
+# -q
+# -c AM
+# -o docs/UML
+# computable/UML/openEHR_UML-AM.mdzip
+uml_regen_cmd="$ref_dir/bin/uml_generate_msa.sh -d svg -k ${link_template} -p $pkg_depth -r $uml_root_package ${package_qualifiers:+-q} -c $component -o docs/UML $uml_file"
+----
+
 == Plug-in Source Code
 
 The plug-in relies on the UML 2.x OpenAPI from Catia. This is (as far as we can tell) a faithful implementation of the UML 2.5.1 meta-model. Note that breaking changes occurred between UML 2.5 and UML 2.5.1, to do with how stereotypes are represented (https://docs.nomagic.com/display/MD2021x/2021x+Version+News#id-2021xVersionNews-ProfilingChangesintheUML2.5.1Metamodel[described here^]), which meant that code changes were required between the MD 19.4 version of the extractor and the current one.
 
 == Building
 
-The repo is currently set up as an IntelliJ project thatbuilds a .jar that works as a plugin for Magicdraw, as described in the MagicDraw 2024x documentation, found in $MAGICDRAW_HOME/openapi/guide.zip.
+The repo is currently set up as an IntelliJ project that builds a .jar that works as a plugin for Magicdraw, as described in the MagicDraw 2024x documentation, found in $MAGICDRAW_HOME/openapi/guide.zip.
 
 Steps to performing a build:
 
