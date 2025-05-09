@@ -21,6 +21,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
 
     private String specUrlPath;        // generated from first call to getSpecUrlPath();
 
+
     private final List<ClassFeatureInfo> attributes = new ArrayList<>();
     private final List<ClassFeatureInfo> constants = new ArrayList<>();
     private final List<ClassFeatureInfo> operations = new ArrayList<>();
@@ -156,7 +157,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
             s = s + "#" + localRef();
             specUrlPath = s;
         }
-        return specUrlPath;
+        return specUrlPath;                                 // fragment
     }
 
     // Output an internal document ref, e.g.:

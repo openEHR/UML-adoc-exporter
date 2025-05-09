@@ -1,6 +1,13 @@
 package org.openehr.adoc.magicdraw;
 
-public abstract class UmlExporterDefinitions {
+import com.nomagic.magicdraw.export.image.ImageExporter;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class UmlExporterDefinitions {
 
     public static final String TYPE_QUOTE_REGEX = "@[A-Za-z0-9_. ]+@";
 
@@ -10,6 +17,8 @@ public abstract class UmlExporterDefinitions {
 
     public static final String ROOT_PACKAGE_NAME_DEFAULT = "openehr";
 
+    public static final String STRUCTURES_PACKAGE_NAME_TEMPLATE = "org.$root_package.base.foundation_types.List";
+
     // wrap class names in @@ except if they are single letter names, which are formal generic parameters
     // aQualifiedTypeName is of form pkg.pkg.pkg.name
     protected String quoteTypeName (String aQualifiedTypeName) {
@@ -18,10 +27,12 @@ public abstract class UmlExporterDefinitions {
                 "@" + aQualifiedTypeName + "@";
     }
 
-    // Need these for type name injection in the AbstractINfoBuilder.correctType routine.
-    // Hard-wired for now because a two-pass approach needed to look them up before
-    // processing everything.
-    public static String listClassQualifiedName = "org.openehr.base.foundation_types.List";
-    public static String hashClassQualifiedName = "org.openehr.base.foundation_types.Hash";
+    public static Map<String, Integer> defaultImageFormats = Stream.of(new Object[][] {
+            { "svg", ImageExporter.SVG },
+            { "png", ImageExporter.PNG }
+    }).collect(Collectors.toMap(data -> (String) data[0], data -> (Integer) data[1]));
 
+    public static Set<String> defaultImageFormatNames () {
+        return defaultImageFormats.keySet();
+    }
 }

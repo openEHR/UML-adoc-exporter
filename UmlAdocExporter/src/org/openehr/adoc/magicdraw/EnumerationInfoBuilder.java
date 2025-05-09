@@ -12,8 +12,8 @@ import java.util.function.Function;
  * @author Bostjan Lah
  */
 public class EnumerationInfoBuilder extends AbstractInfoBuilder<Enumeration> {
-    public EnumerationInfoBuilder(Formatter formatter, int pkgDepth, Function<String, Class> getUMLClassByQualifiedName) {
-        super(formatter, pkgDepth, getUMLClassByQualifiedName);
+    public EnumerationInfoBuilder(Formatter formatter, Function<String, Class> getUMLClassByQualifiedName) {
+        super(formatter, getUMLClassByQualifiedName);
     }
 
     @Override
@@ -25,7 +25,7 @@ public class EnumerationInfoBuilder extends AbstractInfoBuilder<Enumeration> {
                 .setClassTypeName (className)
                 .setDocumentation (getDocumentation (element, getFormatter()));
 
-        setHierarchy (element.getQualifiedName(), packageDepth, classInfo);
+        setHierarchy (element.getQualifiedName(), UmlExportConfig.getInstance().getPackageDepth(), classInfo);
 
         if (element.hasOwnedLiteral()) {
             addLiterals(classInfo.getAttributes(), element.getOwnedLiteral(), getFormatter());

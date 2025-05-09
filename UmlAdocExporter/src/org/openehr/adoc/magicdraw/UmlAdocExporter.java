@@ -27,7 +27,8 @@ import java.util.stream.Collectors;
  *
  * @author Bostjan Lah
  */
-public class UmlAdocExporter extends UmlExporterDefinitions {
+public class UmlAdocExporter {
+
     private static final String ADOC_FILE_EXTENSION = ".adoc";
 
     private static final String DIAGRAMS_FOLDER = "diagrams";
@@ -37,20 +38,8 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
     private static final String INDEX_LINK_FORMAT = "[.xcode]\n* %s\n";
 
     private final Formatter formatter = new AsciidocFormatter();
-    private final int headingLevel;
-    private final int packageDepth;
-    private final String rootPackageName;
-    private final Set<String> componentPackageNames;
+    private final UmlExportConfig exportConfig;
 
-    private final String componentPackageNamePrefix;
-    private final Map<String, Integer> imageFormats;
-    private final boolean qualifiedClassNames;
-
-    // This is a printf pattern giving the form of an Asciidoctor variable name containing
-    // a single '%s' for substitution, e.g. "{%s_release}", where the %s will be substituted
-    // by the component name (lower case) of each class, some of which are in the core package
-    // others of which are in other components.
-    private final String specLinkTemplate;
 
     // map of all ClassInfo keyed by class key
     private final Map<String, ClassInfo> allEntitiesMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -60,28 +49,9 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
 
     private Project project;
 
-    public UmlAdocExporter(int aHeadingLevel,
-                           String aRootPackageName,
-                           int pkgDepth,
-                           Set<String> aComponentPackageNames,
-                           String aComponentPackageNamePrefix,
-                           boolean qualifiedClassNamesFlag,
-                           String aSpecLinkTemplate,
-                           Map<String, Integer> anImageFormats)
+    public UmlAdocExporter()
     {
-        headingLevel = aHeadingLevel;
-        rootPackageName = aRootPackageName;
-        specLinkTemplate = aSpecLinkTemplate;
-
-        imageFormats = anImageFormats;
-        componentPackageNames = aComponentPackageNames;
-
-        // this may be empty; if so, use specComponentName in links
-        componentPackageNamePrefix = aComponentPackageNamePrefix;
-
-        qualifiedClassNames = qualifiedClassNamesFlag;
-
-        packageDepth = pkgDepth;
+        this.exportConfig = UmlExportConfig.getInstance();
     }
 
     /**
@@ -112,7 +82,7 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
         //   to generate links from those classes being published to those in other components
         // * convert to ClassInfo objects (local representation used here)
         // Then export each ClassInfo object as an output file
-        ClassInfoBuilder classInfoBuilder = new ClassInfoBuilder(formatter, packageDepth, this::getUMLClassByQualifiedName);
+        ClassInfoBuilder classInfoBuilder = new ClassInfoBuilder(formatter, this::getUMLClassByQualifiedName);
 
         // -------- get the UML model classes -------
         Collection<? extends Element> umlClasses = umlElementsFinder.find(
@@ -131,7 +101,7 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
                 project.getPrimaryModel(),
                 new java.lang.Class[]{Interface.class},
                 true);
-        InterfaceInfoBuilder interfaceInfoBuilder = new InterfaceInfoBuilder(formatter, packageDepth, this::getUMLClassByQualifiedName);
+        InterfaceInfoBuilder interfaceInfoBuilder = new InterfaceInfoBuilder(formatter, this::getUMLClassByQualifiedName);
         List<ClassInfo> interfaces = umlInterfaces.stream()
                 .map(e -> (Interface)e)
                 .filter(c -> ! c.getName().contains("<"))// ignore classes with names simulating template type names
@@ -145,7 +115,7 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
                 new java.lang.Class[]{Enumeration.class},
                 true);
 
-        EnumerationInfoBuilder enumerationInfoBuilder = new EnumerationInfoBuilder(formatter, packageDepth, this::getUMLClassByQualifiedName);
+        EnumerationInfoBuilder enumerationInfoBuilder = new EnumerationInfoBuilder(formatter, this::getUMLClassByQualifiedName);
         List<ClassInfo> enumerations = umlEnumerations.stream()
                 .map(e -> (Enumeration)e)
                 .filter(this::matchesRootPackage)
@@ -179,7 +149,7 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
 
         // Output the entities, but only those components that were requested to publish,
         // which equates to some selection of sub-packages of the root package, or maybe all
-        if (!componentPackageNames.isEmpty())
+        if (!exportConfig.getComponentPackageNames().isEmpty())
             allEntitiesMap.values()
                     .stream()
                     .filter (this::matchesComponents)
@@ -215,7 +185,7 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
      */
     private void exportDiagram(File outputFolder, DiagramPresentationElement diag) {
         // iterate over image formats
-        imageFormats.forEach((k,v)->doExportDiagram(k, v, outputFolder, diag));
+        exportConfig.getImageFormats().forEach((k,v)->doExportDiagram(k, v, outputFolder, diag));
     }
 
     private void doExportDiagram(String formatName, Integer formatCode, File outputFolder, DiagramPresentationElement diag) {
@@ -238,8 +208,8 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
      */
     private void exportClass (ClassInfo classInfo, File targetFolder) {
         try (PrintWriter printWriter = new PrintWriter(Files.newBufferedWriter(
-                targetFolder.toPath().resolve(fileName(qualifiedClassNames? classInfo.getQualifiedClassName().toLowerCase(): classInfo.getClassName().toLowerCase()) + ADOC_FILE_EXTENSION), Charset.forName("UTF-8")))) {
-            printWriter.println(formatter.heading(classInfo.getClassName() + ' ' + classInfo.getMetaType(), headingLevel));
+                targetFolder.toPath().resolve(fileName(exportConfig.hasQualifiedClassNames()? classInfo.getQualifiedClassName().toLowerCase(): classInfo.getClassName().toLowerCase()) + ADOC_FILE_EXTENSION), Charset.forName("UTF-8")))) {
+            printWriter.println(formatter.heading(classInfo.getClassName() + ' ' + classInfo.getMetaType(), exportConfig.getHeadingLevel()));
             printWriter.println();
 
             printWriter.println(formatter.tableDefinition ("1,3,5"));
@@ -362,7 +332,8 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
                     //   [.xcode]
                     //   * link:/releases/AM/{am_release}/AOM2.html#_c_object_class[C_OBJECT^]
                     // from the sprintf template string: "[.xcode]\n* %s\n"
-                    printWriter.printf(INDEX_LINK_FORMAT, formatter.externalLink(classInfo.getClassName(), classInfo.getSpecUrlPath (specLinkTemplate, componentPackageNamePrefix)));
+                    printWriter.printf(INDEX_LINK_FORMAT, formatter.externalLink(classInfo.getClassName(),
+                            classInfo.getSpecUrlPath (exportConfig.getSpecLinkTemplate(), exportConfig.getComponentPackageNamePrefix())));
                 }
             }
         } catch (IOException e) {
@@ -375,18 +346,18 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
     }
 
     private boolean matchesRootPackage (NamedElement namedElement) {
-        return namedElement.getQualifiedName().contains(rootPackageName + "::");
+        return namedElement.getQualifiedName().contains(exportConfig.getRootPackageName() + "::");
     }
 
     // diagram names follow the pattern COMPONENT-xxxx, e.g. RM-common etc. This returns True if
     // a diagram matches any of the components being requested.
     private boolean diagMatchesRootPackages (DiagramPresentationElement diagElement) {
-        return componentPackageNames.stream().anyMatch (rn -> diagElement.getName().contains(rn + "-"));
+        return exportConfig.getComponentPackageNames().stream().anyMatch (rn -> diagElement.getName().contains(rn + "-"));
     }
 
     // note: returns false for empty list - need to check for empty case before using this filter
     private boolean matchesComponents (ClassInfo classInfo) {
-        return componentPackageNames.stream().anyMatch (cn -> classInfo.getSpecComponent().equalsIgnoreCase (cn));
+        return exportConfig.getComponentPackageNames().stream().anyMatch (cn -> classInfo.getSpecComponent().equalsIgnoreCase (cn));
     }
 
     /**
@@ -401,7 +372,8 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
         ClassInfo targetClassInfo = allEntitiesMap.get (targetQualifiedClassName);
         if (targetClassInfo != null) {
             if (!targetClassInfo.getSpecName().equals (originClassInfo.getSpecName()))
-                return formatter.externalLink (targetClassInfo.getClassName(), targetClassInfo.getSpecUrlPath (specLinkTemplate, componentPackageNamePrefix));
+                return formatter.externalLink (targetClassInfo.getClassName(),
+                        targetClassInfo.getSpecUrlPath (exportConfig.getSpecLinkTemplate(), exportConfig.getComponentPackageNamePrefix()));
             else
                 return formatter.internalRef (targetClassInfo.getClassName(), targetClassInfo.localRef());
         }
@@ -414,7 +386,7 @@ public class UmlAdocExporter extends UmlExporterDefinitions {
      * - replace "@TypeName@" with linked Typenames (removing the @@)
      */
     private String postProcess (ClassInfo classInfo, String classText) {
-        Pattern p = Pattern.compile (TYPE_QUOTE_REGEX);
+        Pattern p = Pattern.compile (UmlExporterDefinitions.TYPE_QUOTE_REGEX);
         Matcher m = p.matcher (classText);
         StringBuffer sb = new StringBuffer();
         while (m.find()) {

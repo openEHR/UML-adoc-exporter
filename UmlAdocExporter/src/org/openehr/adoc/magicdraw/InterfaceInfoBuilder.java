@@ -14,8 +14,8 @@ import java.util.function.Function;
  */
 public class InterfaceInfoBuilder extends AbstractInfoBuilder<Interface> {
 
-    public InterfaceInfoBuilder (Formatter formatter, int pkgDepth, Function<String, Class> getUMLClassByQualifiedName) {
-        super(formatter, pkgDepth, getUMLClassByQualifiedName);
+    public InterfaceInfoBuilder (Formatter formatter, Function<String, Class> getUMLClassByQualifiedName) {
+        super(formatter, getUMLClassByQualifiedName);
     }
 
     @Override
@@ -28,7 +28,7 @@ public class InterfaceInfoBuilder extends AbstractInfoBuilder<Interface> {
                 .setDocumentation (getDocumentation(element, getFormatter()))
                 .setAbstractClass (element.isAbstract());
 
-        setHierarchy(element.getQualifiedName(), packageDepth, classInfo);
+        setHierarchy(element.getQualifiedName(), UmlExportConfig.getInstance().getPackageDepth(), classInfo);
 
         Map<String, Property> superClassAttributes = new HashMap<>();
         Map<String, Operation> superClassOperations = new HashMap<>();

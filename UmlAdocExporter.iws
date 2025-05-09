@@ -5,8 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1f95c62e-0be9-44cf-b9f6-38625aa58dc5" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/UmlExportConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UmlAdocExporter.ipr" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter.ipr" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UmlAdocExporter.iws" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter.iws" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UmlAdocExporter/UmlAdocExporter.iml" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/UmlAdocExporter.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/AbstractInfoBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/AbstractInfoBuilder.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/ClassInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/ClassInfo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/ClassInfoBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/ClassInfoBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/EnumerationInfoBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/EnumerationInfoBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/InterfaceInfoBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/InterfaceInfoBuilder.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/UmlAdocExporter.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/UmlAdocExporter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/UmlAdocExporterCommandLine.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/UmlAdocExporterCommandLine.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/UmlAdocExporterPluginAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/UmlAdocExporter/src/org/openehr/adoc/magicdraw/UmlAdocExporterPluginAction.java" afterDir="false" />
@@ -17,32 +24,48 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="ComposerSettings">
+    <execution />
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="2hnCg1ljitHffpvpa7qaqwjqaeX" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="autoscrollFromSource" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Downloaded.Files.Path.Enabled": "false",
+    "Repository.Attach.Annotations": "false",
+    "Repository.Attach.JavaDocs": "true",
+    "Repository.Attach.Sources": "false",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "feature/add__url__pattern",
+    "git-widget-placeholder": "master",
     "last_opened_file_path": "/home/thomas/openEHR/UML-adoc-exporter/UmlAdocExporter.ipr",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
-    "project.structure.last.edited": "SDKs",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Libraries",
     "project.structure.proportion": "0.1875",
-    "project.structure.side.proportion": "0.112107635",
+    "project.structure.side.proportion": "0.24524716",
     "settings.editor.selected.configurable": "preferences.pathVariables",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="org.openehr.adoc.magicdraw" />
+    </key>
+  </component>
   <component name="RunManager" selected="Application.MagicDraw with all plugins" />
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -59,6 +82,7 @@
       <workItem from="1741459390309" duration="272000" />
       <workItem from="1741459680606" duration="5631000" />
       <workItem from="1741635091565" duration="13467000" />
+      <workItem from="1746561139881" duration="6431000" />
     </task>
     <servers />
   </component>

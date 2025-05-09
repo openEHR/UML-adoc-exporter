@@ -29,13 +29,11 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
     static List<String> stereotypeTagNames = Arrays.asList("ops", "sym_ops");
 
     protected final Formatter formatter;
-    protected final int packageDepth;
 
     protected final Function<String, Class> getUMLClassByQualifiedName;
 
-    protected AbstractInfoBuilder (Formatter formatter, int pkgDepth, Function<String, Class> getUMLClassByQualifiedName) {
+    protected AbstractInfoBuilder (Formatter formatter, Function<String, Class> getUMLClassByQualifiedName) {
         this.formatter = formatter;
-        this.packageDepth = pkgDepth;
         this.getUMLClassByQualifiedName = getUMLClassByQualifiedName;
     }
 
@@ -247,7 +245,7 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
      *  ASSUMPTION: only one level of generics!
      */
     String convertToQualified (String umlQualifiedTypeName) {
-        String qualifiedTypeName = packageQualifiedClassName (umlQualifiedTypeName, packageDepth);
+        String qualifiedTypeName = packageQualifiedClassName (umlQualifiedTypeName, UmlExportConfig.getInstance().getPackageDepth());
         if (qualifiedTypeName.contains("<")) {
             StringBuilder genericTypeNameSb = new StringBuilder(qualifiedTypeName.substring(0, qualifiedTypeName.indexOf("<")+1));
             Class typeClass = getUMLClassByQualifiedName.apply(umlQualifiedTypeName);
@@ -270,7 +268,7 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
                                     if (qName.contains("<"))
                                         genericTypeNameSb.append (convertToQualified (qName));
                                     else if (pElem instanceof Class)
-                                        genericTypeNameSb.append (packageQualifiedClassName(((Class) pElem).getQualifiedName(), packageDepth));
+                                        genericTypeNameSb.append (packageQualifiedClassName(((Class) pElem).getQualifiedName(), UmlExportConfig.getInstance().getPackageDepth()));
                                     else
                                         genericTypeNameSb.append (((NamedElement) pElem).getName());
 
@@ -507,7 +505,7 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
         // if there is no qualifier, output either the UML relation target type or List<target type>
         if (qualifier == null) {
             // synthesise List<> wrapper where cardinality indicates a container
-            result = upper == -1 || upper > 1 ? quoteTypeName(listClassQualifiedName) +
+            result = upper == -1 || upper > 1 ? quoteTypeName(UmlExportConfig.getInstance().listClassQualifiedName()) +
                         '<' + quotedQualifiedTypeName + '>' : quotedQualifiedTypeName;
         }
         else {
@@ -517,12 +515,12 @@ public abstract class AbstractInfoBuilder<T> extends UmlExporterDefinitions {
             // if there is a qualifier, but with no name, the output type is either the UML
             // qualifier type of List<qualifier type>
             if (qualifierName == null || qualifierName.isEmpty())
-                result = upper == -1 || upper > 1 ? quoteTypeName (listClassQualifiedName) +
+                result = upper == -1 || upper > 1 ? quoteTypeName (UmlExportConfig.getInstance().listClassQualifiedName()) +
                         '<' + quotedQualifierType + '>' : quotedQualifierType;
             // else if there is a qualifier name, it stands for a Hash key, and we output a Hash type sig
             // This should only occur with multiple relationships.
             else
-                result = upper == -1 || upper > 1 ? quoteTypeName (hashClassQualifiedName) +
+                result = upper == -1 || upper > 1 ? quoteTypeName (UmlExportConfig.getInstance().hashClassQualifiedName()) +
                         '<' + quotedQualifierType + ',' + quotedQualifiedTypeName + '>' : quotedQualifierType;
         }
         return result;
