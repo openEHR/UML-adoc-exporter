@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * @author Bostjan Lah
  */
-public class ClassInfo implements Comparable<ClassInfo> {
+public class ImmClass implements Comparable<ImmClass> {
     private final String metaType;          // "Class", "Interface", "Enumeration" etc
     private String classTypeName = "";      // including any generics
     private String className = "";          // root class name
@@ -22,12 +22,12 @@ public class ClassInfo implements Comparable<ClassInfo> {
     private String specUrlPath;        // generated from first call to getSpecUrlPath();
 
 
-    private final List<ClassFeatureInfo> attributes = new ArrayList<>();
-    private final List<ClassFeatureInfo> constants = new ArrayList<>();
-    private final List<ClassFeatureInfo> operations = new ArrayList<>();
-    private final List<ConstraintInfo> constraints = new ArrayList<>();
+    private final List<ImmClassFeature> attributes = new ArrayList<>();
+    private final List<ImmClassFeature> constants = new ArrayList<>();
+    private final List<ImmClassFeature> operations = new ArrayList<>();
+    private final List<ImmConstraint> constraints = new ArrayList<>();
 
-    public ClassInfo(String metaType) {
+    public ImmClass(String metaType) {
         this.metaType = metaType;
     }
 
@@ -48,7 +48,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
         return className;
     }
 
-    public ClassInfo setClassTypeName (String aTypeName) {
+    public ImmClass setClassTypeName (String aTypeName) {
         classTypeName = aTypeName;
         className = aTypeName.contains("<") ? aTypeName.substring(0, aTypeName.indexOf('<')): aTypeName;
         return this;
@@ -58,7 +58,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
         return documentation;
     }
 
-    public ClassInfo setDocumentation(String aDocumentation) {
+    public ImmClass setDocumentation(String aDocumentation) {
         documentation = aDocumentation;
         return this;
     }
@@ -67,24 +67,24 @@ public class ClassInfo implements Comparable<ClassInfo> {
         return qualifiedParentClassNames;
     }
 
-    public ClassInfo addQualifiedParentClassName(String aParentClassQualifiedName) {
+    public ImmClass addQualifiedParentClassName(String aParentClassQualifiedName) {
         qualifiedParentClassNames.add (aParentClassQualifiedName);
         return this;
     }
 
-    public List<ClassFeatureInfo> getAttributes() {
+    public List<ImmClassFeature> getAttributes() {
         return attributes;
     }
 
-    public List<ClassFeatureInfo> getConstants() {
+    public List<ImmClassFeature> getConstants() {
         return constants;
     }
 
-    public List<ClassFeatureInfo> getOperations() {
+    public List<ImmClassFeature> getOperations() {
         return operations;
     }
 
-    public List<ConstraintInfo> getConstraints() {
+    public List<ImmConstraint> getConstraints() {
         return constraints;
     }
 
@@ -92,7 +92,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
         return abstractClass;
     }
 
-    public ClassInfo setAbstractClass (boolean anAbstractClass) {
+    public ImmClass setAbstractClass (boolean anAbstractClass) {
         abstractClass = anAbstractClass;
         return this;
     }
@@ -167,7 +167,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
     }
 
     @Override
-    public int compareTo (@Nonnull ClassInfo o) {
+    public int compareTo (@Nonnull ImmClass o) {
         int i = specComponent.compareTo(o.specComponent);
         if (i != 0)
             return i;

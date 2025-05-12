@@ -20,14 +20,6 @@ public class UmlExporterDefinitions {
 
     public static final String STRUCTURES_PACKAGE_NAME_TEMPLATE = "org.$root_package.base.foundation_types.List";
 
-    // wrap class names in @@ except if they are single letter names, which are formal generic parameters
-    // aQualifiedTypeName is of form pkg.pkg.pkg.name
-    protected String quoteTypeName (String aQualifiedTypeName) {
-        return aQualifiedTypeName.lastIndexOf(".") + 2 == aQualifiedTypeName.length() ?
-                aQualifiedTypeName.substring(aQualifiedTypeName.length()-1) :
-                "@" + aQualifiedTypeName + "@";
-    }
-
     public static Map<String, Integer> defaultImageFormats = Stream.of(new Object[][] {
             { "svg", ImageExporter.SVG },
             { "png", ImageExporter.PNG }

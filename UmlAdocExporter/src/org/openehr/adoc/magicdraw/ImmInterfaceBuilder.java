@@ -12,36 +12,36 @@ import java.util.function.Function;
 /**
  * @author Bostjan Lah
  */
-public class InterfaceInfoBuilder extends AbstractInfoBuilder<Interface> {
+public class ImmInterfaceBuilder extends ImmEntityBuilder<Interface> {
 
-    public InterfaceInfoBuilder (Formatter formatter, Function<String, Class> getUMLClassByQualifiedName) {
+    public ImmInterfaceBuilder(Formatter formatter, Function<String, Class> getUMLClassByQualifiedName) {
         super(formatter, getUMLClassByQualifiedName);
     }
 
     @Override
-    public ClassInfo build (Interface element) {
+    public ImmClass build (Interface element) {
 
         String className = element.getName();
 
-        ClassInfo classInfo = new ClassInfo("Interface")
+        ImmClass immClass = new ImmClass("Interface")
                 .setClassTypeName (className)
-                .setDocumentation (getDocumentation(element, getFormatter()))
+                .setDocumentation (getUmlDocumentation(element, getFormatter()))
                 .setAbstractClass (element.isAbstract());
 
-        setHierarchy(element.getQualifiedName(), UmlExportConfig.getInstance().getPackageDepth(), classInfo);
+        setHierarchy(element.getQualifiedName(), UmlExportConfig.getInstance().getPackageDepth(), immClass);
 
         Map<String, Property> superClassAttributes = new HashMap<>();
         Map<String, Operation> superClassOperations = new HashMap<>();
 
         if (element.hasOwnedAttribute())
-            addAttributes (classInfo.getAttributes(), element.getOwnedAttribute(), superClassAttributes);
+            addAttributes (immClass.getAttributes(), element.getOwnedAttribute(), superClassAttributes);
 
         if (element.hasOwnedOperation())
-            addOperations (classInfo.getOperations(), element.getOwnedOperation(), superClassOperations);
+            addOperations (immClass.getOperations(), element.getOwnedOperation(), superClassOperations);
 
-        addConstraints (classInfo.getConstraints(), element.get_constraintOfConstrainedElement());
+        addConstraints (immClass.getConstraints(), element.get_constraintOfConstrainedElement());
 
-        return classInfo;
+        return immClass;
     }
 
 }

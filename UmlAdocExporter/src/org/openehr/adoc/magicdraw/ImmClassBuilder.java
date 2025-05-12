@@ -14,13 +14,13 @@ import java.util.stream.Collectors;
 /**
  * @author Bostjan Lah
  */
-public class ClassInfoBuilder extends AbstractInfoBuilder<com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Class> {
-    public ClassInfoBuilder(Formatter formatter, Function<String, Class> getUMLClassByQualifiedName) {
+public class ImmClassBuilder extends ImmEntityBuilder<Class> {
+    public ImmClassBuilder(Formatter formatter, Function<String, Class> getUMLClassByQualifiedName) {
         super(formatter, getUMLClassByQualifiedName);
     }
 
     @Override
-    public ClassInfo build (com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Class umlClass) {
+    public ImmClass build (com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Class umlClass) {
 
         String className = umlClass.getName();
 
@@ -36,34 +36,34 @@ public class ClassInfoBuilder extends AbstractInfoBuilder<com.nomagic.uml2.ext.m
             className = className + '<' + tplParamsStr + '>';
         }
 
-        ClassInfo classInfo = new ClassInfo("Class")
+        ImmClass immClass = new ImmClass("Class")
                 .setClassTypeName (className)
-                .setDocumentation (getDocumentation (umlClass, getFormatter()))
+                .setDocumentation (getUmlDocumentation(umlClass, getFormatter()))
                 .setAbstractClass (umlClass.isAbstract());
 
-        setHierarchy (umlClass.getQualifiedName(), UmlExportConfig.getInstance().getPackageDepth(), classInfo);
+        setHierarchy (umlClass.getQualifiedName(), UmlExportConfig.getInstance().getPackageDepth(), immClass);
 
         Map<String, Property> superClassAttributes = new HashMap<>();
         Map<String, Operation> superClassOperations = new HashMap<>();
 
         if (umlClass.hasSuperClass()) {
             for (Class umlSuperClass: umlClass.getSuperClass())
-                classInfo.addQualifiedParentClassName (convertToQualified (umlSuperClass.getQualifiedName()));
+                immClass.addQualifiedParentClassName (convertToQualified (umlSuperClass.getQualifiedName()));
 
             getSuperClassData (umlClass, superClassAttributes, superClassOperations);
         }
 
         if (umlClass.hasOwnedAttribute()) {
-            addAttributes (classInfo.getAttributes(), umlClass.getOwnedAttribute(), superClassAttributes);
-            addConstants (classInfo.getConstants(), umlClass.getOwnedAttribute(), superClassAttributes);
+            addAttributes (immClass.getAttributes(), umlClass.getOwnedAttribute(), superClassAttributes);
+            addConstants (immClass.getConstants(), umlClass.getOwnedAttribute(), superClassAttributes);
         }
         if (umlClass.hasOwnedOperation()) {
-            addOperations (classInfo.getOperations(), umlClass.getOwnedOperation(), superClassOperations);
+            addOperations (immClass.getOperations(), umlClass.getOwnedOperation(), superClassOperations);
         }
 
-        addConstraints(classInfo.getConstraints(), umlClass.get_constraintOfConstrainedElement());
+        addConstraints(immClass.getConstraints(), umlClass.get_constraintOfConstrainedElement());
 
-        return classInfo;
+        return immClass;
     }
 
     private void getSuperClassData (Class element, Map<String, Property> superClassAttributes, Map<String, Operation> superClassOperations) {

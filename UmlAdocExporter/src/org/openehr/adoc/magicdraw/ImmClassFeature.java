@@ -3,7 +3,7 @@ package org.openehr.adoc.magicdraw;
 /**
  * @author Bostjan Lah
  */
-public class ClassFeatureInfo {
+public class ImmClassFeature {
     private String cardinality = "";
     private String status = "";
     private String signature = "";
@@ -13,17 +13,16 @@ public class ClassFeatureInfo {
         return cardinality;
     }
 
-    public ClassFeatureInfo setCardinality (String aCardinality) {
-        cardinality = aCardinality;
+    public ImmClassFeature setCardinality (int lower, int upper) {
+        cardinality = upper == -1 ? lower + "..1" : lower + ".." + upper;
         return this;
     }
-
     public String getStatus() {
         return status;
     }
 
-    public ClassFeatureInfo setStatus(String aStatus) {
-        status = aStatus;
+    public ImmClassFeature setStatus(FeatureDefinitionStatus opStatus) {
+        status = opStatus.toString().isEmpty()? "" : "(" + opStatus + ")";
         return this;
     }
 
@@ -31,7 +30,7 @@ public class ClassFeatureInfo {
         return signature;
     }
 
-    public ClassFeatureInfo setSignature(String aSignature) {
+    public ImmClassFeature setSignature(String aSignature) {
         signature = aSignature;
         return this;
     }
@@ -40,7 +39,7 @@ public class ClassFeatureInfo {
         return documentation;
     }
 
-    public ClassFeatureInfo setDocumentation(String aDocumentation) {
+    public ImmClassFeature setDocumentation(String aDocumentation) {
         documentation = aDocumentation;
         return this;
     }

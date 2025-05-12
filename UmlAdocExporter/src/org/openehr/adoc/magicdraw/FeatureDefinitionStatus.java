@@ -1,6 +1,6 @@
 package org.openehr.adoc.magicdraw;
 
-public enum OperationStatus {
+public enum FeatureDefinitionStatus {
     // operation is abstract in current class
     ABSTRACT ("abstract"),
 
@@ -14,7 +14,7 @@ public enum OperationStatus {
     DEFINED ("");
 
     private String literalName;
-    OperationStatus(String litName) {
+    FeatureDefinitionStatus(String litName) {
         this.literalName = litName;
     }
 

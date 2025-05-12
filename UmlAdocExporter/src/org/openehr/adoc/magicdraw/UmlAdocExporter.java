@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 public class UmlAdocExporter {
 
     private static final String ADOC_FILE_EXTENSION = ".adoc";
-
     private static final String DIAGRAMS_FOLDER = "diagrams";
     private static final String CLASSES_FOLDER = "classes";
 
@@ -42,7 +41,7 @@ public class UmlAdocExporter {
 
 
     // map of all ClassInfo keyed by class key
-    private final Map<String, ClassInfo> allEntitiesMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    private final Map<String, ImmClass> allEntitiesMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
     private Finder.ByTypeRecursivelyFinder umlElementsFinder;
     private Finder.ByQualifiedNameFinder umlQualifiedNameFinder;
@@ -82,18 +81,18 @@ public class UmlAdocExporter {
         //   to generate links from those classes being published to those in other components
         // * convert to ClassInfo objects (local representation used here)
         // Then export each ClassInfo object as an output file
-        ClassInfoBuilder classInfoBuilder = new ClassInfoBuilder(formatter, this::getUMLClassByQualifiedName);
+        ImmClassBuilder immClassBuilder = new ImmClassBuilder(formatter, this::getUMLClassByQualifiedName);
 
         // -------- get the UML model classes -------
         Collection<? extends Element> umlClasses = umlElementsFinder.find(
                 project.getPrimaryModel(),
                 new java.lang.Class[]{com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Class.class},
                 true);
-        List<ClassInfo> classes = umlClasses.stream()
+        List<ImmClass> classes = umlClasses.stream()
                 .map(e -> (com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Class)e)
                 .filter(c -> ! c.getName().contains("<"))// ignore classes with names simulating template type names
                 .filter(this::matchesRootPackage)
-                .map(classInfoBuilder::build)
+                .map(immClassBuilder::build)
                 .collect(Collectors.toList());
 
         // -------- get the UML model interfaces -------
@@ -101,12 +100,12 @@ public class UmlAdocExporter {
                 project.getPrimaryModel(),
                 new java.lang.Class[]{Interface.class},
                 true);
-        InterfaceInfoBuilder interfaceInfoBuilder = new InterfaceInfoBuilder(formatter, this::getUMLClassByQualifiedName);
-        List<ClassInfo> interfaces = umlInterfaces.stream()
+        ImmInterfaceBuilder immInterfaceBuilder = new ImmInterfaceBuilder(formatter, this::getUMLClassByQualifiedName);
+        List<ImmClass> interfaces = umlInterfaces.stream()
                 .map(e -> (Interface)e)
                 .filter(c -> ! c.getName().contains("<"))// ignore classes with names simulating template type names
                 .filter(this::matchesRootPackage)
-                .map(interfaceInfoBuilder::build)
+                .map(immInterfaceBuilder::build)
                 .collect(Collectors.toList());
 
         // -------- get the UML model enumerations -------
@@ -115,11 +114,11 @@ public class UmlAdocExporter {
                 new java.lang.Class[]{Enumeration.class},
                 true);
 
-        EnumerationInfoBuilder enumerationInfoBuilder = new EnumerationInfoBuilder(formatter, this::getUMLClassByQualifiedName);
-        List<ClassInfo> enumerations = umlEnumerations.stream()
+        ImmEnumerationBuilder immEnumerationBuilder = new ImmEnumerationBuilder(formatter, this::getUMLClassByQualifiedName);
+        List<ImmClass> enumerations = umlEnumerations.stream()
                 .map(e -> (Enumeration)e)
                 .filter(this::matchesRootPackage)
-                .map(enumerationInfoBuilder::build)
+                .map(immEnumerationBuilder::build)
                 .collect(Collectors.toList());
 
         // -------- get the UML model state machines -------
@@ -141,9 +140,9 @@ public class UmlAdocExporter {
 
         // iterate through the whole lot and add an override for the spec document, if it is
         // different from the sub-package inferred from the package structure
-        for (ClassInfo classInfo: allEntitiesMap.values())
-            if (UmlExporterDefinitions.classSpecMapExceptions.containsKey (classInfo.getClassPackage()))
-                classInfo.setSpecName (UmlExporterDefinitions.classSpecMapExceptions.get (classInfo.getClassPackage()));
+        for (ImmClass immClass : allEntitiesMap.values())
+            if (UmlExporterDefinitions.classSpecMapExceptions.containsKey (immClass.getClassPackage()))
+                immClass.setSpecName (UmlExporterDefinitions.classSpecMapExceptions.get (immClass.getClassPackage()));
 
         // -------------------------- do the publishing ----------------------------
 
@@ -203,37 +202,37 @@ public class UmlAdocExporter {
     /**
      * Export a class as an Asciidoctor (.adoc) file to the output folder on the file system.
      * @param targetFolder Directory in which to write the file.
-     * @param classInfo info object for the class.
+     * @param immClass info object for the class.
      * @exception IOException on fail to write to file.
      */
-    private void exportClass (ClassInfo classInfo, File targetFolder) {
+    private void exportClass (ImmClass immClass, File targetFolder) {
         try (PrintWriter printWriter = new PrintWriter(Files.newBufferedWriter(
-                targetFolder.toPath().resolve(fileName(exportConfig.hasQualifiedClassNames()? classInfo.getQualifiedClassName().toLowerCase(): classInfo.getClassName().toLowerCase()) + ADOC_FILE_EXTENSION), Charset.forName("UTF-8")))) {
-            printWriter.println(formatter.heading(classInfo.getClassName() + ' ' + classInfo.getMetaType(), exportConfig.getHeadingLevel()));
+                targetFolder.toPath().resolve(fileName(exportConfig.hasQualifiedClassNames()? immClass.getQualifiedClassName().toLowerCase(): immClass.getClassName().toLowerCase()) + ADOC_FILE_EXTENSION), Charset.forName("UTF-8")))) {
+            printWriter.println(formatter.heading(immClass.getClassName() + ' ' + immClass.getMetaType(), exportConfig.getHeadingLevel()));
             printWriter.println();
 
             printWriter.println(formatter.tableDefinition ("1,3,5"));
             printWriter.println(formatter.tableDelimiter());
-            printWriter.println(formatter.tableColHeader (classInfo.getMetaType(), 1));
+            printWriter.println(formatter.tableColHeader (immClass.getMetaType(), 1));
             printWriter.println(formatter.tableColHeaderCentred (
-                    (classInfo.isAbstractClass()
-                            ? formatter.italic(classInfo.getClassTypeName() + " (abstract)")
-                            : classInfo.getClassTypeName()),
+                    (immClass.isAbstractClass()
+                            ? formatter.italic(immClass.getClassTypeName() + " (abstract)")
+                            : immClass.getClassTypeName()),
                     2)
             );
             printWriter.println();
 
             printWriter.println(formatter.tableColHeader ("Description", 1));
 
-            printWriter.println(formatter.tableCellPassthrough (classInfo.getDocumentation(), 2));
+            printWriter.println(formatter.tableCellPassthrough (immClass.getDocumentation(), 2));
             printWriter.println();
 
             // inheritance parents
-            if (!classInfo.getQualifiedParentClassNames().isEmpty()) {
+            if (!immClass.getQualifiedParentClassNames().isEmpty()) {
                 printWriter.println (formatter.tableColHeader ("Inherit", 1));
                 StringBuilder sb = new StringBuilder();
-                for (String qualifiedParentClassName: classInfo.getQualifiedParentClassNames())
-                    sb.append (formatter.monospace (linkClassName (classInfo, qualifiedParentClassName))).append(", ");
+                for (String qualifiedParentClassName: immClass.getQualifiedParentClassNames())
+                    sb.append (formatter.monospace (linkClassName (immClass, qualifiedParentClassName))).append(", ");
 
                 String parentsString = "";
                 // remove any trailing ", "
@@ -244,38 +243,38 @@ public class UmlAdocExporter {
             }
 
             // constants
-            if (!classInfo.getConstants().isEmpty()) {
+            if (!immClass.getConstants().isEmpty()) {
                 printWriter.println (formatter.tableColHeader ("Constants", 1));
                 printWriter.println (formatter.tableColHeaderCentred ("Signature", 1));
                 printWriter.println (formatter.tableColHeaderCentred ("Meaning", 1));
 
-                for (ClassFeatureInfo classFeatureInfo : classInfo.getConstants())
-                    printWriter.print (postProcess (classInfo, formatFeature  (classFeatureInfo)));
+                for (ImmClassFeature immClassFeature : immClass.getConstants())
+                    printWriter.print (postProcess (immClass, formatFeature  (immClassFeature)));
             }
 
             // attributes
-            if (!classInfo.getAttributes().isEmpty()) {
+            if (!immClass.getAttributes().isEmpty()) {
                 printWriter.println (formatter.tableColHeader ("Attributes", 1));
                 printWriter.println (formatter.tableColHeaderCentred ("Signature", 1));
                 printWriter.println (formatter.tableColHeaderCentred ("Meaning", 1));
 
-                for (ClassFeatureInfo classFeatureInfo : classInfo.getAttributes())
-                    printWriter.print (postProcess (classInfo, formatFeature  (classFeatureInfo)));
+                for (ImmClassFeature immClassFeature : immClass.getAttributes())
+                    printWriter.print (postProcess (immClass, formatFeature  (immClassFeature)));
             }
 
             // operations
-            if (!classInfo.getOperations().isEmpty()) {
+            if (!immClass.getOperations().isEmpty()) {
                 printWriter.println (formatter.tableColHeader ("Functions", 1));
                 printWriter.println (formatter.tableColHeaderCentred ("Signature", 1));
                 printWriter.println (formatter.tableColHeaderCentred ("Meaning", 1));
 
-                for (ClassFeatureInfo classFeatureInfo : classInfo.getOperations())
-                    printWriter.print (postProcess (classInfo, formatFeature  (classFeatureInfo)));
+                for (ImmClassFeature immClassFeature : immClass.getOperations())
+                    printWriter.print (postProcess (immClass, formatFeature  (immClassFeature)));
             }
 
             // invariants
-            if (!classInfo.getConstraints().isEmpty())
-                printWriter.print (postProcess (classInfo, formatConstraints  (classInfo)));
+            if (!immClass.getConstraints().isEmpty())
+                printWriter.print (postProcess (immClass, formatConstraints  (immClass)));
 
             printWriter.println(formatter.tableDelimiter());
 
@@ -292,7 +291,7 @@ public class UmlAdocExporter {
      * @param allTypes classes, interfaces, and enumerations to include in index.
      * @exception IOException on fail to write to file.
      */
-    private void generateIndex(File targetFolder, List<ClassInfo> allTypes) {
+    private void generateIndex(File targetFolder, List<ImmClass> allTypes) {
         Collections.sort(allTypes);
 
         Path targetPath = targetFolder.toPath().resolve("class_index" + ADOC_FILE_EXTENSION);
@@ -301,39 +300,39 @@ public class UmlAdocExporter {
             String specPackage = "";
             String specSubPackage = "";
 
-            for (ClassInfo classInfo : allTypes) {
+            for (ImmClass immClass : allTypes) {
                 // The test for className > 2 is to avoid generic parameters like 'T', and
                 // occasionally 'TT' or similar.
-                if (classInfo.getClassName().length() > 2) {
+                if (immClass.getClassName().length() > 2) {
 
                     // if Component of class has changed since last iteration, output a new header line
-                    if (!specComponent.equals(classInfo.getSpecComponent())) {
+                    if (!specComponent.equals(immClass.getSpecComponent())) {
                         printWriter.println();
-                        printWriter.println(formatter.heading ("Component " + classInfo.getSpecComponent(), 2));
-                        specComponent = classInfo.getSpecComponent();
+                        printWriter.println(formatter.heading ("Component " + immClass.getSpecComponent(), 2));
+                        specComponent = immClass.getSpecComponent();
                     }
 
                     // if Package of class has changed since last iteration, output a new header line
-                    if (!specPackage.equals(classInfo.getComponentPackage())) {
+                    if (!specPackage.equals(immClass.getComponentPackage())) {
                         printWriter.println();
-                        printWriter.println(formatter.heading ("Model " + classInfo.getComponentPackage(), 3));
-                        specPackage = classInfo.getComponentPackage();
+                        printWriter.println(formatter.heading ("Model " + immClass.getComponentPackage(), 3));
+                        specPackage = immClass.getComponentPackage();
                     }
 
                     // if Sub-package of class has changed since last iteration, output a new header line
-                    if (!specSubPackage.equals(classInfo.getClassPackage())) {
+                    if (!specSubPackage.equals(immClass.getClassPackage())) {
                         printWriter.println();
-                        printWriter.println(formatter.heading ("Package " + classInfo.getClassPackage(), 4));
+                        printWriter.println(formatter.heading ("Package " + immClass.getClassPackage(), 4));
                         printWriter.println();
-                        specSubPackage = classInfo.getClassPackage();
+                        specSubPackage = immClass.getClassPackage();
                     }
 
                     // Output the class as a linked text line of the form:
                     //   [.xcode]
                     //   * link:/releases/AM/{am_release}/AOM2.html#_c_object_class[C_OBJECT^]
                     // from the sprintf template string: "[.xcode]\n* %s\n"
-                    printWriter.printf(INDEX_LINK_FORMAT, formatter.externalLink(classInfo.getClassName(),
-                            classInfo.getSpecUrlPath (exportConfig.getSpecLinkTemplate(), exportConfig.getComponentPackageNamePrefix())));
+                    printWriter.printf(INDEX_LINK_FORMAT, formatter.externalLink(immClass.getClassName(),
+                            immClass.getSpecUrlPath (exportConfig.getSpecLinkTemplate(), exportConfig.getComponentPackageNamePrefix())));
                 }
             }
         } catch (IOException e) {
@@ -356,26 +355,26 @@ public class UmlAdocExporter {
     }
 
     // note: returns false for empty list - need to check for empty case before using this filter
-    private boolean matchesComponents (ClassInfo classInfo) {
-        return exportConfig.getComponentPackageNames().stream().anyMatch (cn -> classInfo.getSpecComponent().equalsIgnoreCase (cn));
+    private boolean matchesComponents (ImmClass immClass) {
+        return exportConfig.getComponentPackageNames().stream().anyMatch (cn -> immClass.getSpecComponent().equalsIgnoreCase (cn));
     }
 
     /**
      * Convert a targetClassName like "ELEMENT" that is referenced from originClass
      * to a link. If the target is in the same package, then it's the same spec,
      * so use a local ref, else use a full external URL link
-     * @param originClassInfo
+     * @param originImmClass
      * @param targetQualifiedClassName
      * @return
      */
-    private String linkClassName (ClassInfo originClassInfo, String targetQualifiedClassName) {
-        ClassInfo targetClassInfo = allEntitiesMap.get (targetQualifiedClassName);
-        if (targetClassInfo != null) {
-            if (!targetClassInfo.getSpecName().equals (originClassInfo.getSpecName()))
-                return formatter.externalLink (targetClassInfo.getClassName(),
-                        targetClassInfo.getSpecUrlPath (exportConfig.getSpecLinkTemplate(), exportConfig.getComponentPackageNamePrefix()));
+    private String linkClassName (ImmClass originImmClass, String targetQualifiedClassName) {
+        ImmClass targetImmClass = allEntitiesMap.get (targetQualifiedClassName);
+        if (targetImmClass != null) {
+            if (!targetImmClass.getSpecName().equals (originImmClass.getSpecName()))
+                return formatter.externalLink (targetImmClass.getClassName(),
+                        targetImmClass.getSpecUrlPath (exportConfig.getSpecLinkTemplate(), exportConfig.getComponentPackageNamePrefix()));
             else
-                return formatter.internalRef (targetClassInfo.getClassName(), targetClassInfo.localRef());
+                return formatter.internalRef (targetImmClass.getClassName(), targetImmClass.localRef());
         }
         else
             return targetQualifiedClassName.substring(targetQualifiedClassName.lastIndexOf(".")+1);
@@ -385,13 +384,13 @@ public class UmlAdocExporter {
      * Post-process a formatted String:
      * - replace "@TypeName@" with linked Typenames (removing the @@)
      */
-    private String postProcess (ClassInfo classInfo, String classText) {
+    private String postProcess (ImmClass immClass, String classText) {
         Pattern p = Pattern.compile (UmlExporterDefinitions.TYPE_QUOTE_REGEX);
         Matcher m = p.matcher (classText);
         StringBuffer sb = new StringBuffer();
         while (m.find()) {
             String matched = m.group();
-            m.appendReplacement(sb, linkClassName (classInfo, matched.substring(1, matched.length()-1)));
+            m.appendReplacement(sb, linkClassName (immClass, matched.substring(1, matched.length()-1)));
         }
         m.appendTail(sb);
 
@@ -401,34 +400,34 @@ public class UmlAdocExporter {
 
     /**
      * Export all elements of a feature in a class as text in an Asciidoctor (.adoc) file.
-     * @param classFeatureInfo info object for the class.
+     * @param immClassFeature info object for the class.
      */
-    private String formatFeature (ClassFeatureInfo classFeatureInfo) {
+    private String formatFeature (ImmClassFeature immClassFeature) {
         StringBuilder sb = new StringBuilder();
         sb.append (System.lineSeparator());
-        sb.append (formatter.tableColHeader (classFeatureInfo.getCardinality() +
-                (classFeatureInfo.getStatus().isEmpty()? "" : " +" + System.lineSeparator() + classFeatureInfo.getStatus()), 1));
+        sb.append (formatter.tableColHeader (immClassFeature.getCardinality() +
+                (immClassFeature.getStatus().isEmpty()? "" : " +" + System.lineSeparator() + immClassFeature.getStatus()), 1));
         sb.append (System.lineSeparator());
-        sb.append (formatter.tableCell (classFeatureInfo.getSignature(), 1) + System.lineSeparator());
-        sb.append (formatter.tableCellPassthrough (classFeatureInfo.getDocumentation(), 1) + System.lineSeparator());
+        sb.append (formatter.tableCell (immClassFeature.getSignature(), 1) + System.lineSeparator());
+        sb.append (formatter.tableCellPassthrough (immClassFeature.getDocumentation(), 1) + System.lineSeparator());
 
         return sb.toString();
     }
 
     /**
      * Export all constraints in a class as text (invariants) in an Asciidoctor (.adoc) file.
-     * @param classInfo info object for the class.
+     * @param immClass info object for the class.
      */
-    private String formatConstraints (ClassInfo classInfo) {
+    private String formatConstraints (ImmClass immClass) {
         StringBuilder sb = new StringBuilder();
 
         String title = "Invariants";
-        for (ConstraintInfo constraintInfo : classInfo.getConstraints()) {
+        for (ImmConstraint immConstraint : immClass.getConstraints()) {
             sb.append (System.lineSeparator());
             sb.append (formatter.tableColHeader(title, 1));
             sb.append (System.lineSeparator());
 
-            sb.append (formatter.tableCellPassthrough (constraintInfo.getDocumentation(), 2));
+            sb.append (formatter.tableCellPassthrough (immConstraint.getDocumentation(), 2));
             sb.append (System.lineSeparator());
             title = "";
         }
