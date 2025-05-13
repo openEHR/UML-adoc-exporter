@@ -3,14 +3,9 @@ package org.openehr.adoc.magicdraw;
 import com.nomagic.uml2.ext.magicdraw.auxiliaryconstructs.mdtemplates.*;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.*;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Class;
-import org.openehr.adoc.magicdraw.exception.UmlAdocExporterException;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Bostjan Lah

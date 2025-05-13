@@ -9,10 +9,6 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Plug-in entry point (i.e. invoked from running UI tool) for UML extractor

@@ -5,8 +5,6 @@ import com.nomagic.uml2.ext.magicdraw.auxiliaryconstructs.mdtemplates.TemplateBi
 import com.nomagic.uml2.ext.magicdraw.auxiliaryconstructs.mdtemplates.TemplateParameterSubstitution;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.*;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Class;
-import org.openehr.adoc.magicdraw.*;
-import org.openehr.adoc.magicdraw.Formatter;
 import org.openehr.adoc.magicdraw.exception.UmlAdocExporterException;
 
 import java.util.*;
