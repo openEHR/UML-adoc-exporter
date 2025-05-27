@@ -1,8 +1,10 @@
-package org.openehr.adoc.magicdraw;
+package org.openehr.adoc.magicdraw.imm;
 
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Class;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Enumeration;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.EnumerationLiteral;
+import org.openehr.adoc.magicdraw.Formatter;
+import org.openehr.adoc.magicdraw.UmlExportConfig;
 
 import java.util.List;
 import java.util.function.Function;
@@ -27,15 +29,15 @@ public class ImmEnumerationBuilder extends ImmEntityBuilder<Enumeration> {
         setHierarchy (element.getQualifiedName(), UmlExportConfig.getInstance().getPackageDepth(), immClass);
 
         if (element.hasOwnedLiteral()) {
-            addLiterals(immClass.getAttributes(), element.getOwnedLiteral(), getFormatter());
+            addLiterals(immClass, element.getOwnedLiteral(), getFormatter());
         }
 
         return immClass;
     }
 
-    private void addLiterals(List<ImmClassFeature> attributes, List<EnumerationLiteral> ownedLiteral, Formatter formatter) {
+    private void addLiterals(ImmClass immClass, List<EnumerationLiteral> ownedLiteral, Formatter formatter) {
         for (EnumerationLiteral literal : ownedLiteral) {
-            attributes.add(new ImmClassFeature()
+            immClass.addAttribute(new ImmProperty()
                                    .setSignature(literal.getName())
                                    .setDocumentation(getUmlDocumentation(literal, formatter)));
         }

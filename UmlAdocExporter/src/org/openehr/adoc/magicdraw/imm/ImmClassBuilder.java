@@ -1,10 +1,12 @@
-package org.openehr.adoc.magicdraw;
+package org.openehr.adoc.magicdraw.imm;
 
 import com.nomagic.uml2.ext.magicdraw.auxiliaryconstructs.mdtemplates.TemplateSignature;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Class;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.NamedElement;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Operation;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Property;
+import org.openehr.adoc.magicdraw.Formatter;
+import org.openehr.adoc.magicdraw.UmlExportConfig;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -54,14 +56,14 @@ public class ImmClassBuilder extends ImmEntityBuilder<Class> {
         }
 
         if (umlClass.hasOwnedAttribute()) {
-            addAttributes (immClass.getAttributes(), umlClass.getOwnedAttribute(), superClassAttributes);
-            addConstants (immClass.getConstants(), umlClass.getOwnedAttribute(), superClassAttributes);
+            addAttributes (immClass, umlClass.getOwnedAttribute(), superClassAttributes);
+            addConstants (immClass, umlClass.getOwnedAttribute(), superClassAttributes);
         }
         if (umlClass.hasOwnedOperation()) {
-            addOperations (immClass.getOperations(), umlClass.getOwnedOperation(), superClassOperations);
+            addOperations (immClass, umlClass.getOwnedOperation(), superClassOperations);
         }
 
-        addConstraints(immClass.getConstraints(), umlClass.get_constraintOfConstrainedElement());
+        addConstraints(immClass, umlClass.get_constraintOfConstrainedElement());
 
         return immClass;
     }

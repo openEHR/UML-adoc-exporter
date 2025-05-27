@@ -1,11 +1,18 @@
-package org.openehr.adoc.magicdraw;
+package org.openehr.adoc.magicdraw.amm;
 
 import com.nomagic.uml2.ext.magicdraw.auxiliaryconstructs.mdtemplates.ParameterableElement;
 import com.nomagic.uml2.ext.magicdraw.auxiliaryconstructs.mdtemplates.TemplateBinding;
 import com.nomagic.uml2.ext.magicdraw.auxiliaryconstructs.mdtemplates.TemplateParameterSubstitution;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.*;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Class;
+import org.openehr.adoc.magicdraw.FeatureDefinitionStatus;
+import org.openehr.adoc.magicdraw.Formatter;
+import org.openehr.adoc.magicdraw.UmlExportConfig;
+import org.openehr.adoc.magicdraw.UmlExporterDefinitions;
+import org.openehr.adoc.magicdraw.amm.AmmClass;
 import org.openehr.adoc.magicdraw.exception.UmlAdocExporterException;
+import org.openehr.adoc.magicdraw.imm.ImmClass;
+import org.openehr.adoc.magicdraw.imm.ImmConstraint;
 
 import java.util.*;
 import java.util.function.Function;
@@ -23,11 +30,12 @@ public abstract class AmmEntityBuilder<T> {
     // stereotypes have the effect of adding two possible meta-attributes, i.e.
     // ops and sym_ops, both defined as List<String>, which may contain string
     // names of operators (e.g. "+") to be associated with the operation (e.g. add()).
-    static List<String> stereotypeTagNames = Arrays.asList("ops", "sym_ops");
-    protected final Formatter formatter;
+    public static List<String> stereotypeTagNames = Arrays.asList("ops", "sym_ops");
+
+    protected final org.openehr.adoc.magicdraw.Formatter formatter;
     protected final Function<String, Class> getUMLClassByQualifiedName;
 
-    public AmmEntityBuilder(Formatter formatter, Function<String, Class> getUMLClassByQualifiedName) {
+    public AmmEntityBuilder(org.openehr.adoc.magicdraw.Formatter formatter, Function<String, Class> getUMLClassByQualifiedName) {
         this.formatter = formatter;
         this.getUMLClassByQualifiedName = getUMLClassByQualifiedName;
     }
@@ -38,7 +46,7 @@ public abstract class AmmEntityBuilder<T> {
      * @param element class or similar object from the UML model
      * @return
      */
-    public abstract ImmClass build (T element);
+    public abstract AmmClass build (T element);
 
     /**
      * Extract comment text, but remove any section starting with the line
@@ -88,33 +96,55 @@ public abstract class AmmEntityBuilder<T> {
             return "";
     }
 
+    protected String extractUmlonstraintTag (Constraint umlConstraint) {
+        return umlConstraint.getName();
+    }
+
+    protected String extractUmlonstraintText (Constraint umlConstraint) {
+        StringBuilder builder = new StringBuilder();
+        if (umlConstraint.getSpecification() instanceof OpaqueExpression) {
+            OpaqueExpression opaqueExpression = (OpaqueExpression)umlConstraint.getSpecification();
+            if (opaqueExpression.hasBody()) {
+                boolean add = false;
+                for (String line : opaqueExpression.getBody()) {
+                    if (add)
+                        builder.append(System.lineSeparator());
+                    builder.append(line);
+                    add = true;
+                }
+            }
+        }
+        return builder.toString();
+    }
+
     protected Formatter getFormatter() {
         return formatter;
     }
 
-    protected void addAttributes(List<ImmClassFeature> attributes, List<Property> umlProperties, Map<String, Property> umlSuperClassAttributes) {
+    protected  <C extends AmmClass> void addAttributes(C ammClass, List<Property> umlProperties, Map<String, Property> umlSuperClassAttributes) {
         umlProperties.stream()
-                .filter(p -> !umlSuperClassAttributes.containsKey(p.getName()))        // if not in inherited properties, it's 'new'
-                .filter(p -> !p.isReadOnly())                                       // treat as a constant; do below
-                .forEach(p -> addAttribute(attributes, p, FeatureDefinitionStatus.DEFINED));// group 'new' properties here
+                .filter(p -> !umlSuperClassAttributes.containsKey(p.getName()))             // if not in inherited properties, it's 'new'
+                .filter(p -> !p.isReadOnly())                                               // treat as a constant; do below
+                .forEach(p -> addAttribute(ammClass, p, FeatureDefinitionStatus.DEFINED));// group 'new' properties here
         umlProperties.stream()
-                .filter(p -> umlSuperClassAttributes.containsKey(p.getName()))         // if in inherited properties, it's a redefine
+                .filter(p -> umlSuperClassAttributes.containsKey(p.getName()))              // if in inherited properties, it's a redefine
                 .filter(p -> !p.isReadOnly())
-                .forEach(p -> addAttribute(attributes, p, FeatureDefinitionStatus.REDEFINED));// group redefined properties here
+                .forEach(p -> addAttribute(ammClass, p, FeatureDefinitionStatus.REDEFINED));// group redefined properties here
     }
 
-    protected abstract void addAttribute(List<ImmClassFeature> attributes, Property umlProperty, FeatureDefinitionStatus attrStatus);
+    protected abstract <C extends AmmClass> void addAttribute(C ammClass, Property umlProperty, FeatureDefinitionStatus attrStatus);
 
-    protected void addConstants(List<ImmClassFeature> attributes, List<Property> umlProperties, Map<String, Property> umlSuperClassAttributes) {
+    protected <C extends AmmClass> void addConstants(C ammClass, List<Property> umlProperties, Map<String, Property> umlSuperClassAttributes) {
         umlProperties.stream()
                 .filter(p -> !umlSuperClassAttributes.containsKey(p.getName()))
                 .filter(StructuralFeature::isReadOnly)
-                .forEach(p -> addAttribute(attributes, p, FeatureDefinitionStatus.DEFINED));
+                .forEach(p -> addAttribute(ammClass, p, FeatureDefinitionStatus.DEFINED));
         umlProperties.stream()
                 .filter(p -> umlSuperClassAttributes.containsKey(p.getName()))
                 .filter(StructuralFeature::isReadOnly)
-                .forEach(p -> addAttribute(attributes, p, FeatureDefinitionStatus.REDEFINED));
+                .forEach(p -> addAttribute(ammClass, p, FeatureDefinitionStatus.REDEFINED));
     }
+
 
     /**
      * Convert a UML style qualified class name string like
@@ -129,7 +159,7 @@ public abstract class AmmEntityBuilder<T> {
      * <p>
      * ASSUMPTION: only one level of generics!
      */
-    String convertToQualified(String umlQualifiedTypeName) {
+    protected String convertToQualified(String umlQualifiedTypeName) {
         String qualifiedTypeName = packageQualifiedClassName(umlQualifiedTypeName, UmlExportConfig.getInstance().getPackageDepth());
         if (qualifiedTypeName.contains("<")) {
             StringBuilder genericTypeNameSb = new StringBuilder(qualifiedTypeName.substring(0, qualifiedTypeName.indexOf("<") + 1));
@@ -177,19 +207,19 @@ public abstract class AmmEntityBuilder<T> {
             return qualifiedTypeName;
     }
 
-    protected void addOperations(List<ImmClassFeature> features, List<Operation> umlOperations, Map<String, Operation> umlSuperClassOperations) {
+    protected <C extends AmmClass> void addOperations(C ammClass, List<Operation> umlOperations, Map<String, Operation> umlSuperClassOperations) {
         for (Operation umlOperation : umlOperations) {
             if (umlSuperClassOperations.containsKey(umlOperation.getName())) {
                 if (umlSuperClassOperations.get(umlOperation.getName()).isAbstract())
-                    addOperation(features, umlOperation, FeatureDefinitionStatus.EFFECTED);
+                    addOperation(ammClass, umlOperation, FeatureDefinitionStatus.EFFECTED);
                 else
-                    addOperation(features, umlOperation, FeatureDefinitionStatus.REDEFINED);
+                    addOperation(ammClass, umlOperation, FeatureDefinitionStatus.REDEFINED);
             } else
-                addOperation(features, umlOperation, umlOperation.isAbstract() ? FeatureDefinitionStatus.ABSTRACT : FeatureDefinitionStatus.DEFINED);
+                addOperation(ammClass, umlOperation, umlOperation.isAbstract() ? FeatureDefinitionStatus.ABSTRACT : FeatureDefinitionStatus.DEFINED);
         }
     }
 
-    protected abstract void addOperation(List<ImmClassFeature> features, Operation umlOperation, FeatureDefinitionStatus opStatus);
+    protected abstract <C extends AmmClass> void addOperation(C ammClass, Operation umlOperation, FeatureDefinitionStatus opStatus);
 
     /**
      * Here we will do a trick: we will wrap every type name in @@, e.g.

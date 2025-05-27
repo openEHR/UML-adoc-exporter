@@ -1,4 +1,9 @@
-package org.openehr.adoc.magicdraw;
+package org.openehr.adoc.magicdraw.imm;
+
+import org.openehr.adoc.magicdraw.amm.AmmClass;
+import org.openehr.adoc.magicdraw.amm.AmmConstraint;
+import org.openehr.adoc.magicdraw.amm.AmmOperation;
+import org.openehr.adoc.magicdraw.amm.AmmProperty;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -7,7 +12,7 @@ import java.util.List;
 /**
  * @author Bostjan Lah
  */
-public class ImmClass implements Comparable<ImmClass> {
+public class ImmClass extends AmmClass implements Comparable<ImmClass> {
     private final String metaType;          // "Class", "Interface", "Enumeration" etc
     private String classTypeName = "";      // including any generics
     private String className = "";          // root class name
@@ -22,9 +27,9 @@ public class ImmClass implements Comparable<ImmClass> {
     private String specUrlPath;        // generated from first call to getSpecUrlPath();
 
 
-    private final List<ImmClassFeature> attributes = new ArrayList<>();
-    private final List<ImmClassFeature> constants = new ArrayList<>();
-    private final List<ImmClassFeature> operations = new ArrayList<>();
+    private final List<ImmProperty> attributes = new ArrayList<>();
+    private final List<ImmProperty> constants = new ArrayList<>();
+    private final List<ImmOperation> operations = new ArrayList<>();
     private final List<ImmConstraint> constraints = new ArrayList<>();
 
     public ImmClass(String metaType) {
@@ -72,20 +77,44 @@ public class ImmClass implements Comparable<ImmClass> {
         return this;
     }
 
-    public List<ImmClassFeature> getAttributes() {
+    @Override
+    public List<ImmProperty> getAttributes() {
         return attributes;
     }
 
-    public List<ImmClassFeature> getConstants() {
+    @Override
+    public List<ImmProperty> getConstants() {
         return constants;
     }
 
-    public List<ImmClassFeature> getOperations() {
+    @Override
+    public List<ImmOperation> getOperations() {
         return operations;
     }
 
+    @Override
     public List<ImmConstraint> getConstraints() {
         return constraints;
+    }
+
+    @Override
+    public void addAttribute(AmmProperty ammProperty) {
+        attributes.add((ImmProperty) ammProperty);
+    }
+
+    @Override
+    public void addConstant(AmmProperty ammConstant) {
+        constants.add((ImmProperty) ammConstant);
+    }
+
+    @Override
+    public void addOperation(AmmOperation ammOperation) {
+        operations.add((ImmOperation) ammOperation);
+    }
+
+    @Override
+    public void addConstraint(AmmConstraint ammConstraint){
+        constraints.add((ImmConstraint) ammConstraint);
     }
 
     public boolean isAbstractClass() {
@@ -142,7 +171,7 @@ public class ImmClass implements Comparable<ImmClass> {
     // where <release_ref> is an Asciidoctor variable ref like '{am_release}'
     // e.g.
     //   "/releases/AM/{am_release}/AOM2.html#_c_object_class"
-    String getSpecUrlPath (String specLinkTemplate, String componentPackageNamePrefix) {
+    public String getSpecUrlPath (String specLinkTemplate, String componentPackageNamePrefix) {
         // in the below, we rewrite the release ref to match the spec component i.e. so that a
         // link to a BASE component class will have a release ref like
         // "{base_release}", and not the ref for the component for which this
@@ -162,7 +191,7 @@ public class ImmClass implements Comparable<ImmClass> {
 
     // Output an internal document ref, e.g.:
     //   "_c_object_class"
-    String localRef () {
+    public String localRef () {
         return "_" + className.toLowerCase() + "_" + metaType.toLowerCase();
     }
 

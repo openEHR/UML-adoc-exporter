@@ -1,8 +1,11 @@
-package org.openehr.adoc.magicdraw;
+package org.openehr.adoc.magicdraw.imm;
 
-import com.nomagic.uml2.ext.magicdraw.auxiliaryconstructs.mdtemplates.*;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.*;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Class;
+import org.openehr.adoc.magicdraw.FeatureDefinitionStatus;
+import org.openehr.adoc.magicdraw.Formatter;
+import org.openehr.adoc.magicdraw.amm.AmmClass;
+import org.openehr.adoc.magicdraw.amm.AmmEntityBuilder;
 
 import java.util.*;
 import java.util.function.Function;
@@ -18,38 +21,28 @@ public abstract class ImmEntityBuilder<T> extends AmmEntityBuilder<T> {
 
 
     // Add class- or routine-level constraints
-    protected void addConstraints (List<ImmConstraint> constraints, Collection<Constraint> constraintOfConstrainedElement) {
-        for (Constraint constraint : constraintOfConstrainedElement) {
-            constraints.add(new ImmConstraint().setDocumentation(formatConstraint(constraint)));
+    protected void addConstraints (ImmClass immClass, Collection<Constraint> umlConstraints) {
+        for (Constraint umlConstraint : umlConstraints) {
+            immClass.addConstraint(new ImmConstraint().setDocumentation(formatConstraint(umlConstraint)));
         }
     }
 
-    private String formatConstraint (Constraint constraint) {
-        StringBuilder builder = new StringBuilder(formatter.italic(constraint.getName())).append(": ");
-        if (constraint.getSpecification() instanceof OpaqueExpression) {
-            OpaqueExpression opaqueExpression = (OpaqueExpression)constraint.getSpecification();
-            if (opaqueExpression.hasBody()) {
-                boolean add = false;
-                for (String line : opaqueExpression.getBody()) {
-                    if (add)
-                        builder.append(formatter.hardLineBreak());
-                    builder.append(formatter.monospace(formatter.escape(line)));
-                    add = true;
-                }
-            }
-        }
-        return builder.toString();
+    private String formatConstraint (Constraint umlConstraint) {
+        return formatter.italic (extractUmlonstraintTag (umlConstraint)) + ": " +
+            formatter.escape (extractUmlonstraintText (umlConstraint)).replace (System.lineSeparator(), formatter.hardLineBreak());
     }
 
     /**
      * Build a ClassFeatureInfo object for property and add it to the attributes list.
-     * @param attributes List of ClassFeatureInfo objects for this class so far built.
+     * @param ammClass internal meta-model class being built.
      * @param umlProperty the property to add.
      * @param attrStatus Status of attribute in this class: defined, redefined etc.
      */
-    protected void addAttribute (List<ImmClassFeature> attributes, Property umlProperty, FeatureDefinitionStatus attrStatus) {
+    @Override
+    protected <C extends AmmClass> void addAttribute(C ammClass, Property umlProperty, FeatureDefinitionStatus attrStatus) {
+
         // create a ClassFeatureInfo with attribute documentation, occurrences and redefined marker
-        ImmClassFeature immClassFeature = new ImmClassFeature()
+        ImmProperty immProperty = new ImmProperty()
                 .setDocumentation(getUmlDocumentation(umlProperty, formatter))
                 .setCardinality(umlProperty.getLower(), umlProperty.getUpper())
                 .setStatus(attrStatus);
@@ -125,19 +118,19 @@ public abstract class ImmEntityBuilder<T> extends AmmEntityBuilder<T> {
         if (typeInfo.length() > 0)
             sigBuilder.append (formatter.monospace (typeInfo.toString()));
 
-        immClassFeature.setSignature(sigBuilder.toString());
+        immProperty.setSignature(sigBuilder.toString());
 
-        attributes.add(immClassFeature);
+        ammClass.addAttribute(immProperty);
     }
 
 
     /**
      * Build a ClassFeatureInfo for operation, and append it to the features list so far built.
-     * @param features List of class features so far built.
+     * @param ammClass internal meta-model class being built.
      * @param umlOperation UML operation definition.
      * @param opStatus Status of operation in this class: abstract, effected, defined etc.
      */
-    protected void addOperation(List<ImmClassFeature> features, Operation umlOperation, FeatureDefinitionStatus opStatus) {
+    protected <C extends AmmClass> void addOperation(C ammClass, Operation umlOperation, FeatureDefinitionStatus opStatus) {
         // Create the main documentation.
         StringBuilder opDocBuilder = new StringBuilder(getUmlDocumentation(umlOperation, formatter));
         opDocBuilder.append(System.lineSeparator());
@@ -160,7 +153,8 @@ public abstract class ImmEntityBuilder<T> extends AmmEntityBuilder<T> {
             // Here we check that the slot attribute name is one of the ones we want
             if (stereotypeTagNames.contains(tagProp.getName()) &&
                     taggedValue instanceof StringTaggedValue &&
-                    taggedValue.hasValue()) {
+                    taggedValue.hasValue())
+            {
                 // Now we know we have the operator tags, we can output the 'alias' line
                 // (Use the first variant to put it on a new line, plus uncomment the
                 // post-loop statement to add another NL)
@@ -206,13 +200,13 @@ public abstract class ImmEntityBuilder<T> extends AmmEntityBuilder<T> {
                 .append (System.lineSeparator());
         }
 
-        ImmClassFeature immClassFeature = new ImmClassFeature()
+        ImmOperation immOperation = new ImmOperation()
                 .setCardinality (umlOperation.getLower(), umlOperation.getUpper())
                 .setStatus (opStatus)
                 .setDocumentation (opDocBuilder.toString())
                 .setSignature (fullSigBuilder.toString());
 
-        features.add(immClassFeature);
+        ammClass.addOperation(immOperation);
     }
 
     /**

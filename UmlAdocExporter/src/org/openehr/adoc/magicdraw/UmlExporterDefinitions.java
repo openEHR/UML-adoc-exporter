@@ -1,6 +1,8 @@
 package org.openehr.adoc.magicdraw;
 
 import com.nomagic.magicdraw.export.image.ImageExporter;
+import org.openehr.bmm.core.BmmSimpleClass;
+import org.openehr.bmm.core.BmmSimpleType;
 
 import java.util.Hashtable;
 import java.util.Map;
@@ -42,4 +44,6 @@ public class UmlExporterDefinitions {
         classSpecMapExceptions.put("aom2_profile", "AOM2");
         classSpecMapExceptions.put("p_aom2", "AOM2");
     }
+
+    public static BmmSimpleType AnyType = new BmmSimpleType(new BmmSimpleClass("Any", "Any class", true));
 }

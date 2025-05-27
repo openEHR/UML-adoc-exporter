@@ -1,9 +1,11 @@
-package org.openehr.adoc.magicdraw;
+package org.openehr.adoc.magicdraw.imm;
+
+import org.openehr.adoc.magicdraw.amm.AmmConstraint;
 
 /**
  * @author Bostjan Lah
  */
-public class ImmConstraint {
+public class ImmConstraint extends AmmConstraint {
     private String documentation = "";
 
     public String getDocumentation() {

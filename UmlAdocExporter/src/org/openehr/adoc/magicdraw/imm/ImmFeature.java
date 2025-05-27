@@ -1,9 +1,12 @@
-package org.openehr.adoc.magicdraw;
+package org.openehr.adoc.magicdraw.imm;
+
+import org.openehr.adoc.magicdraw.FeatureDefinitionStatus;
+import org.openehr.adoc.magicdraw.amm.AmmProperty;
 
 /**
  * @author Bostjan Lah
  */
-public class ImmClassFeature {
+public class ImmFeature {
     private String cardinality = "";
     private String status = "";
     private String signature = "";
@@ -13,35 +16,31 @@ public class ImmClassFeature {
         return cardinality;
     }
 
-    public ImmClassFeature setCardinality (int lower, int upper) {
+    public void setCardinality (int lower, int upper) {
         cardinality = upper == -1 ? lower + "..1" : lower + ".." + upper;
-        return this;
     }
     public String getStatus() {
         return status;
     }
 
-    public ImmClassFeature setStatus(FeatureDefinitionStatus opStatus) {
+    public void setStatus(FeatureDefinitionStatus opStatus) {
         status = opStatus.toString().isEmpty()? "" : "(" + opStatus + ")";
-        return this;
     }
 
     public String getSignature() {
         return signature;
     }
 
-    public ImmClassFeature setSignature(String aSignature) {
+    public void setSignature(String aSignature) {
         signature = aSignature;
-        return this;
     }
 
     public String getDocumentation() {
         return documentation;
     }
 
-    public ImmClassFeature setDocumentation(String aDocumentation) {
+    public void setDocumentation(String aDocumentation) {
         documentation = aDocumentation;
-        return this;
     }
 
 }

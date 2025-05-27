@@ -10,6 +10,7 @@ import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Element;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.Enumeration;
 import com.nomagic.uml2.ext.magicdraw.classes.mdkernel.NamedElement;
 import org.openehr.adoc.magicdraw.exception.UmlAdocExporterException;
+import org.openehr.adoc.magicdraw.imm.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -248,8 +249,8 @@ public class UmlAdocExporter {
                 printWriter.println (formatter.tableColHeaderCentred ("Signature", 1));
                 printWriter.println (formatter.tableColHeaderCentred ("Meaning", 1));
 
-                for (ImmClassFeature immClassFeature : immClass.getConstants())
-                    printWriter.print (postProcess (immClass, formatFeature  (immClassFeature)));
+                for (ImmProperty immConstant : immClass.getConstants())
+                    printWriter.print (postProcess (immClass, formatFeature (immConstant.getRepresentation())));
             }
 
             // attributes
@@ -258,8 +259,8 @@ public class UmlAdocExporter {
                 printWriter.println (formatter.tableColHeaderCentred ("Signature", 1));
                 printWriter.println (formatter.tableColHeaderCentred ("Meaning", 1));
 
-                for (ImmClassFeature immClassFeature : immClass.getAttributes())
-                    printWriter.print (postProcess (immClass, formatFeature  (immClassFeature)));
+                for (ImmProperty immProperty : immClass.getAttributes())
+                    printWriter.print (postProcess (immClass, formatFeature (immProperty.getRepresentation())));
             }
 
             // operations
@@ -268,8 +269,8 @@ public class UmlAdocExporter {
                 printWriter.println (formatter.tableColHeaderCentred ("Signature", 1));
                 printWriter.println (formatter.tableColHeaderCentred ("Meaning", 1));
 
-                for (ImmClassFeature immClassFeature : immClass.getOperations())
-                    printWriter.print (postProcess (immClass, formatFeature  (immClassFeature)));
+                for (ImmOperation immOperation : immClass.getOperations())
+                    printWriter.print (postProcess (immClass, formatFeature (immOperation.getRepresentation())));
             }
 
             // invariants
@@ -400,16 +401,28 @@ public class UmlAdocExporter {
 
     /**
      * Export all elements of a feature in a class as text in an Asciidoctor (.adoc) file.
-     * @param immClassFeature info object for the class.
+     * @param immFeature info object for the class.
      */
-    private String formatFeature (ImmClassFeature immClassFeature) {
+    private String formatFeature (ImmFeature immFeature) {
         StringBuilder sb = new StringBuilder();
         sb.append (System.lineSeparator());
-        sb.append (formatter.tableColHeader (immClassFeature.getCardinality() +
-                (immClassFeature.getStatus().isEmpty()? "" : " +" + System.lineSeparator() + immClassFeature.getStatus()), 1));
+        sb.append (formatter.tableColHeader (immFeature.getCardinality() +
+                (immFeature.getStatus().isEmpty()? "" : " +" + System.lineSeparator() + immFeature.getStatus()), 1));
         sb.append (System.lineSeparator());
-        sb.append (formatter.tableCell (immClassFeature.getSignature(), 1) + System.lineSeparator());
-        sb.append (formatter.tableCellPassthrough (immClassFeature.getDocumentation(), 1) + System.lineSeparator());
+        sb.append (formatter.tableCell (immFeature.getSignature(), 1) + System.lineSeparator());
+        sb.append (formatter.tableCellPassthrough (immFeature.getDocumentation(), 1) + System.lineSeparator());
+
+        return sb.toString();
+    }
+
+    private String formatOperation (ImmOperation immOperation) {
+        StringBuilder sb = new StringBuilder();
+        sb.append (System.lineSeparator());
+        sb.append (formatter.tableColHeader (immOperation.getCardinality() +
+                (immOperation.getStatus().isEmpty()? "" : " +" + System.lineSeparator() + immOperation.getStatus()), 1));
+        sb.append (System.lineSeparator());
+        sb.append (formatter.tableCell (immOperation.getSignature(), 1) + System.lineSeparator());
+        sb.append (formatter.tableCellPassthrough (immOperation.getDocumentation(), 1) + System.lineSeparator());
 
         return sb.toString();
     }
